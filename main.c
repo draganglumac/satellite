@@ -28,8 +28,14 @@ void server_update(char *received_msg)
 {
 	printf("Raw received message: %s\n",received_msg);
 	struct data_parcel *p = data_from_message(received_msg);
-	execute_data_parcel(p);
+	if(execute_data_parcel(p) != 0)
+	{
+		printf("Error during execution step\n");
+		free(p);
+		exit(1);
+	}
 	free(p);
+	printf("Execution completed\n");
 }
 int main(int argc, char **argv) 
 {
