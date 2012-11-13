@@ -22,7 +22,7 @@ void catch_int (int signum)
 void server_update(char *received_msg)
 {
 	//struct data_parcel *p = data_from_message(received_msg);
-	printf("Raw received message: %s",received_msg);
+	printf("Raw received message: %s\n",received_msg);
 }
 int main(int argc, char **argv) 
 {
@@ -99,14 +99,13 @@ int main(int argc, char **argv)
 		if(!port) { printf("Requires port number, option -p\n");return 1; };
 		if(host == NULL) { printf("Requires hostname, option -h\n");return 1; };
 		if(inputstr == NULL) { printf("Requires input string, option -i\n"); return 1; };
-	
 		printf("Send mode\n");
 		printf("Target host -> %s\n",host);
 		printf("Target port -> %d\n",port);
 		printf("Target message -> %s\n",inputstr);
-		
+		//******SENDER MODE**********//
 		send_message(host,port,inputstr);
-		
+		//**************************//
 		return 0;
 	}
 	
