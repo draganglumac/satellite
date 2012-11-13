@@ -21,8 +21,10 @@ void catch_int (int signum)
 
 void server_update(char *received_msg)
 {
-	//struct data_parcel *p = data_from_message(received_msg);
 	printf("Raw received message: %s\n",received_msg);
+	struct data_parcel *p = data_from_message(received_msg);
+	//not using this just yet...
+	free(p);
 }
 int main(int argc, char **argv) 
 {
