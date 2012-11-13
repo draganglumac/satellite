@@ -14,6 +14,22 @@
  * On the receiver side it will process the input steps via the executor which receieves a data_parcel (data_parcel is a struct made from the input 
  * protocol
  */
+char* read_from_file(char *filepath)
+{
+	printf("Reading from file\n");
+
+	FILE * fr = fopen (filepath, "rt");  /* open the file for reading */
+	char line [ 1024 ]; /* or other suitable maximum line size */
+	char temp[1024] = "";
+    while ( fgets ( line, sizeof line, fr ) != NULL ) /* read a line */
+    {
+		strcat(temp,line);
+	}
+   	fclose(fr);
+	//add an endline
+	strcat(temp,"\0");
+	return temp;
+}
 void catch_int (int signum) 
 {
     pid_t my_pid;
@@ -93,14 +109,13 @@ int main(int argc, char **argv)
 		printf("Satellite is a half duplex server/client in one for transmission of several shell commands\n");
 		printf("No mode selected, please try again using -m\n");
 		printf("Using -m LISTEN will enable listener mode where you will be asked to provide -p [PORT]\n");
-		printf("Using -m SEND will enable send mode where you will be asked to provide -h [HOSTNAME] -p [PORT] -i [MESSAGE]\n");
+		printf("Using -m SEND will enable send mode where you will be asked to provide -h [HOSTNAME] -p [PORT] -i [filepath]\n");
 		return 1;
 	}
 	
 	if(strcmp(mode,"LISTEN") == 0)
 	{
 		if(!port) { printf("Requires port number, option -p\n");return 1; };
-		
 		printf("Listener mode\n");
 		//******LISTENER MODE**********//
 		printf("Starting server on port %d\n",port);
@@ -118,8 +133,11 @@ int main(int argc, char **argv)
 		printf("Target host -> %s\n",host);
 		printf("Target port -> %d\n",port);
 		printf("Target message -> %s\n",inputstr);
-		//******SENDER MODE**********//
-		send_message(host,port,inputstr);
+		//******SENDER MODE**********//		
+		char *linefromfile = read_from_file(inputstr);
+		if(linefromfile == NULL) { printf("string from file is empty\n"); return 1; } 
+		printf("Payload : %s\n",linefromfile);
+		send_message(host,port,linefromfile);
 		//**************************//
 		return 0;
 	}
