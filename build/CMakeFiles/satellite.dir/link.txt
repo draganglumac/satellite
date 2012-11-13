@@ -1,1 +1,0 @@
-/usr/bin/gcc  -g    CMakeFiles/satellite.dir/main.c.o CMakeFiles/satellite.dir/data_translation.c.o CMakeFiles/satellite.dir/executor.c.o  -o satellite -rdynamic -ljnxc -ldl 
