@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	
 	int i;
 	int port;
-	char* mode;
+	char* mode = NULL;
 	char* host = NULL;
 	char *inputstr = NULL;
 	
@@ -75,6 +75,13 @@ int main(int argc, char **argv)
 			
 		}
 	}
+	
+	if(mode == NULL)
+	{
+		printf("No mode selected, please try again using -m\n");
+		return 1;
+	}
+	
 	if(strcmp(mode,"LISTEN") == 0)
 	{
 		if(!port) { printf("Requires port number, option -p\n");return 1; };
