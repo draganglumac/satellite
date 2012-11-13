@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <string.h>
 #include "data_translation.h"
+#include "executor.h"
 /*
  * This program is designed to be so simple it is almost instantly understandable
  * It can operate in send or receive mode, where upon it transfers a simple char* protocol, using a predetermined delimiter
@@ -27,7 +28,7 @@ void server_update(char *received_msg)
 {
 	printf("Raw received message: %s\n",received_msg);
 	struct data_parcel *p = data_from_message(received_msg);
-	//not using this just yet...
+	execute_data_parcel(p);
 	free(p);
 }
 int main(int argc, char **argv) 
