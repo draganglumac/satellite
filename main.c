@@ -14,22 +14,6 @@
  * On the receiver side it will process the input steps via the executor which receieves a data_parcel (data_parcel is a struct made from the input 
  * protocol
  */
-char* read_from_file(char *filepath)
-{
-	printf("Reading from file\n");
-
-	FILE * fr = fopen (filepath, "rt");  /* open the file for reading */
-	char line [ 1024 ]; /* or other suitable maximum line size */
-	char temp[1024] = "";
-    while ( fgets ( line, sizeof line, fr ) != NULL ) /* read a line */
-    {
-		strcat(temp,line);
-	}
-   	fclose(fr);
-	//add an endline
-	strcat(temp,"\0");
-	return temp;
-}
 void catch_int (int signum) 
 {
     pid_t my_pid;
@@ -116,6 +100,7 @@ int main(int argc, char **argv)
 	if(strcmp(mode,"LISTEN") == 0)
 	{
 		if(!port) { printf("Requires port number, option -p\n");return 1; };
+
 		printf("Listener mode\n");
 		//******LISTENER MODE**********//
 		printf("Starting server on port %d\n",port);
@@ -133,14 +118,14 @@ int main(int argc, char **argv)
 		printf("Target host -> %s\n",host);
 		printf("Target port -> %d\n",port);
 		printf("Target message -> %s\n",inputstr);
+		
 		//******SENDER MODE**********//		
-		char *linefromfile = read_from_file(inputstr);
-		if(linefromfile == NULL) { printf("string from file is empty\n"); return 1; } 
-		printf("Payload : %s\n",linefromfile);
-		send_message(host,port,linefromfile);
+		send_message(host,port,inputstr);
 		//**************************//
 		return 0;
 	}
 	
     return 0;
 }
+
+
