@@ -5,8 +5,8 @@
 #include <ctype.h>
 #include <signal.h>
 #include <string.h>
-#include "data_translation.h"
-#include "executor.h"
+#include "../src/data_translation.h"
+#include "../src/executor.h"
 #include <jnxc_headers/list.h>
 /*
  * This program is designed to be so simple it is almost instantly understandable

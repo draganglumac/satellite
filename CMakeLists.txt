@@ -1,5 +1,7 @@
 project(satellite)
 
-add_executable(satellite main.c data_translation.c executor.c)
+add_executable(satellite src/main.c src/data_translation.c src/executor.c)
 set(BUILD_TYPE Debug)
 target_link_libraries(satellite -ljnxc -ldl)
+add_subdirectory(src)
+add_subdirectory(conf)
