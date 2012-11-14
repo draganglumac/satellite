@@ -4,7 +4,7 @@
 
 #define DELIMITERTOKEN "#"
 
-void from_message(struct data_parcel *parcel,char *msg)
+void from_message(struct list *parcel,char *msg)
 {
   char *pch = strtok (msg,DELIMITERTOKEN);
   int counter = 0;
@@ -13,14 +13,7 @@ void from_message(struct data_parcel *parcel,char *msg)
     printf ("%s\n",pch);
 	switch(counter)
 	{
-		case 0:
-			parcel->prebuild = pch;
-		break;
-		case 1:
-			parcel->build = pch;
-		break;
-		case 2:
-			parcel->postbuild = pch;
+		list_add(parcel,pch);
 		break;
 	}
     pch = strtok (NULL, DELIMITERTOKEN);
@@ -51,16 +44,13 @@ char* to_message(struct data_parcel *parcel)
 	
 	return msg;
 }
-struct data_parcel* data_from_message(char* msg)
+struct list* data_from_message(char* msg)
 {
-	struct data_parcel *parcel = malloc(sizeof(struct data_parcel));
+	struct list *parcel = list_make();
 	
 	from_message(parcel,msg);
+
 	
-	printf("Parcel has been populated\n");
-	printf("Prebuild step is: %s\n",parcel->prebuild);
-	printf("Build step is: %s\n",parcel->build);
-	printf("Postbuild step is: %s\n",parcel->postbuild);
 	return parcel;
 }
 char* data_to_message(struct data_parcel* parcel)

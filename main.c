@@ -7,6 +7,7 @@
 #include <string.h>
 #include "data_translation.h"
 #include "executor.h"
+#include <jnxc_headers/list.h>
 /*
  * This program is designed to be so simple it is almost instantly understandable
  * It can operate in send or receive mode, where upon it transfers a simple char* protocol, using a predetermined delimiter
@@ -27,14 +28,20 @@ void catch_int (int signum)
 void server_update(char *received_msg)
 {
 	printf("Raw received message: %s\n",received_msg);
-	struct data_parcel *p = data_from_message(received_msg);
-	if(execute_data_parcel(p) != 0)
+	
+	struct list *data_list = data_from_message(received_msg);
+	
+	struct list *local_head = data_list;
+	
+	while(local_head->head)
 	{
-		printf("Error during execution step\n");
-		free(p);
-		exit(1);
+		printf("Inside of list %s",(char*)local_head->head->_data);
+		local_head->head = local_head->head->next_node;
+		
 	}
-	free(p);
+	
+
+	free(data_list);
 	printf("Execution completed\n");
 }
 int main(int argc, char **argv) 
