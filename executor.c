@@ -1,15 +1,13 @@
 #include "executor.h"
 #include <stdlib.h>
 
-int execute_data_parcel(struct data_parcel* parcel)
+int execute_data_parcel(struct list* data_list)
 {
-	int prebuild = system(parcel->prebuild);
-	int build = system(parcel->build);
-	int postbuild = system(parcel->postbuild);
-	
-	if(prebuild != 0 || build != 0 || postbuild != 0)
+	while(data_list->head)
 	{
-		return 1;
+		printf("-> %s\n",data_list->head->_data);
+		if(system(data_list->head->_data) != 0) return 1;
+		data_list->head = data_list->head->next_node;
 	}
 	return 0;
 }

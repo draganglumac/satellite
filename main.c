@@ -31,19 +31,12 @@ void server_update(char *received_msg)
 	
 	struct list *data_list = data_from_message(received_msg);
 	
-	struct list *local_head;
-	
-	memcpy(local_head,data_list,sizeof(data_list));
-	
-	while(local_head->head)
+	if(execute_data_parcel(data_list) != 0)
 	{
-		printf("Inside of list %s",(char*)local_head->head->_data);
-		local_head->head = local_head->head->next_node;
-		
+		printf("Error executing data\n");
 	}
 	
 	list_delete(data_list);
-	list_delete(local_head);
 
 	printf("Execution completed\n");
 }
