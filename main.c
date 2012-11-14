@@ -31,7 +31,9 @@ void server_update(char *received_msg)
 	
 	struct list *data_list = data_from_message(received_msg);
 	
-	struct list *local_head = data_list;
+	struct list *local_head;
+	
+	memcpy(local_head,data_list,sizeof(data_list));
 	
 	while(local_head->head)
 	{
@@ -42,9 +44,7 @@ void server_update(char *received_msg)
 	
 	list_delete(data_list);
 	list_delete(local_head);
-	
-	free(data_list);
-	free(local_head);
+
 	printf("Execution completed\n");
 }
 int main(int argc, char **argv) 
