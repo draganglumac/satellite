@@ -40,8 +40,11 @@ void server_update(char *received_msg)
 		
 	}
 	
-
+	list_delete(data_list);
+	list_delete(local_head);
+	
 	free(data_list);
+	free(local_head);
 	printf("Execution completed\n");
 }
 int main(int argc, char **argv) 
