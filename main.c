@@ -121,7 +121,7 @@ int main(int argc, char **argv)
 		printf("Target host -> %s\n",host);
 		printf("Target port -> %d\n",port);
 		printf("Target message -> %s\n",inputstr);
-		
+		 
 		//******SENDER MODE**********//		
 		send_message(host,port,inputstr);
 		//**************************//

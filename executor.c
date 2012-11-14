@@ -3,12 +3,15 @@
 
 int execute_data_parcel(struct list* data_list)
 {
-	while(data_list->head)
+	struct node *n = data_list->head;
+	while(n)
 	{
-		printf("-> %s\n",data_list->head->_data);
-		if(system(data_list->head->_data) != 0) return 1;
-		data_list->head = data_list->head->next_node;
+		printf("-> %s\n",n->_data);
+		if(system(n->_data) != 0) return 1;
+		n = n->next_node;
+
 	}
+	free(n);
 	return 0;
 }
 
