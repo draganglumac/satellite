@@ -56,12 +56,15 @@ char* getstring_from_file(char*filepath)
 	{
         /* note that fgets don't strip the terminating \n, checking its
            presence would allow to handle lines longer that sizeof(line) */
+		
+		//removing end of lines
+		line[strlen(line) -1] = 0;
 		strcat(request_builder,line);
 		strcat(request_builder,"#");
     }
     
-    request_builder[strlen(request_builder) - 1] = '\n';
-    printf("%s",request_builder);
+    request_builder[strlen(request_builder) - 1] = 0;
+	return request_builder;
 }
 int main(int argc, char **argv) 
 {
@@ -147,6 +150,7 @@ int main(int argc, char **argv)
 		 
 		//******SENDER MODE**********//		
 		//getstring_from_file(inputstr);
+		printf("%s\n",getstring_from_file(inputstr));
 		jnx_send_message(host,port,getstring_from_file(inputstr));
 		//**************************//
 		return 0;
