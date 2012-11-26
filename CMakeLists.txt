@@ -1,6 +1,6 @@
 project(satellite)
 
-add_executable(satellite src/main.c  src/executor.c)
+add_executable(satellite src/main.c)
 set(BUILD_TYPE Debug)
 target_link_libraries(satellite -ljnxc -lmysqlclient -ldl)
 add_subdirectory(src)

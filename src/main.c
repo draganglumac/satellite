@@ -5,7 +5,6 @@
 #include <ctype.h>
 #include <signal.h>
 #include <string.h>
-#include "../src/executor.h"
 #include <jnxc_headers/jnxlist.h>
 
 /*
