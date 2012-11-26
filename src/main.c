@@ -5,7 +5,6 @@
 #include <ctype.h>
 #include <signal.h>
 #include <string.h>
-#include "../src/data_translation.h"
 #include "../src/executor.h"
 #include <jnxc_headers/jnxlist.h>
 
@@ -28,16 +27,19 @@ void catch_int (int signum)
 
 void server_update(char *received_msg)
 {
-	printf("Raw received message: %s\n",received_msg);
+	printf("Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
 	
-	struct list *data_list = data_from_message(received_msg);
+	char buffer[strlen(received_msg)]; //safety net from unsafe violations
+	strcpy(buffer,received_msg);
+	printf("String made safe %s\n",buffer);
 	
-	if(execute_data_parcel(data_list) != 0)
-	{
-		printf("Error executing data\n");
-	}
-	
-	jnx_list_delete(data_list);
+	char *pch = strtok (buffer,"#");	
+ 	while (pch != NULL)
+ 	{
+ 		printf ("%s\n",pch);
+		system(pch);
+ 		pch = strtok (NULL, "#");
+ 	}
 
 	printf("Execution completed\n");
 }
@@ -62,7 +64,7 @@ char* getstring_from_file(char*filepath)
 		strcat(request_builder,line);
 		strcat(request_builder,"#");
     }
-    
+    fclose(f);
     request_builder[strlen(request_builder) - 1] = 0;
 	return request_builder;
 }

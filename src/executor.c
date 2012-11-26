@@ -1,17 +1,21 @@
 #include "executor.h"
 #include <stdlib.h>
 
-int execute_data_parcel(struct list* data_list)
+int execute_data_parcel(char *received_msg)
 {
-	struct node *n = data_list->head;
-	while(n)
-	{
-		printf("-> %s\n",(char*)n->_data);
-		if(system(n->_data) != 0) return 1;
-		n = n->next_node;
+	
+	char buffer[strlen(received_msg)]; //safety net from unsafe violations
+	strcpy(buffer,received_msg);
+	printf("String made safe %s\n",buffer);
+	
+	char *pch = strtok (buffer,"#");	
+ 	while (pch != NULL)
+ 	{
+ 		printf ("%s\n",pch);
+ 		pch = strtok (NULL, "#");
+ 	}
 
-	}
-	free(n);
+	free(received_msg);
 	return 0;
 }
 
