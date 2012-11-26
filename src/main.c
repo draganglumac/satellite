@@ -1,4 +1,4 @@
-#include <jnxc_headers/network.h>
+#include <jnxc_headers/jnxnetwork.h>
 #include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,7 +7,7 @@
 #include <string.h>
 #include "../src/data_translation.h"
 #include "../src/executor.h"
-#include <jnxc_headers/list.h>
+#include <jnxc_headers/jnxlist.h>
 /*
  * This program is designed to be so simple it is almost instantly understandable
  * It can operate in send or receive mode, where upon it transfers a simple char* protocol, using a predetermined delimiter
@@ -19,7 +19,7 @@ void catch_int (int signum)
 {
     pid_t my_pid;
     printf("\nReceived an interrupt! About to exit ..\n");
-	cancel_listener();
+	jnx_cancel_listener();
     fflush(stdout);
     my_pid = getpid();
     kill(my_pid, SIGKILL);
@@ -36,7 +36,7 @@ void server_update(char *received_msg)
 		printf("Error executing data\n");
 	}
 	
-	list_delete(data_list);
+	jnx_list_delete(data_list);
 
 	printf("Execution completed\n");
 }
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 		//******LISTENER MODE**********//
 		printf("Starting server on port %d\n",port);
 		Callback c = &server_update;
-		setup_listener(port,c);
+		jnx_setup_listener(port,c);
 		//****************************//
 		return 0;
 	}
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 		printf("Target message -> %s\n",inputstr);
 		 
 		//******SENDER MODE**********//		
-		send_message(host,port,inputstr);
+		jnx_send_message(host,port,inputstr);
 		//**************************//
 		return 0;
 	}

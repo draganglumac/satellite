@@ -17,7 +17,7 @@ void from_message(struct list *parcel,char *msg)
 }
 struct list* data_from_message(char* msg)
 {
-	struct list *parcel = list_make();
+	struct list *parcel = jnx_list_make();
 	
 	from_message(parcel,msg);
 
