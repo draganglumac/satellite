@@ -8,6 +8,7 @@
 #include "../src/data_translation.h"
 #include "../src/executor.h"
 #include <jnxc_headers/jnxlist.h>
+
 /*
  * This program is designed to be so simple it is almost instantly understandable
  * It can operate in send or receive mode, where upon it transfers a simple char* protocol, using a predetermined delimiter
@@ -39,6 +40,28 @@ void server_update(char *received_msg)
 	jnx_list_delete(data_list);
 
 	printf("Execution completed\n");
+}
+
+char* getstring_from_file(char*filepath)
+{
+	FILE *f;
+	if((f = fopen(filepath,"r")) == NULL)
+	{
+		printf("Cannot open file\n");
+		exit(0);
+	}
+    char line[256];
+	char *request_builder = malloc(sizeof(char*));
+    while (fgets(line, sizeof(line), f)) 
+	{
+        /* note that fgets don't strip the terminating \n, checking its
+           presence would allow to handle lines longer that sizeof(line) */
+		strcat(request_builder,line);
+		strcat(request_builder,"#");
+    }
+    
+    request_builder[strlen(request_builder) - 1] = '\n';
+    printf("%s",request_builder);
 }
 int main(int argc, char **argv) 
 {
@@ -120,10 +143,11 @@ int main(int argc, char **argv)
 		printf("Send mode\n");
 		printf("Target host -> %s\n",host);
 		printf("Target port -> %d\n",port);
-		printf("Target message -> %s\n",inputstr);
+		printf("Target file -> %s\n",inputstr);
 		 
 		//******SENDER MODE**********//		
-		jnx_send_message(host,port,inputstr);
+		//getstring_from_file(inputstr);
+		jnx_send_message(host,port,getstring_from_file(inputstr));
 		//**************************//
 		return 0;
 	}
