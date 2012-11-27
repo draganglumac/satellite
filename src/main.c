@@ -52,7 +52,7 @@ char* getstring_from_file(char*filepath)
 		exit(0);
 	}
     char line[256];
-	char *request_builder = malloc(sizeof(char*));
+	char *request_builder = malloc(1024);
     while (fgets(line, sizeof(line), f)) 
 	{
         /* note that fgets don't strip the terminating \n, checking its
@@ -62,9 +62,9 @@ char* getstring_from_file(char*filepath)
 		line[strlen(line) -1] = 0;
 		strcat(request_builder,line);
 		strcat(request_builder,"#");
+		request_builder = realloc(request_builder,sizeof(request_builder) + sizeof(line));
     }
     fclose(f);
-    request_builder[strlen(request_builder) - 1] = 0;
 	return request_builder;
 }
 int main(int argc, char **argv) 
