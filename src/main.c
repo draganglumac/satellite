@@ -30,13 +30,16 @@ void server_update(char *received_msg)
 	
 	char buffer[strlen(received_msg)]; //safety net from unsafe violations
 	strcpy(buffer,received_msg);
-	printf("String made safe %s\n",buffer);
 	
 	char *pch = strtok (buffer,"#");	
  	while (pch != NULL)
  	{
- 		printf ("%s\n",pch);
-		system(pch);
+ 		printf ("Sending to system: %s\n",pch);
+		int ret = system(pch);
+		if(ret != 0)
+		{
+			printf("Error with execution of %s : System returned %d\n",pch,ret);
+		}
  		pch = strtok (NULL, "#");
  	}
 
