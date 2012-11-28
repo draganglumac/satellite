@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <signal.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <jnxc_headers/jnxlist.h>
 
 /*
@@ -39,26 +40,21 @@ void server_update(char *received_msg)
 
 char* getstring_from_file(char*filepath)
 {
-	FILE *f;
-	if((f = fopen(filepath,"r")) == NULL)
-	{
-		printf("Cannot open file\n");
-		exit(0);
-	}
-    char line[256];
-	char *request_builder = malloc(1024);
-    while (fgets(line, sizeof(line), f)) 
-	{
-        /* note that fgets don't strip the terminating \n, checking its
-           presence would allow to handle lines longer that sizeof(line) */
-		
-		//removing end of lines
-		line[strlen(line) -1] = 0;
-		strcat(request_builder,line);
-		request_builder = realloc(request_builder,sizeof(request_builder) + sizeof(line));
+	FILE* file = fopen(filepath,"r");
+    if(file == NULL)
+    {
+        return NULL;
     }
-    fclose(f);
-	return request_builder;
+
+    fseek(file, 0, SEEK_END);
+    long int size = ftell(file);
+    rewind(file);
+
+    char* content = calloc(size + 1, 1);
+
+    fread(content,1,size,file);
+
+    return content;
 }
 int main(int argc, char **argv) 
 {
@@ -144,7 +140,7 @@ int main(int argc, char **argv)
 		 
 		//******SENDER MODE**********//		
 		//getstring_from_file(inputstr);
-		printf("%s\n",getstring_from_file(inputstr));
+		printf("%s",getstring_from_file(inputstr));
 		jnx_send_message(host,port,getstring_from_file(inputstr));
 		//**************************//
 		return 0;
