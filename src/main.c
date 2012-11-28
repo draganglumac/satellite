@@ -27,21 +27,12 @@ void catch_int (int signum)
 void server_update(char *received_msg)
 {
 	printf("Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
-	
-	char buffer[strlen(received_msg)]; //safety net from unsafe violations
-	strcpy(buffer,received_msg);
-	
-	char *pch = strtok (buffer,"#");	
- 	while (pch != NULL)
- 	{
- 		printf ("Sending to system: %s\n",pch);
-		int ret = system(pch);
-		if(ret != 0)
-		{
-			printf("Error with execution of %s : System returned %d\n",pch,ret);
-		}
- 		pch = strtok (NULL, "#");
- 	}
+
+	int ret = system(received_msg);
+	if(ret != 0)
+	{
+		printf("Error with execution of %s : System returned %d\n",received_msg,ret);
+	}
 
 	printf("Execution completed\n");
 }
@@ -64,7 +55,6 @@ char* getstring_from_file(char*filepath)
 		//removing end of lines
 		line[strlen(line) -1] = 0;
 		strcat(request_builder,line);
-		strcat(request_builder,"#");
 		request_builder = realloc(request_builder,sizeof(request_builder) + sizeof(line));
     }
     fclose(f);
