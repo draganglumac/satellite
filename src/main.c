@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <jnxc_headers/jnxlist.h>
+#include "responder.h"
 
 /*
  * This program is designed to be so simple it is almost instantly understandable
@@ -22,13 +23,25 @@ void catch_int (int signum)
 	jnx_cancel_listener();
     fflush(stdout);
     my_pid = getpid();
-    kill(my_pid, SIGKILL);
+    kill(my_pid, SIGKILL);	
 }
 
 void server_update(char *received_msg)
 {
 	printf("Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
 
+	char *delimiter = "JOB_ID=";
+	char *result = NULL;
+	result = strtok(received_msg,delimiter);
+	
+	while(result != NULL)
+	{
+		printf("->>>>%s\n",result);
+		result = strtok(NULL, delimiter);
+	}
+	
+	
+	
 	int ret = system(received_msg);
 	if(ret != 0)
 	{
@@ -37,7 +50,21 @@ void server_update(char *received_msg)
 
 	printf("Execution completed\n");
 }
-
+char* append_job_id(char** content, char* buf)
+{
+    int textlen, oldtextlen;
+    textlen =  strlen(buf);
+    if (*content == NULL)
+        oldtextlen = 0;
+    else
+        oldtextlen = strlen(*content);
+    *content = (char *) realloc( (void *) *content, (sizeof(char)) * (oldtextlen+textlen+1));
+    if ( oldtextlen != 0 ) {
+        strncpy(*content + oldtextlen, buf, textlen + 1);
+    } else {
+        strncpy(*content, buf, textlen + 1);
+    }
+}
 char* getstring_from_file(char*filepath)
 {
 	FILE* file = fopen(filepath,"r");
@@ -66,8 +93,9 @@ int main(int argc, char **argv)
 	char* mode = NULL;
 	char* host = NULL;
 	char *inputstr = NULL;
+	char* job_number = NULL;
 	
-	while(( i = getopt(argc, argv,"h:i:m:p:")) != -1)
+	while(( i = getopt(argc, argv,"h:i:m:p:j:")) != -1)
 	{
 		switch(i)
 		{
@@ -82,6 +110,9 @@ int main(int argc, char **argv)
 			break;
 			case 'p':
 			port = atoi(optarg);
+			break;
+			case 'j':
+			job_number = optarg;
 			break;
 			case '?':
 			if(optopt == 'p')
@@ -112,7 +143,7 @@ int main(int argc, char **argv)
 		printf("Satellite is a half duplex server/client in one for transmission of several shell commands\n");
 		printf("No mode selected, please try again using -m\n");
 		printf("Using -m LISTEN will enable listener mode where you will be asked to provide -p [PORT]\n");
-		printf("Using -m SEND will enable send mode where you will be asked to provide -h [HOSTNAME] -p [PORT] -i [filepath]\n");
+		printf("Using -m SEND will enable send mode where you will be asked to provide -h [HOSTNAME] -p [PORT] -i [filepath] -j [JOB NUMBER]\n");
 		return 1;
 	}
 	
@@ -137,11 +168,19 @@ int main(int argc, char **argv)
 		printf("Target host -> %s\n",host);
 		printf("Target port -> %d\n",port);
 		printf("Target file -> %s\n",inputstr);
-		 
+		printf("Target job is -> %s\n",job_number);
 		//******SENDER MODE**********//		
 		//getstring_from_file(inputstr);
-		printf("%s",getstring_from_file(inputstr));
-		jnx_send_message(host,port,getstring_from_file(inputstr));
+		
+		char *out = getstring_from_file(inputstr);
+		
+		append_job_id(&out,"JOB_ID=");
+		append_job_id(&out,job_number);
+		
+		
+		printf("COMPLETE STRING OUTBOUND %s ////END \n",out);
+		
+		jnx_send_message(host,port,out);
 		//**************************//
 		return 0;
 	}
