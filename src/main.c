@@ -30,18 +30,18 @@ void server_update(char *received_msg)
 {
 	printf("Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
 
-	char *delimiter = "JOB_ID=";
-	char *result = NULL;
-	result = strtok(received_msg,delimiter);
-	
-	while(result != NULL)
-	{
-		printf("->>>>%s\n",result);
-		result = strtok(NULL, delimiter);
-	}
-	
-	
-	
+// 	char *delimiter = "JOB_ID=";
+// 	char *result = NULL;
+// 	result = strtok(received_msg,delimiter);
+// 	
+// 	while(result != NULL)
+// 	{
+// 		printf("->>>>%s\n",result);
+// 		result = strtok(NULL, delimiter);
+// 	}
+// 	
+// 	
+// 	
 	int ret = system(received_msg);
 	if(ret != 0)
 	{
