@@ -30,18 +30,18 @@ void server_update(char *received_msg)
 {
 	printf("Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
 
-// 	char *delimiter = "JOB_ID=";
-// 	char *result = NULL;
-// 	result = strtok(received_msg,delimiter);
-// 	
-// 	while(result != NULL)
-// 	{
-// 		printf("->>>>%s\n",result);
-// 		result = strtok(NULL, delimiter);
-// 	}
-// 	
-// 	
-// 	
+	char *delimiter = "%";
+	char *result = NULL;
+	result = strtok(received_msg,delimiter);
+	
+	while(result != NULL)
+	{
+		printf("->>>>%s\n",result);
+		result = strtok(NULL, delimiter);
+	}
+	
+	
+	
 	int ret = system(received_msg);
 	if(ret != 0)
 	{
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 		
 		char *out = getstring_from_file(inputstr);
 		
-		append_job_id(&out,"JOB_ID=");
+		append_job_id(&out,"%");
 		append_job_id(&out,job_number);
 		
 		
