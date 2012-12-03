@@ -33,11 +33,11 @@ void server_update(char *received_msg)
 	char *delimiter = "JOB_ID";
 	char *result = NULL;
 	result = strtok(received_msg,delimiter);
-	printf("--->%s\n",result);
+
+	printf("->>>>%s\n",result);
 	result = strtok(NULL, delimiter);
-	
-	printf("--->%s\n",result);
-	
+
+	printf("->>>>%s\n",result);
 	
 	
 	int ret = system(received_msg);
