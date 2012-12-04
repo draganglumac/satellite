@@ -47,6 +47,9 @@ void server_update(char *received_msg)
 	}
 
 	printf("Execution completed\n");
+	printf("Writing information to database\n");
+	
+	write_result(token);
 }
 char* append_job_id(char** content, char* buf)
 {

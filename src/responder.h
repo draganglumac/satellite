@@ -5,6 +5,6 @@
 
 void callback(MYSQL_RES*);
 
-void write_result(int job_id);
+void write_result(char* job_id);
 
 #endif
