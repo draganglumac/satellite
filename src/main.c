@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 {
 	//Register for signal handling
 	signal(SIGINT, catch_int);
-	jnx_sql_interface_setup("172.20.141.82","dummy","dummy");
+	
 	int i;
 	int port;
 	char* mode = NULL;
