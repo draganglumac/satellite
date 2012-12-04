@@ -1,6 +1,11 @@
 #include "responder.h"
 #include <string.h>
 #include <stdio.h>
+
+#define SQLDB "172.20.141.82"
+#define SQLADMIN "dummy"
+#define SQLPASS "dummy"
+
 void callback(MYSQL_RES* res)
 {
 
@@ -9,7 +14,7 @@ void write_result(char* job_id)
 {
 	sql_callback _s = callback;
 
-	jnx_sql_interface_setup("172.20.141.82","dummy","dummy");
+	jnx_sql_interface_setup(SQLDB,SQLADMIN,SQLPASS);
 	
 	printf("JOB ID being written is %s\n",job_id);
 	
