@@ -22,7 +22,9 @@ void write_result(char* job_id)
 	
 	//we dont want to modify the string literal so copy it
 
-	char* cp = strdup(query);
+	char cp[1024];
+	
+	strcpy(cp,query);
 
 	strcat(cp,job_id);
 	strcat(cp,";");
@@ -33,7 +35,8 @@ void write_result(char* job_id)
 
 	char result_one[256] = "INSERT INTO `AUTOMATION`.`results` (`id`,`testresult`,`jobs_id`,`jobs_machines_machine_id`)VALUES(NULL,'";
 	
-	char* cp_two = strdup(result_one);
+	char* cp_two[1024];
+	strcpy(cp_two,result_one);
 	char *res = "FAIL";
 	strcat(cp_two,res);
 	strcat(cp_two,"',");
