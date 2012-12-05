@@ -32,10 +32,10 @@ void server_update(char *received_msg)
 	
 	
 	char *delimiter = "!";
-	char *cp = NULL;
+	char cp[1024];
 	
 	printf("1\n");
-	cp = strdup(received_msg);
+	strcpy(cp,received_msg);
 	printf("2\n");
 	char *token = strtok(cp,delimiter);
 	printf("3\n");
