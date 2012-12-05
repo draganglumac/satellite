@@ -33,9 +33,12 @@ void server_update(char *received_msg)
 	
 	char *delimiter = "!";
 	char *cp = NULL;
-	cp = strdup(received_msg);
 	
+	printf("1\n");
+	cp = strdup(received_msg);
+	printf("2\n");
 	char *token = strtok(cp,delimiter);
+	printf("3\n");
 	printf("%s\n",token);
 	token = strtok(NULL,delimiter);
 	printf("Job ID is %s\n",token);
