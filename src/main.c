@@ -29,9 +29,11 @@ void catch_int (int signum)
 void server_update(char *received_msg)
 {
 	printf("Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
-
+	
+	
 	char *delimiter = "!";
-	char *cp = strdup(received_msg);
+	char *cp = NULL;
+	cp = strdup(received_msg);
 	
 	char *token = strtok(cp,delimiter);
 	printf("%s\n",token);
