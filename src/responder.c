@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <jnxc_headers/jnxnetwork.h>
+
 #define SQLDB "172.20.141.82"
 #define SQLADMIN "dummy"
 #define SQLPASS "dummy"
@@ -43,13 +43,11 @@ void write_result(char* job_id)
 	//get cwd
 	char file[1024];
 	char content[1024];
-	char *machine = jnx_local_ip("en0");
 	char *path = "temp/test-reports/cuke.html";
 	
 	
 	getcwd(file,1024);
-	strcpy(content,machine);
-	strcat(content,file);
+	strcpy(content,file);
 	strcat(content,"/");
 	strcat(content,path);
 	
