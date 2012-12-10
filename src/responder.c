@@ -36,7 +36,7 @@ void write_result(char* job_id)
 
 	char result_one[256] = "INSERT INTO `AUTOMATION`.`results` (`id`,`testresult`,`jobs_id`,`jobs_machines_machine_id`)VALUES(NULL,'";
 	
-	char* cp_two[1024];
+	char* cp_two[100000];
 	strcpy(cp_two,result_one);
 	
 	
@@ -51,12 +51,8 @@ void write_result(char* job_id)
 	rewind(fp);
 	char *content = calloc(size + 1, 1);
 	fread(content,1,size,fp);
-	
-	printf("HTML %s\n",content);
-	
-	
-	char *res = "FAIL";
-	strcat(cp_two,res);
+
+	strcat(cp_two,content);
 	strcat(cp_two,"',");
 	strcat(cp_two,job_id);
 	strcat(cp_two,",(select machines_machine_id from `AUTOMATION`.`jobs` where id=");
