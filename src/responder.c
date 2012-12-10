@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define SQLDB "172.20.141.82"
 #define SQLADMIN "dummy"
@@ -36,22 +37,21 @@ void write_result(char* job_id)
 
 	char result_one[256] = "INSERT INTO `AUTOMATION`.`results` (`id`,`testresult`,`jobs_id`,`jobs_machines_machine_id`)VALUES(NULL,'";
 	
-	char* cp_two[100000];
+	char* cp_two[256];
 	strcpy(cp_two,result_one);
 	
+	//get cwd
+	char file[1024];
+	char content[1024];
+	char *path = "temp/test-reports/cuke.html";
 	
-	FILE *fp = fopen("temp/test-reports/cuke.html","r");
-	if(fp == NULL)
-	{
-		fprintf(stderr,"File error :\n");
-		exit(0);
-	}
-	fseek(fp,0,SEEK_END);
-	long int size = ftell(fp);
-	rewind(fp);
-	char *content = calloc(size + 1, 1);
-	fread(content,1,size,fp);
-
+	
+	getcwd(file,1024);
+	strcpy(content,file);
+	strcat(content,"/");
+	strcat(content,path);
+	
+	
 	strcat(cp_two,content);
 	strcat(cp_two,"',");
 	strcat(cp_two,job_id);
