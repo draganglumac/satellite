@@ -43,8 +43,6 @@ void server_update(char *received_msg)
 	token = strtok(NULL,delimiter);
 	printf("Job ID is %s\n",token);
 	
-	
-	
 	int ret = system(received_msg);
 	if(ret != 0)
 	{
@@ -55,8 +53,6 @@ void server_update(char *received_msg)
 	printf("Writing information to database\n");
 	
 	write_result(token);
-	
-	
 }
 char* append_job_id(char** content, char* buf)
 {

@@ -1,6 +1,7 @@
 #include "responder.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define SQLDB "172.20.141.82"
 #define SQLADMIN "dummy"
@@ -37,6 +38,23 @@ void write_result(char* job_id)
 	
 	char* cp_two[1024];
 	strcpy(cp_two,result_one);
+	
+	
+	FILE *fp = fopen("temp/test-reports/cuke.html","r");
+	if(fp == NULL)
+	{
+		fprintf(stderr,"File error :\n");
+		exit(0);
+	}
+	fseek(fp,0,SEEK_END);
+	long int size = ftell(fp);
+	rewind(fp);
+	char *content = calloc(size + 1, 1);
+	fread(content,1,size,fp);
+	
+	printf("HTML %s\n",content);
+	
+	
 	char *res = "FAIL";
 	strcat(cp_two,res);
 	strcat(cp_two,"',");
