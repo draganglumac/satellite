@@ -41,18 +41,18 @@ void write_result(char* job_id)
 	strcpy(cp_two,result_one);
 	
 	//get cwd
-	char file[1024];
-	char content[1024];
-	char *path = "temp/test-reports/cuke.html";
-	
-	
-	getcwd(file,1024);
-	strcpy(content,file);
-	strcat(content,"/");
-	strcat(content,path);
-	
-	
-	strcat(cp_two,content);
+// 	char file[1024];
+// 	char content[1024];
+// 	char *path = "temp/test-reports/cuke.html";
+// 	 
+// 	
+// 	getcwd(file,1024);
+// 	strcpy(content,file);
+// 	strcat(content,"/");
+// 	strcat(content,path);
+// 	
+	char *result = "FAIL";
+	strcat(cp_two,result);
 	strcat(cp_two,"',");
 	strcat(cp_two,job_id);
 	strcat(cp_two,",(select machines_machine_id from `AUTOMATION`.`jobs` where id=");
