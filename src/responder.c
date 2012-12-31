@@ -39,18 +39,7 @@ void write_result(char* job_id)
 	
 	char* cp_two[256];
 	strcpy(cp_two,result_one);
-	
-	//get cwd
-// 	char file[1024];
-// 	char content[1024];
-// 	char *path = "temp/test-reports/cuke.html";
-// 	 
-// 	
-// 	getcwd(file,1024);
-// 	strcpy(content,file);
-// 	strcat(content,"/");
-// 	strcat(content,path);
-// 	
+
 	char *result = "FAIL";
 	strcat(cp_two,result);
 	strcat(cp_two,"',");
@@ -60,6 +49,5 @@ void write_result(char* job_id)
 	strcat(cp_two,"));");
 	
 	printf("Writing to results table -> %s\n",cp_two);
-	//INSERT INTO `AUTOMATION`.`results` (`id`,`testresult`,`jobs_id`,`jobs_machines_machine_id`)VALUES(NULL,"FAIL",2,(select machines_machine_id from `AUTOMATION`.`jobs` where id=2));
 	jnx_sql_query(cp_two,_s);
 }
