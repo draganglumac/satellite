@@ -34,7 +34,7 @@ void write_result(char* job_id)
 
 	jnx_sql_query(cp,_s);
 	
-
+/*
 	char result_one[256] = "INSERT INTO `AUTOMATION`.`results` (`id`,`DATETIME`,`testresult`,`jobs_id`,`jobs_machines_machine_id`)VALUES(NULL,CURRENT_TIMESTAMP,'";
 	
 	char* cp_two[256];
@@ -49,5 +49,5 @@ void write_result(char* job_id)
 	strcat(cp_two,"));");
 	
 	printf("Writing to results table -> %s\n",cp_two);
-	jnx_sql_query(cp_two,_s);
+	jnx_sql_query(cp_two,_s);*/
 }
