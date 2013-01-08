@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 		//******SENDER MODE**********//		
 		//getstring_from_file(inputstr);
 		
-		char *out = jnx_file_tostr(inputstr);
+		char *out = jnx_file_read(inputstr);
 		
 		append_job_id(&out,"!");
 		append_job_id(&out,job_number);
