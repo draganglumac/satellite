@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define SQLDB "172.20.141.82"
+#define SQLDB "10.65.80.46"
 #define SQLADMIN "dummy"
-#define SQLPASS "dummy"
+#define SQLPASS "dummy"	
 
 void callback(MYSQL_RES* res)
 {
@@ -35,12 +35,12 @@ void write_result(char* job_id)
 	jnx_sql_query(cp,_s);
 	
 
-	char result_one[256] = "INSERT INTO `AUTOMATION`.`results` (`id`,`DATETIME`,`testresult`,`jobs_id`,`jobs_machines_machine_id`)VALUES(NULL,CURRENT_TIMESTAMP,'";
+	char result_one[256] = "INSERT INTO `AUTOMATION`.`results` (`id`,`DATETIME`,`testresult`,`jobs_id`,`jobs_machines_machine_id`)VALUES(NULL,CURRENT_TIMESTAMP,'";		
 	
 	char* cp_two[256];
 	strcpy(cp_two,result_one);
 
-	char *result = "FAIL";
+	char *result = "COMPLETE";
 	strcat(cp_two,result);
 	strcat(cp_two,"',");
 	strcat(cp_two,job_id);
@@ -51,3 +51,4 @@ void write_result(char* job_id)
 	printf("Writing to results table -> %s\n",cp_two);
 	jnx_sql_query(cp_two,_s);
 }
+	
