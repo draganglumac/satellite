@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 			{"input",required_argument,0,'i'},
 			{"sqlhost",required_argument, 0,'s'},
 			{"sqluser",required_argument,0, 'u'},
-			{"sqlpass",required_argument,0,'p'},
+			{"sqlpass",required_argument,0,'w'},
             {0,         0,                 0,  0 }
         };
 	
