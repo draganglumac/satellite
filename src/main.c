@@ -21,7 +21,9 @@ void usage()
 {
 	printf("Satellite is a half duplex server/client in one for transmission of several shell commands\n");
 	printf("No mode selected, please try again using -m\n");
-	printf("Using -m LISTEN will enable listener mode where you will be asked to provide -p [PORT]\n");		printf("Using -m SEND will enable send mode where you will be asked to provide -h [HOSTNAME] -p [PORT] -i [filepath] -j [JOB NUMBER]\n");
+	printf("Using -m LISTEN will enable listener mode where you will be asked to provide -p [PORT] --sqlhost --sqluser --sqlpass\n");	
+	
+	printf("Using -m SEND will enable send mode where you will be asked to provide -h [HOSTNAME] -p [PORT] -i [filepath] -j [JOB NUMBER]\n");
 }
 void catch_int (int signum) 
 {
@@ -79,7 +81,7 @@ int main(int argc, char **argv)
 	
 	static struct option long_options[] = {
             {"mode",required_argument, 0,  'm' },
-            {"port",  	 required_argument, 0,  'p' },
+            {"port", required_argument, 0,  'p' },
 			{"job", required_argument,0,'j'},
 			{"host",required_argument,0,'h'},
 			{"input",required_argument,0,'i'},
