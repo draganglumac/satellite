@@ -83,6 +83,9 @@ int main(int argc, char **argv)
 			{"job", required_argument,0,'j'},
 			{"host",required_argument,0,'h'},
 			{"input",required_argument,0,'i'},
+			{"sqlhost",required_argument, 0,'s'},
+			{"sqluser",required_argument,0, 'u'},
+			{"sqlpass",required_argument,0,'p'},
             {0,         0,                 0,  0 }
         };
 	
@@ -93,8 +96,9 @@ int main(int argc, char **argv)
 	char* host = NULL;
 	char *inputstr = NULL;
 	char* job_number = NULL;
+	char *sqlhost = NULL, *sqluser = NULL, *sqlpass = NULL;
 
-	while(( i = getopt_long_only(argc,argv,"h:i:m:p:j:",long_options,&option_index)) != -1)
+	while(( i = getopt_long_only(argc,argv,"h:i:m:p:j:s:u:w:",long_options,&option_index)) != -1)
 	{
 		switch(i)
 		{
@@ -110,6 +114,15 @@ int main(int argc, char **argv)
 			case 'p':
 			port = atoi(optarg);
 			break;
+			case 's':
+				sqlhost = optarg;
+				break;
+			case 'u':
+				sqluser = optarg;
+				break;
+			case 'w':
+				sqlpass = optarg;
+				break;
 			case 'j':
 			job_number = optarg;
 			break;
@@ -132,6 +145,13 @@ int main(int argc, char **argv)
 		printf("Listener mode\n");
 		//******LISTENER MODE**********//
 		printf("Starting server on port %d\n",port);
+		//we need to setup our sql callback
+		printf("Setting up sql data with : %s %s %s\n",sqlhost,sqluser,sqlpass);
+		if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
+		{
+			printf("Critical error in SQL setup\n");
+			exit(0);
+		}
 		sql_callback c = &server_update;
 		jnx_setup_listener(port,c);
 		//****************************//

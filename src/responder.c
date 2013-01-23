@@ -4,19 +4,22 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define SQLDB "10.65.80.46"
-#define SQLADMIN "dummy"
-#define SQLPASS "dummy"	
+// #define SQLDB "10.65.80.46"
+// #define SQLADMIN "dummy"
+// #define SQLPASS "dummy"	
 
 void callback(MYSQL_RES* res)
 {
 
 }
+int setup_sql(char* host_addr, char* username, char* port)
+{
+	return jnx_sql_interface_setup(host_addr,username,port);
+}
 void write_result(char* job_id)
 {
 	sql_callback _s = callback;
 
-	jnx_sql_interface_setup(SQLDB,SQLADMIN,SQLPASS);
 	
 	printf("JOB ID being written is %s\n",job_id);
 	

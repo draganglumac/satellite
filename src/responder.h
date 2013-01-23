@@ -4,7 +4,7 @@
 
 
 void callback(MYSQL_RES*);
-
+int setup_sql(char *host_addr,char *username, char*port);
 void write_result(char* job_id);
 
 #endif
