@@ -40,7 +40,7 @@ void write_result(char* job_id)
 
 	char result_one[256] = "INSERT INTO `AUTOMATION`.`results` (`id`,`DATETIME`,`testresult`,`jobs_id`,`jobs_machines_machine_id`)VALUES(NULL,CURRENT_TIMESTAMP,'";		
 	
-	char* cp_two[256];
+	char cp_two[256];
 	strcpy(cp_two,result_one);
 
 	char *result = "COMPLETE";
