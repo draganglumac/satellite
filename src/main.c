@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxfile.h>
 #include "responder.h"
@@ -22,27 +23,23 @@ void usage()
 	printf("Satellite is a half duplex server/client in one for transmission of several shell commands\n");
 	printf("No mode selected, please try again using -m\n");
 	printf("Using -m LISTEN will enable listener mode where you will be asked to provide -p [PORT] --sqlhost --sqluser --sqlpass\n");	
-	
 	printf("Using -m SEND will enable send mode where you will be asked to provide -h [HOSTNAME] -p [PORT] -i [filepath] -j [JOB NUMBER]\n");
 }
 void catch_int (int signum) 
-{
-    pid_t my_pid;
-    printf("\nReceived an interrupt! About to exit ..\n");
+{ 
+	pid_t my_pid;
+    	printf("\nReceived an interrupt! About to exit ..\n");
 	jnx_cancel_listener();
-    fflush(stdout);
-    my_pid = getpid();
-    kill(my_pid, SIGKILL);	
+    	fflush(stdout);
+    	my_pid = getpid();
+    	kill(my_pid, SIGKILL);	
 }
-
 void server_update(char *received_msg)
 {
 	printf("Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
 	
-	
 	char *delimiter = "!";
 	char cp[1024];
-
 	strcpy(cp,received_msg);
 	char *token = strtok(cp,delimiter);
 	token = strtok(NULL,delimiter);
@@ -59,37 +56,22 @@ void server_update(char *received_msg)
 	
 	write_result(token);
 }
-char* append_job_id(char** content, char* buf)
-{
-    int textlen, oldtextlen;
-    textlen =  strlen(buf);
-    if (*content == NULL)
-        oldtextlen = 0;
-    else
-        oldtextlen = strlen(*content);
-    *content = (char *) realloc( (void *) *content, (sizeof(char)) * (oldtextlen+textlen+1));
-    if ( oldtextlen != 0 ) {
-        strncpy(*content + oldtextlen, buf, textlen + 1);
-    } else {
-        strncpy(*content, buf, textlen + 1);
-    }
-}
 int main(int argc, char **argv) 
 {
 	//Register for signal handling
 	signal(SIGINT, catch_int);
 	
 	static struct option long_options[] = {
-            {"mode",required_argument, 0,  'm' },
-            {"port", required_argument, 0,  'p' },
-			{"job", required_argument,0,'j'},
-			{"host",required_argument,0,'h'},
-			{"input",required_argument,0,'i'},
-			{"sqlhost",required_argument, 0,'s'},
-			{"sqluser",required_argument,0, 'u'},
-			{"sqlpass",required_argument,0,'w'},
-            {0,         0,                 0,  0 }
-        };
+            {"mode",required_argument,0,'m'},
+            {"port", required_argument,0,'p'},
+	    {"job", required_argument,0,'j'},
+	    {"host",required_argument,0,'h'},
+	    {"input",required_argument,0,'i'},
+	    {"sqlhost",required_argument,0,'s'},
+	    {"sqluser",required_argument,0,'u'},
+	    {"sqlpass",required_argument,0,'w'},
+            {0,      0,                 0, 0 }
+            };
 	
 	int option_index = 0;
 	int i;
@@ -105,28 +87,28 @@ int main(int argc, char **argv)
 		switch(i)
 		{
 			case 'i':
-			inputstr = optarg;
+				inputstr = optarg;
 			break;
 			case 'h':
-			host = optarg;
+				host = optarg;
 			break;
 			case 'm':
-			mode = optarg;
+				mode = optarg;
 			break;
 			case 'p':
-			port = atoi(optarg);
+				port = atoi(optarg);
 			break;
 			case 's':
 				sqlhost = optarg;
-				break;
+			break;
 			case 'u':
 				sqluser = optarg;
-				break;
+			break;
 			case 'w':
 				sqlpass = optarg;
-				break;
+			break;
 			case 'j':
-			job_number = optarg;
+				job_number = optarg;
 			break;
 			default:
 				printf("Requires argument for operation mode -m [SEND or RECEIVE]\n");
@@ -174,9 +156,8 @@ int main(int argc, char **argv)
 		
 		char *out = jnx_file_read(inputstr);
 		
-		append_job_id(&out,"!");
-		append_job_id(&out,job_number);
-		
+		jnx_string_join(&out,"!");
+		jnx_string_join(&out,job_number);	
 		
 		printf("COMPLETE STRING OUTBOUND %s ////END \n",out);
 		

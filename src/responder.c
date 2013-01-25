@@ -3,11 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-// #define SQLDB "10.65.80.46"
-// #define SQLADMIN "dummy"
-// #define SQLPASS "dummy"	
-
 void callback(MYSQL_RES* res)
 {
 
@@ -20,17 +15,11 @@ void write_result(char* job_id)
 {
 	sql_callback _s = callback;
 
-	
 	printf("JOB ID being written is %s\n",job_id);
 	
 	char query[256] = "UPDATE `AUTOMATION`.`jobs` SET status='COMPLETE' WHERE id=";
-	
-	//we dont want to modify the string literal so copy it
-
 	char cp[1024];
-	
 	strcpy(cp,query);
-
 	strcat(cp,job_id);
 	strcat(cp,";");
 	printf("%s\n",cp);
