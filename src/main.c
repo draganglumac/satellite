@@ -162,6 +162,11 @@ int main(int argc, char **argv)
 		//******SENDER MODE**********//		
 		//getstring_from_file(inputstr);
 		char *out = jnx_file_read(inputstr);
+		if(out == NULL)
+		{
+			printf("File read returned null char*\n");
+			exit(1);
+		}
 		printf("RAW FROM FILE:\n %s\nEND OF RAW\n",out);		
 
 		char outputbuffer[strlen(out) + 10];
@@ -169,7 +174,6 @@ int main(int argc, char **argv)
 		strcat(outputbuffer,"!");
 		strcat(outputbuffer,job_number);
 
-		free(out);	
 		printf("COMPLETE STRING OUTBOUND\n %s\n ////END OF STRING \n",outputbuffer);
 		jnx_send_message(host,port,outputbuffer);
 
