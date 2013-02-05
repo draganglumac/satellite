@@ -14,4 +14,4 @@ do
 done
 
 echo "All done!"
-echo "Plesae run make"
+echo "Please run make"
