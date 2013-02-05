@@ -1,5 +1,4 @@
-mkdir -p build
-cd build
-cmake ../
+#!/bin/bash
+./configure
 make
 sudo make install

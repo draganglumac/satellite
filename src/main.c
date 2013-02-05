@@ -11,8 +11,7 @@
 #include <jnxc_headers/jnxfile.h>
 #include "responder.h"
 
-
-typedef enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
+enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
 /*
  * This program is designed to be so simple it is almost instantly understandable
  * It can operate in send or receive mode, where upon it transfers a simple char* protocol, using a predetermined delimiter
@@ -113,9 +112,7 @@ int main(int argc, char **argv)
 			break;
 			default:
 				printf("Requires argument for operation mode -m [SEND or RECEIVE]\n");
-				printf("Requires argument for -p\n");
-				abort();
-			
+			exit(1);
 		}
 	}
 	if(mode == NULL)
@@ -137,7 +134,7 @@ int main(int argc, char **argv)
 			printf("Critical error in SQL setup\n");
 			return SQL_UP;
 		}
-		sql_callback c = &server_update;
+		jnx_listener_callback c = &server_update;
 		jnx_setup_listener(port,c);
 		//****************************//
 		return 0;
@@ -147,6 +144,8 @@ int main(int argc, char **argv)
 		if(!port) { printf("Requires port number, option -p\n");return ARG_UP; };
 		if(host == NULL) { printf("Requires hostname, option -h\n");return ARG_UP; };
 		if(inputstr == NULL) { printf("Requires input string, option -i\n"); return ARG_UP; };
+		if(job_number == NULL) { printf("Requires job number, option -j\n"); return ARG_UP; };
+	
 		printf("Send mode\n");
 		printf("Target host -> %s\n",host);
 		printf("Target port -> %d\n",port);
@@ -154,15 +153,17 @@ int main(int argc, char **argv)
 		printf("Target job is -> %s\n",job_number);
 		//******SENDER MODE**********//		
 		//getstring_from_file(inputstr);
-		
 		char *out = jnx_file_read(inputstr);
+		printf("RAW FROM FILE:\n %s\nEND OF RAW\n",out);		
+
+		char outputbuffer[strlen(out) + 10];
+		strcpy(outputbuffer,out);
+		strcat(outputbuffer,"!");
+		strcat(outputbuffer,job_number);
 		
-		jnx_string_join(&out,"!");
-		jnx_string_join(&out,job_number);	
-		
-		printf("COMPLETE STRING OUTBOUND %s ////END \n",out);
-		
-		jnx_send_message(host,port,out);
+		free(out);	
+		printf("COMPLETE STRING OUTBOUND\n %s\n ////END OF STRING \n",outputbuffer);
+		jnx_send_message(host,port,outputbuffer);
 		//**************************//
 		return 0;
 	}

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+
+if [ -e Makefile ]; then
+	rm Makefile
+fi
+if [ -e isotope ]; then
+	rm isotope
+fi
+
+cat Makefile.in | while IFS='' read -r LINE
+do
+	echo "$LINE" >> Makefile
+done
+
+echo "All done!"
+echo "Plesae run make"
