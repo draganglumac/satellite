@@ -2,7 +2,7 @@
 *swp
 satellite
 CMakeLists.txt
-*swp
+*.sw*
 *~
 *build* 
 *.kdev4
