@@ -11,6 +11,8 @@
 #include <jnxc_headers/jnxfile.h>
 #include "responder.h"
 
+
+typedef enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
 /*
  * This program is designed to be so simple it is almost instantly understandable
  * It can operate in send or receive mode, where upon it transfers a simple char* protocol, using a predetermined delimiter
@@ -44,7 +46,6 @@ void server_update(char *received_msg)
 	char *token = strtok(cp,delimiter);
 	token = strtok(NULL,delimiter);
 	printf("Job ID is %s\n",token);
-	
 	int ret = system(received_msg);
 	if(ret != 0)
 	{
@@ -120,7 +121,7 @@ int main(int argc, char **argv)
 	if(mode == NULL)
 	{
 		usage();
-		return 1;
+		return ARG_UP;
 	}
 	if(strcmp(mode,"LISTEN") == 0)
 	{
@@ -134,7 +135,7 @@ int main(int argc, char **argv)
 		if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
 		{
 			printf("Critical error in SQL setup\n");
-			exit(0);
+			return SQL_UP;
 		}
 		sql_callback c = &server_update;
 		jnx_setup_listener(port,c);
@@ -143,9 +144,9 @@ int main(int argc, char **argv)
 	}
 	if(strcmp(mode,"SEND") == 0)
 	{
-		if(!port) { printf("Requires port number, option -p\n");return 1; };
-		if(host == NULL) { printf("Requires hostname, option -h\n");return 1; };
-		if(inputstr == NULL) { printf("Requires input string, option -i\n"); return 1; };
+		if(!port) { printf("Requires port number, option -p\n");return ARG_UP; };
+		if(host == NULL) { printf("Requires hostname, option -h\n");return ARG_UP; };
+		if(inputstr == NULL) { printf("Requires input string, option -i\n"); return ARG_UP; };
 		printf("Send mode\n");
 		printf("Target host -> %s\n",host);
 		printf("Target port -> %d\n",port);

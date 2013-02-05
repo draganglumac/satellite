@@ -12,12 +12,17 @@ int setup_sql(char* host_addr, char* username, char* port)
 	return jnx_sql_interface_setup(host_addr,username,port);
 }
 void write_result(char* job_id)
-{
+{	
+	if(job_id == NULL)
+	{
+		printf("Warning, job id is null therefore abandoning ship\n");
+		exit(1);
+	}
 	sql_callback _s = callback;
 
 	printf("JOB ID being written is %s\n",job_id);
 	
-	char query[256] = "UPDATE `AUTOMATION`.`jobs` SET status='COMPLETE' WHERE id=";
+	const char* query = "UPDATE `AUTOMATION`.`jobs` SET status='COMPLETE' WHERE id=";
 	char cp[1024];
 	strcpy(cp,query);
 	strcat(cp,job_id);
@@ -27,12 +32,13 @@ void write_result(char* job_id)
 	jnx_sql_query(cp,_s);
 	
 
-	char result_one[256] = "INSERT INTO `AUTOMATION`.`results` (`id`,`DATETIME`,`testresult`,`jobs_id`,`jobs_machines_machine_id`)VALUES(NULL,CURRENT_TIMESTAMP,'";		
+	const char* result_one = "INSERT INTO `AUTOMATION`.`results` (`id`,`DATETIME`,`testresult`,`jobs_id`,`jobs_machines_machine_id`)VALUES(NULL,CURRENT_TIMESTAMP,'";		
 	
 	char cp_two[256];
 	strcpy(cp_two,result_one);
 
-	char *result = "COMPLETE";
+	const char *result = "COMPLETE";
+
 	strcat(cp_two,result);
 	strcat(cp_two,"',");
 	strcat(cp_two,job_id);
