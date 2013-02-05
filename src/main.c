@@ -30,16 +30,16 @@ void usage()
 void catch_int (int signum) 
 { 
 	pid_t my_pid;
-    	printf("\nReceived an interrupt! About to exit ..\n");
+	printf("\nReceived an interrupt! About to exit ..\n");
 	jnx_cancel_listener();
-    	fflush(stdout);
-    	my_pid = getpid();
-    	kill(my_pid, SIGKILL);	
+	fflush(stdout);
+	my_pid = getpid();
+	kill(my_pid, SIGKILL);	
 }
 void server_update(char *received_msg)
 {
 	printf("Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
-	
+
 	char *delimiter = "!";
 	char cp[1024];
 	strcpy(cp,received_msg);
@@ -55,25 +55,33 @@ void server_update(char *received_msg)
 	printf("Execution completed\n");
 	printf("Writing information to database\n");
 	
-	write_result(token);
+	//lets have a form of capturing whether we've got a job id
+	if(token == NULL)
+	{
+		printf("Could not find a job ID, therefore not proceeding with writing results to sql\n");
+	}
+	else
+	{
+		write_result(token);
+	}
 }
 int main(int argc, char **argv) 
 {
 	//Register for signal handling
 	signal(SIGINT, catch_int);
-	
+
 	static struct option long_options[] = {
-            {"mode",required_argument,0,'m'},
-            {"port", required_argument,0,'p'},
-	    {"job", required_argument,0,'j'},
-	    {"host",required_argument,0,'h'},
-	    {"input",required_argument,0,'i'},
-	    {"sqlhost",required_argument,0,'s'},
-	    {"sqluser",required_argument,0,'u'},
-	    {"sqlpass",required_argument,0,'w'},
-            {0,      0,                 0, 0 }
-            };
-	
+		{"mode",required_argument,0,'m'},
+		{"port", required_argument,0,'p'},
+		{"job", required_argument,0,'j'},
+		{"host",required_argument,0,'h'},
+		{"input",required_argument,0,'i'},
+		{"sqlhost",required_argument,0,'s'},
+		{"sqluser",required_argument,0,'u'},
+		{"sqlpass",required_argument,0,'w'},
+		{0,      0,                 0, 0 }
+	};
+
 	int option_index = 0;
 	int i;
 	int port;
@@ -89,33 +97,33 @@ int main(int argc, char **argv)
 		{
 			case 'i':
 				inputstr = optarg;
-			break;
+				break;
 			case 'h':
 				host = optarg;
-			break;
+				break;
 			case 'm':
 				mode = optarg;
-			break;
+				break;
 			case 'p':
 				port = atoi(optarg);
-			break;
+				break;
 			case 's':
 				sqlhost = optarg;
-			break;
+				break;
 			case 'u':
 				sqluser = optarg;
-			break;
+				break;
 			case 'w':
 				sqlpass = optarg;
-			break;
+				break;
 			case 'j':
 				job_number = optarg;
-			break;
+				break;
 			default:
 				printf("Requires argument for operation mode -m [SEND or RECEIVE]\n");
 				printf("Requires argument for -p\n");
 				abort();
-			
+
 		}
 	}
 	if(mode == NULL)
@@ -154,20 +162,20 @@ int main(int argc, char **argv)
 		printf("Target job is -> %s\n",job_number);
 		//******SENDER MODE**********//		
 		//getstring_from_file(inputstr);
-		
+
 		char *out = jnx_file_read(inputstr);
-		
+
 		jnx_string_join(&out,"!");
 		jnx_string_join(&out,job_number);	
-		
-		printf("COMPLETE STRING OUTBOUND %s ////END \n",out);
-		
+
+		printf("****OUTPUT****\n");
+		printf("%s\n",out);
 		jnx_send_message(host,port,out);
 		//**************************//
 		return 0;
 	}
-	
-    return 0;
+
+	return 0;
 }
 
 
