@@ -1,5 +1,5 @@
 *.kdev4
-*swp
+*.swp
 satellite
 CMakeLists.txt
 *.sw*

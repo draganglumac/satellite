@@ -169,13 +169,11 @@ int main(int argc, char **argv)
 		}
 		printf("RAW FROM FILE:\n %s\nEND OF RAW\n",out);		
 
-		char outputbuffer[strlen(out) + 10];
-		strcpy(outputbuffer,out);
-		strcat(outputbuffer,"!");
-		strcat(outputbuffer,job_number);
+		jnx_string_join(&out,"!");
+		jnx_string_join(&out,job_number);
 
-		printf("COMPLETE STRING OUTBOUND\n %s\n ////END OF STRING \n",outputbuffer);
-		jnx_send_message(host,port,outputbuffer);
+		printf("COMPLETE STRING OUTBOUND\n %s\n ////END OF STRING \n",out);
+		jnx_send_message(host,port,out);
 
 		return 0;
 	}
