@@ -10,7 +10,7 @@
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxfile.h>
 #include "responder.h"
-
+char *sqlhost = NULL, *sqluser = NULL, *sqlpass = NULL;
 enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
 /*
  * This program is designed to be so simple it is almost instantly understandable
@@ -61,7 +61,7 @@ void server_update(char *received_msg)
 	}
 	else
 	{
-		write_result(token);
+		write_result(token,sqlhost,sqluser,sqlpass);
 	}
 }
 int main(int argc, char **argv) 
@@ -88,7 +88,6 @@ int main(int argc, char **argv)
 	char* host = NULL;
 	char *inputstr = NULL;
 	char* job_number = NULL;
-	char *sqlhost = NULL, *sqluser = NULL, *sqlpass = NULL;
 
 	while(( i = getopt_long_only(argc,argv,"h:i:m:p:j:s:u:w:",long_options,&option_index)) != -1)
 	{
@@ -137,11 +136,6 @@ int main(int argc, char **argv)
 		printf("Starting server on port %d\n",port);
 		//we need to setup our sql callback
 		printf("Setting up sql data with : %s %s %s\n",sqlhost,sqluser,sqlpass);
-		if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
-		{
-			printf("Critical error in SQL setup\n");
-			return SQL_UP;
-		}
 		jnx_listener_callback c = &server_update;
 		jnx_setup_listener(port,c);
 		//****************************//
