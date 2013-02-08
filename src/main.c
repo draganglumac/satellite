@@ -1,4 +1,5 @@
 #include <jnxc_headers/jnxnetwork.h>
+#include <unistd.h>
 #include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -154,7 +155,6 @@ int main(int argc, char **argv)
 		printf("Target file -> %s\n",inputstr);
 		printf("Target job is -> %s\n",job_number);
 		//******SENDER MODE**********//		
-		//getstring_from_file(inputstr);
 		char *out = jnx_file_read(inputstr);
 		if(out == NULL)
 		{
