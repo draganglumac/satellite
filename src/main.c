@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 		//******LISTENER MODE**********//
 		printf("Starting server on port %d\n",port);
 		//we need to setup our sql callback
-		printf("Setting up sql data with : %s %s %s\n",sqlhost,sqluser,sqlpass);
+		printf("Saving sql data as : %s %s %s\n",sqlhost,sqluser,sqlpass);
 		jnx_listener_callback c = &server_update;
 		jnx_setup_listener(port,c);
 		//****************************//

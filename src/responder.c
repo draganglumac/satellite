@@ -3,9 +3,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-void callback(MYSQL_RES* res)
+void callback(MYSQL_RES* result)
 {
+	int num_fields = mysql_num_fields(result);
+	MYSQL_ROW row;
+	int i;
+	while ((row = mysql_fetch_row(result)))
+	{
+		for(i = 0; i < num_fields; i++)
+		{
 
+			printf("%s ", row[i] ? row[i] : "NULL");
+		}
+		printf("\n");
+	}
 }
 int setup_sql(char* host_addr, char* username, char* port)
 {
