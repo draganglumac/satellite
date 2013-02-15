@@ -14,13 +14,6 @@
 #include "responder.h"
 #define TIMEWAIT 10
 enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
-/*
- * This program is designed to be so simple it is almost instantly understandable
- * It can operate in send or receive mode, where upon it transfers a simple char* protocol, using a predetermined delimiter
- * i.e xcode do some cool stuff -f 1902# build the project# post build steps
- * On the receiver side it will process the input steps via the executor which receieves a data_parcel (data_parcel is a struct made from the input 
- * protocol
- */
 void usage()
 {
     printf("Satellite is a half duplex server/client in one for transmission of several shell commands\n");
