@@ -34,7 +34,11 @@ int response_from_db(char *sqlhost, char* sqluser, char *sqlport)
  * Warning this uses stored procedures 
  *
  */
-    jnx_sql_query("USE AUTOMATION; call get_incomplete_jobs();",c);
+    if(jnx_sql_query("USE AUTOMATION; call get_incomplete_jobs();",c) != 0)
+    {
+        printf("An error occured whilst sending query\n");
+        return 1;
+    }
     jnx_sql_close();
     return 0;
 }
