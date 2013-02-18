@@ -12,7 +12,9 @@
 #include <jnxc_headers/jnxfile.h>
 #include <jnxc_headers/jnxterm.h>
 #include "responder.h"
-#define TIMEWAIT 10
+#include "jump_settings.h"
+#define TIMEWAIT 5
+
 enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
 void usage()
 {
@@ -124,13 +126,16 @@ int main(int argc, char **argv)
         printf("Saving sql data as : %s %s %s\n",sqlhost,sqluser,sqlpass);
         while(1)
         {
+            //setjmp is the return point after the sql functions have left the main loop
+            setjmp(jumper);
             printf("Checking sql\n");
+            sleep(TIMEWAIT);
             if(response_from_db(sqlhost,sqluser,sqlpass) != 0)
             {
                 printf("An error occured with sql request\n");
                 exit(1);
             }  
-            sleep(TIMEWAIT);
+            
         }
         return 0;
     }

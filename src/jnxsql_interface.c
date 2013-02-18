@@ -66,4 +66,3 @@ int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
     } while (status == 0);
     return 0;
 }
-

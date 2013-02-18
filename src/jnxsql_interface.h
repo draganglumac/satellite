@@ -4,9 +4,12 @@
 ///function pointer callback
 typedef void (*sql_callback)(MYSQL_RES*);
 ///Warning: SQL will need to be included into project as dependency
+///Warning: SQL will need to be included into project as dependency
+///Warning: SQL will need to be included into project as dependency
 ///sql_interface_setup sets the HOST USERNAME PASSWOD
 int jnx_sql_interface_setup(char *host,char *username, char *password);
 ///sql_query takes query string and callback
 int jnx_sql_query(char *query,void (*sql_callback)(MYSQL_RES*));
-void jnx_sql_close(void);
+void jnx_sql_close();
+//User is responsible for freeing result!
 #endif
