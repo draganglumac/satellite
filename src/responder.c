@@ -30,13 +30,11 @@ char* resolve_machine_ip(char *machine_number)
     printf("%s\n",output);
     //perform the actual request
     MYSQL_RES *result;
-
     if(jnx_sql_resultfill_query(output,&result) != 0)
     {
         printf("An error occured whilst sending query\n");
         return "ERROR WITH MACHINE IP";
     }
-
     num_fields = mysql_num_fields(result);
     while ((row = mysql_fetch_row(result)))
     {
@@ -53,7 +51,6 @@ char* resolve_machine_ip(char *machine_number)
         }
 
     }
-
     mysql_free_result(result);
     jnx_sql_close();
     return current_machine_ip;
@@ -98,7 +95,6 @@ int response_from_db(char *sqlh, char* sqlu, char *sqlp)
      *
      */
     MYSQL_RES *result;
-
     if(jnx_sql_resultfill_query("USE AUTOMATION; call get_incomplete_jobs();",&result) != 0)
     {
         printf("An error occured whilst sending query\n");
@@ -107,7 +103,6 @@ int response_from_db(char *sqlh, char* sqlu, char *sqlp)
     //close our db connection to stop it from sleeping
     jnx_sql_close();
     num_fields = mysql_num_fields(result);
-    
     while ((row = mysql_fetch_row(result)))
     {
         //row is the entire data line we want
@@ -122,7 +117,6 @@ int response_from_db(char *sqlh, char* sqlu, char *sqlp)
         }
         transmit_job_orders(row[0],row[1]/*  row[2] is time stamp we don't use currently */,resolve_machine_ip(row[5]) /*  we do another call to find machine ip */,row[3]);
     }
-
     mysql_free_result(result);
     return 0;
 }
