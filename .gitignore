@@ -1,4 +1,7 @@
 *h~
+*.swm
+*.swn
+*.swo
 *c~
 *.kdev4
 *.swp
