@@ -87,7 +87,6 @@ int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
         if(result)
         {
             /* yes; process rows and free the result set */
-            (*resultptr) = (MYSQL_RES*)malloc(sizeof(result));
             (*resultptr) = result;
         }
         else          /* no result set or error */
