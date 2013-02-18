@@ -8,14 +8,37 @@
 #include "jump_settings.h"
 //return the ip address
 char *sqlhost = NULL,*sqluser = NULL,*sqlport = NULL;
-char *current_machine_ip = NULL;
-
-void machine_ip_callback(MYSQL_RES *result)
+char* resolve_machine_ip(char *machine_number)
 {
-
-    int num_fields = mysql_num_fields(result);
+    if(setup_sql(sqlhost,sqluser,sqlport) != 0)
+    {
+        printf("Error connecting to sql to resolve machine ip, aborting\n");
+        exit(1);
+    }
+    /* 
+     * Warning this uses stored procedures 
+     *
+     */
+    char output[1024];
+    char *current_machine_ip = NULL;
+    strcpy(output,"USE AUTOMATION; call get_machine_ip_from_id(");
     MYSQL_ROW row;
     int i;
+    int num_fields; 
+    strcat(output,machine_number);
+    strcat(output,");");
+    printf("Raw machine number -> %s\n",machine_number);
+    printf("%s\n",output);
+    //perform the actual request
+    MYSQL_RES *result;
+
+    if(jnx_sql_resultfill_query(output,&result) != 0)
+    {
+        printf("An error occured whilst sending query\n");
+        return "ERROR WITH MACHINE IP";
+    }
+
+    num_fields = mysql_num_fields(result);
     while ((row = mysql_fetch_row(result)))
     {
         //row is the entire data line we want
@@ -31,31 +54,8 @@ void machine_ip_callback(MYSQL_RES *result)
         }
 
     }
-}
-char* resolve_machine_ip(char *machine_number)
-{
-    if(setup_sql(sqlhost,sqluser,sqlport) != 0)
-    {
-        printf("Error connecting to sql to resolve machine ip, aborting\n");
-        exit(1);
-    }
-    /* 
-     * Warning this uses stored procedures 
-     *
-     */
-    char output[1024];
-    strcpy(output,"USE AUTOMATION; call get_machine_ip_from_id(");
-    strcat(output,machine_number);
-    strcat(output,");");
-    printf("Raw machine number -> %s\n",machine_number);
-    printf("%s\n",output);
-    sql_callback c = &machine_ip_callback;
-    //perform the actual request
-    if(jnx_sql_query(output,c) != 0)
-    {
-        printf("An error occured whilst sending query\n");
-        return "ERROR WITH MACHINE IP";
-    }
+
+    mysql_free_result(result);
     jnx_sql_close();
     return current_machine_ip;
 }
@@ -74,36 +74,15 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
     //Write job in progress to sql
     printf("Done\n");
 } 
-void get_incomplete_jobs_callback(MYSQL_RES* result)
-{
-    int num_fields = mysql_num_fields(result);
-    MYSQL_ROW row;
-    int i;
-    while ((row = mysql_fetch_row(result)))
-    {
-        //row is the entire data line we want
-        for(i = 0; i < num_fields; i++)
-        {
-            if(row[i] == NULL)
-            {
-                printf("Found empty row; job is malformed, aborting!\n");
-                continue;
-            }
-        }
-        //send it to our node!
-        //WARNING HARDCODED MAGIC NUMBERS
-        transmit_job_orders(row[0],row[1]/*  row[2] is time stamp we don't use currently */,resolve_machine_ip(row[5]) /*  we do another call to find machine ip */,row[3]);
-    }
-    printf("got to the end of get_incomplete_jobs_callback\n");
-
-    longjmp(jumper,0);
-}
 int setup_sql(char* host_addr, char* username, char* port)
 {
     return jnx_sql_interface_setup(host_addr,username,port);
 }
 int response_from_db(char *sqlh, char* sqlu, char *sqlp)
 {
+    int i;
+    int num_fields;
+    MYSQL_ROW row;
     printf("Started response_from_db\n");
     //set our sql data
     sqlhost = sqlh;
@@ -115,16 +94,36 @@ int response_from_db(char *sqlh, char* sqlu, char *sqlp)
         printf("Error connecting to sql\n");
         return 1;
     }
-    sql_callback c = get_incomplete_jobs_callback;
     /*
      * Warning this uses stored procedures 
      *
      */
-    if(jnx_sql_query("USE AUTOMATION; call get_incomplete_jobs();",c) != 0)
+    MYSQL_RES *result;
+
+    if(jnx_sql_resultfill_query("USE AUTOMATION; call get_incomplete_jobs();",&result) != 0)
     {
         printf("An error occured whilst sending query\n");
         return 1;
     }
+    //close our db connection to stop it from sleeping
     jnx_sql_close();
+    num_fields = mysql_num_fields(result);
+    
+    while ((row = mysql_fetch_row(result)))
+    {
+        //row is the entire data line we want
+        for(i = 0; i < num_fields; i++)
+        {
+            if(row[i] == NULL)
+            {
+                printf("Error in sql syntax for row %d\n",i);
+                return 1;
+            }
+
+        }
+        transmit_job_orders(row[0],row[1]/*  row[2] is time stamp we don't use currently */,resolve_machine_ip(row[5]) /*  we do another call to find machine ip */,row[3]);
+    }
+
+    mysql_free_result(result);
     return 0;
 }

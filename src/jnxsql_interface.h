@@ -10,6 +10,7 @@ typedef void (*sql_callback)(MYSQL_RES*);
 int jnx_sql_interface_setup(char *host,char *username, char *password);
 ///sql_query takes query string and callback
 int jnx_sql_query(char *query,void (*sql_callback)(MYSQL_RES*));
+int jnx_sql_resultfill_query(char *query, MYSQL_RES** resultptr);
 void jnx_sql_close();
 //User is responsible for freeing result!
 #endif

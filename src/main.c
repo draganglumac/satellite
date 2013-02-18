@@ -129,13 +129,13 @@ int main(int argc, char **argv)
             //setjmp is the return point after the sql functions have left the main loop
             setjmp(jumper);
             printf("Checking sql\n");
-            sleep(TIMEWAIT);
             if(response_from_db(sqlhost,sqluser,sqlpass) != 0)
             {
                 printf("An error occured with sql request\n");
                 exit(1);
             }  
             
+            sleep(TIMEWAIT);
         }
         return 0;
     }
