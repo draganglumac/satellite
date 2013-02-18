@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <jnxc_headers/jnxterm.h>
 #include <setjmp.h>
-#include "jump_settings.h"
 //return the ip address
 char *sqlhost = NULL,*sqluser = NULL,*sqlport = NULL;
 char* resolve_machine_ip(char *machine_number)

@@ -12,7 +12,6 @@
 #include <jnxc_headers/jnxfile.h>
 #include <jnxc_headers/jnxterm.h>
 #include "responder.h"
-#include "jump_settings.h"
 #define TIMEWAIT 5
 
 enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
@@ -127,7 +126,6 @@ int main(int argc, char **argv)
         while(1)
         {
             //setjmp is the return point after the sql functions have left the main loop
-            setjmp(jumper);
             printf("Checking sql\n");
             if(response_from_db(sqlhost,sqluser,sqlpass) != 0)
             {
