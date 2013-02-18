@@ -7,6 +7,10 @@
 #include <setjmp.h>
 //return the ip address
 char *sqlhost = NULL,*sqluser = NULL,*sqlport = NULL;
+void generic_sql_callback(MYSQL_RES *res)
+{
+    //our generic callback
+}
 char* resolve_machine_ip(char *machine_number)
 {
     if(setup_sql(sqlhost,sqluser,sqlport) != 0)
@@ -49,11 +53,34 @@ char* resolve_machine_ip(char *machine_number)
                 current_machine_ip = "ERROR";
             }
         }
-
     }
     mysql_free_result(result);
     jnx_sql_close();
     return current_machine_ip;
+}
+int set_job_to_in_progress(char *job_id)
+{
+    if(setup_sql(sqlhost,sqluser,sqlport) != 0)
+    {
+        printf("Error connecting to sql\n");
+        return 1;
+    }
+    char output[256];
+    strcpy(output,"use AUTOMATION; call set_job_status_from_id("); 
+    strcat(output,job_id);
+    strcat(output,",'INPROGRESS'");
+    strcat(output,");");
+
+    printf("%s\n",output);
+
+    sql_callback c = &generic_sql_callback;
+
+    if(jnx_sql_query(output,c) != 0)
+    {
+        return 1;
+    }
+    jnx_sql_close();
+    return 0;
 }
 //here we transmit the actual job
 void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
@@ -64,11 +91,15 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
     printf("Transmitting machine_ip -> %s\n",machine_ip);
     printf("Transmitting command -> %s\n",command);
     //Form job string 
-    //
+
     //Transmit job string
-    //
+
     //Write job in progress to sql
-    printf("Done\n");
+    if(set_job_to_in_progress(job_id) != 0)
+    {
+        printf("Unable to set job to INPROGRESS, aborting\n");
+        exit(1);
+    }    
 } 
 int setup_sql(char* host_addr, char* username, char* port)
 {
