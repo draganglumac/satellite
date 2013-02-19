@@ -19,8 +19,8 @@ void usage()
 {
     printf("Satellite is a half duplex server/client in one for transmission of several shell commands\n");
     printf("No mode selected, please try again using -m\n");
-    printf("Using -m LISTEN will enable listener mode where you will be asked to provide -p [PORT] --sql_h --sql_u --sql_p\n");	
-    printf("Using -m SEND will enable a daemon that sends jobs it finds in the database that need to be completed. Requires: --sql_h --sql_u --sql_p\n");
+    printf("Using -m LISTEN will enable listener mode where you will be asked to provide -p [PORT] --sqlhost --sqluser --sqlpass\n");	
+    printf("Using -m SEND will enable a daemon that sends jobs it finds in the database that need to be completed. Requires: --sqlhost --sqluser --sqlpass\n");
 }
 void catch_int (int signum) 
 { 
