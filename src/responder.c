@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxterm.h>
+#include <jnxc_headers/jnxnetwork.h>
 #include <setjmp.h>
 //return the ip address
 char *sqlhost = NULL,*sqluser = NULL,*sqlport = NULL;
@@ -70,11 +72,8 @@ int set_job_to_in_progress(char *job_id)
     strcat(output,job_id);
     strcat(output,",'INPROGRESS'");
     strcat(output,");");
-
     printf("%s\n",output);
-
     sql_callback c = &generic_sql_callback;
-
     if(jnx_sql_query(output,c) != 0)
     {
         return 1;
@@ -93,7 +92,22 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
     //Form job string 
 
     //Transmit job string
+    
+    //Append to command the job id ->
+    int command_len = strlen(command); 
+    char *transmission_string = (char*)malloc(command_len + 1);
+    strcpy(transmission_string,command);
+    printf("Copy of command is %s\n",transmission_string);
+    jnx_string_join(&transmission_string,"!");
+    jnx_string_join(&transmission_string,job_id);
+    printf("Outgoing transmission %s\n",transmission_string);
 
+    if(jnx_send_message(machine_ip,9099,transmission_string) != 0)
+    {
+        printf("Failed to send message to target machine, aborting\n");
+        exit(1);
+    }
+    free(transmission_string);
     //Write job in progress to sql
     if(set_job_to_in_progress(job_id) != 0)
     {
