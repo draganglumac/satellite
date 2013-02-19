@@ -1,5 +1,5 @@
-#ifndef __RESPONDER_H__
-#define __RESPONDER_H__
+#ifndef __INTERFACE_H__
+#define __INTERFACE_H__
 #include "jnxsql_interface.h"
 
 void set_sql_data(char* sqlh,char* sqlu,char* sqlp);

@@ -11,7 +11,7 @@
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxfile.h>
 #include <jnxc_headers/jnxterm.h>
-#include "responder.h"
+#include "interface.h"
 #define TIMEWAIT 5
 char *sql_h = NULL, *sql_u = NULL, *sql_p = NULL;
 enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
