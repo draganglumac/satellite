@@ -54,11 +54,10 @@ void server_update(char *received_msg)
     }
     printf("Execution completed\n");
     //this step sets up our sql database globals
-    set_sql_data(sql_h,sql_u,sql_p);
-    if(write_result_to_db(job_id,"COMPLETED") != 0)
+    if(write_result_to_db(job_id,"COMPLETED",sql_h,sql_u,sql_p) != 0)
     {
-	    printf("Error with write_result_to_db\n");
-    	    //this needs to be logged or exit
+        printf("Error with write_result_to_db\n");
+        //this needs to be logged or exit
     }
 }
 int main(int argc, char **argv) 
@@ -112,8 +111,7 @@ int main(int argc, char **argv)
         if(!port) { printf("Requires port number, option -p\n");return 1; };
         printf("Starting server on port %d\n",port);
         printf("Saving sql data as : %s %s %s\n",sql_h,sql_u,sql_p);
-	set_sql_data(sql_h,sql_u,sql_p);
-	jnx_listener_callback c = &server_update;
+        jnx_listener_callback c = &server_update;
         jnx_setup_listener(port,c);
         return 0;
     }
@@ -132,7 +130,7 @@ int main(int argc, char **argv)
                 printf("An error occured with sql request\n");
                 exit(1);
             }  
-            
+
             sleep(TIMEWAIT);
         }
         return 0;
