@@ -108,11 +108,8 @@ int main(int argc, char **argv)
         return ARG_UP;
     }
     config = set_configuration(conf);
-    printf("!\n");
-    printf("%s\n",mode);
     if(strcmp(mode,"RECEIVE") == 0)
     {
-        printf("inside of receiver\n");
         if(!jnx_hash_get(config,"listenport"))
         { printf("Requires port number, option -p\n");return 1; };
         printf("Starting server on port %s\n",jnx_hash_get(config,"listenport"));
@@ -124,7 +121,6 @@ int main(int argc, char **argv)
     if(strcmp(mode,"TRANSMIT") == 0)
     {
         if(!jnx_hash_get(config,"sqlhost") || !jnx_hash_get(config,"sqluser")|| ! jnx_hash_get(config,"sqlpass")) { usage(); exit(1); }
-        printf("Sender mode\n");
         printf("Starting deamon\n");
         printf("Saving sql data as : %s %s %s\n",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass"));
         while(1)

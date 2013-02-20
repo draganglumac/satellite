@@ -174,7 +174,6 @@ int response_from_db(char *sqlh, char* sqlu, char *sqlp)
 }
 int write_result_to_db(char *job_id,char *result_input,char *sqlh,char *sqlu,char *sqlp)
 {
-    printf("Database to write to: %s %s %s\n",sqlhost,sqluser,sqlpass);
     if(setup_sql(sqlh,sqlu,sqlp) != 0)
     {
         printf("Error connecting to sql\n");
