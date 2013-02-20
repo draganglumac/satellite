@@ -109,7 +109,9 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
     if(jnx_send_message(machine_ip,9099,transmission_string) != 0)
     {
         printf("Failed to send message to target machine, aborting\n");
-        exit(1);
+        free(transmission_string);
+        //LOG ERROR
+        return; 
     }
     free(transmission_string);
     //Write job in progress to sql
@@ -130,6 +132,7 @@ int response_from_db(char *sqlh, char* sqlu, char *sqlp)
     MYSQL_ROW row;
     printf("Started response_from_db\n");
     //set our sql data
+    printf("%s %s %s\n",sqlh,sqlu,sqlp);
     sqlhost = sqlh;
     sqluser = sqlu;
     sqlpass = sqlp;

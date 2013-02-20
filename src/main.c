@@ -11,16 +11,16 @@
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxfile.h>
 #include <jnxc_headers/jnxterm.h>
+#include <jnxc_headers/jnxhash.h>
 #include "interface.h"
 #define TIMEWAIT 5
-char *sql_h = NULL, *sql_u = NULL, *sql_p = NULL;
+jnx_hashmap *config;
 enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
 void usage()
 {
     printf("Satellite is a half duplex server/client in one for transmission of several shell commands\n");
-    printf("No mode selected, please try again using -m\n");
-    printf("Using -m LISTEN will enable listener mode where you will be asked to provide -p [PORT] --sqlhost --sqluser --sqlpass\n");	
-    printf("Using -m SEND will enable a daemon that sends jobs it finds in the database that need to be completed. Requires: --sqlhost --sqluser --sqlpass\n");
+    printf("No mode selected, please try again using -m [TRANSMIT,RECEIVE]\n");
+    printf("--conf [PATH TO CONF FILE]\n");
 }
 void catch_int (int signum) 
 { 
@@ -41,8 +41,8 @@ void server_update(char *received_msg)
     char cp[1024];
     strcpy(cp,received_msg);
     char *token = strtok(cp,delimiter);
-    printf("COMMAND: %s\n",command);
     command = token;
+    printf("COMMAND: %s\n",command);
     token = strtok(NULL,delimiter);
     //We should really chop off the job so it doesnt come out as a system error
     job_id = token;
@@ -54,11 +54,22 @@ void server_update(char *received_msg)
     }
     printf("Execution completed\n");
     //this step sets up our sql database globals
-    if(write_result_to_db(job_id,"COMPLETED",sql_h,sql_u,sql_p) != 0)
+    if(write_result_to_db(job_id,"COMPLETED",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
     {
         printf("Error with write_result_to_db\n");
         //this needs to be logged or exit
     }
+}
+jnx_hashmap* set_configuration(char *path)
+{
+    jnx_hashmap *hash = jnx_hash_init(1024);
+    jnx_file_kvp_node *kvpnode = jnx_file_read_keyvaluepairs(path,"="); 
+    while(kvpnode)
+    {
+        jnx_hash_put(hash,kvpnode->key,kvpnode->value);
+        kvpnode = kvpnode->next;
+    }
+    return hash;
 }
 int main(int argc, char **argv) 
 {
@@ -67,68 +78,63 @@ int main(int argc, char **argv)
     static struct option long_options[] = 
     {
         {"mode",required_argument,0,'m'},
-        {"port",required_argument,0,'p'},
-        {"sqlhost",required_argument,0,'s'},
-        {"sqluser",required_argument,0,'u'},
-        {"sqlpass",required_argument,0,'w'},
+        {"conf",required_argument,0,'c'},
         {0,      0,                 0, 0 }
     };
     int option_index = 0;
     int i;
     int port;
+    char *conf = NULL;
     char* mode = NULL;
-    while(( i = getopt_long_only(argc,argv,"m:p:s:u:w:",long_options,&option_index)) != -1)
+    while(( i = getopt_long_only(argc,argv,"c:m:",long_options,&option_index)) != -1)
     {
         switch(i)
         {
+            case 'c':
+                conf = optarg;
+                break;
             case 'm':
                 mode = optarg;
-                break;
-            case 'p':
-                port = atoi(optarg);
-                break;
-            case 's':
-                sql_h = optarg;
-                break;
-            case 'u':
-                sql_u = optarg;
-                break;
-            case 'w':
-                sql_p = optarg;
                 break;
             default:
                 usage();
                 exit(1);
         }
+
     }
-    if(mode == NULL)
+    if(conf == NULL || mode == NULL)
     {
         usage();
         return ARG_UP;
     }
-    if(strcmp(mode,"LISTEN") == 0)
+    config = set_configuration(conf);
+    printf("!\n");
+    printf("%s\n",mode);
+    if(strcmp(mode,"RECEIVE") == 0)
     {
-        if(!port) { printf("Requires port number, option -p\n");return 1; };
-        printf("Starting server on port %d\n",port);
-        printf("Saving sql data as : %s %s %s\n",sql_h,sql_u,sql_p);
+        printf("inside of receiver\n");
+        if(!jnx_hash_get(config,"listenport"))
+        { printf("Requires port number, option -p\n");return 1; };
+        printf("Starting server on port %s\n",jnx_hash_get(config,"listenport"));
+        printf("Saving sql data as : %s %s %s\n",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass"));
         jnx_listener_callback c = &server_update;
-        jnx_setup_listener(port,c);
+        jnx_setup_listener(atoi(jnx_hash_get(config,"listenport")),c);
         return 0;
     }
-    if(strcmp(mode,"SEND") == 0)
+    if(strcmp(mode,"TRANSMIT") == 0)
     {
-        if(!sql_h || !sql_u || ! sql_p) { usage(); exit(1); }
+        if(!jnx_hash_get(config,"sqlhost") || !jnx_hash_get(config,"sqluser")|| ! jnx_hash_get(config,"sqlpass")) { usage(); exit(1); }
         printf("Sender mode\n");
         printf("Starting deamon\n");
-        printf("Saving sql data as : %s %s %s\n",sql_h,sql_u,sql_p);
+        printf("Saving sql data as : %s %s %s\n",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass"));
         while(1)
         {
             //setjmp is the return point after the sql functions have left the main loop
             printf("Checking sql\n");
-            if(response_from_db(sql_h,sql_u,sql_p) != 0)
+            if(response_from_db(jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
             {
                 printf("An error occured with sql request\n");
-                exit(1);
+                printf("Continuing\n");
             }  
 
             sleep(TIMEWAIT);
