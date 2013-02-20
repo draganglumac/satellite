@@ -13,6 +13,7 @@
 #include <jnxc_headers/jnxterm.h>
 #include <jnxc_headers/jnxhash.h>
 #include "interface.h"
+#include "jnx_log.h"
 #define TIMEWAIT 5
 jnx_hashmap *config;
 enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
@@ -108,12 +109,25 @@ int main(int argc, char **argv)
         return ARG_UP;
     }
     config = set_configuration(conf);
+    
+    if(jnx_log_setup(jnx_hash_get(config,"logpath"),LOGWNEWLINE) != 0)
+    {
+        printf("WARNING: Could not start logger\n");
+        exit(0);
+    } 
+
+    jnx_log("%s","Logger started");
+
+    jnx_log("%s","blablah");
+
     if(strcmp(mode,"RECEIVE") == 0)
     {
         if(!jnx_hash_get(config,"listenport"))
         { printf("Requires port number, option -p\n");return 1; };
-        printf("Starting server on port %s\n",jnx_hash_get(config,"listenport"));
-        printf("Saving sql data as : %s %s %s\n",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass"));
+        
+        
+       // jnx_log("%s %s","Starting listener on port",jnx_hash_get(config,"listenport"));
+       // jnx_log("%s %s %s %s","Saving sql data as",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass"));
         jnx_listener_callback c = &server_update;
         jnx_setup_listener(atoi(jnx_hash_get(config,"listenport")),c);
         return 0;
