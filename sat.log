@@ -1,2 +1,25 @@
-Logger started
-blablah
+Sun Feb 24 18:08:36 2013 : src/jnxlog.c : Satellite Started
+Sun Feb 24 18:08:36 2013 : src/jnxlog.c : Starting daemon
+Sun Feb 24 18:08:36 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:08:41 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:08:46 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:08:51 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:08:56 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:01 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:06 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:11 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:16 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:21 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:26 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:31 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:36 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:41 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:46 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:51 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:56 2013 : src/jnxlog.c : Connecting to sql
+Sun Feb 24 18:09:56 2013 : src/jnxlog.c : **Transmitting job***
+Sun Feb 24 18:09:56 2013 : src/jnxlog.c : 149
+Sun Feb 24 18:09:56 2013 : src/jnxlog.c : job_name
+Sun Feb 24 18:09:56 2013 : src/jnxlog.c : 172.20.160.147
+Sun Feb 24 18:09:56 2013 : src/jnxlog.c : echo hello
+Sun Feb 24 18:09:56 2013 : src/jnxlog.c : **Transmitting job***

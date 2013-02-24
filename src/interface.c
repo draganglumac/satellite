@@ -6,6 +6,7 @@
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxterm.h>
 #include <jnxc_headers/jnxnetwork.h>
+#include <jnxc_headers/jnxlog.h>
 #include <setjmp.h>
 
 //Forward declarations
@@ -94,8 +95,13 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
     printf("Transmitting machine_ip -> %s\n",machine_ip);
     printf("Transmitting command -> %s\n",command);
     //Form job string 
-
+    jnx_log("**Transmitting job***");
+    jnx_log(job_id);
+    jnx_log(job_name);
+    jnx_log(machine_ip);
+    jnx_log(command);
     //Transmit job string
+    jnx_log("**Transmitting job***");
 
     //Append to command the job id ->
     int command_len = strlen(command); 
