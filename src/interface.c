@@ -23,6 +23,7 @@ char* resolve_machine_ip(char *machine_number)
     if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
     {
         printf("Error connecting to sql to resolve machine ip, aborting\n");
+        jnx_log("Error connecting to sql to resolve machine ip, aborting");
         exit(1);
     }
     /* 
@@ -44,6 +45,7 @@ char* resolve_machine_ip(char *machine_number)
     if(jnx_sql_resultfill_query(output,&result) != 0)
     {
         printf("An error occured whilst sending query\n");
+        jnx_log("An error occured whilst sending query rom resolve_machine_ip");
         return "ERROR WITH MACHINE IP";
     }
     num_fields = mysql_num_fields(result);
@@ -70,6 +72,7 @@ int set_job_to_in_progress(char *job_id)
     if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
     {
         printf("Error connecting to sql\n");
+        jnx_log("Error connecting to sql in set_job_to_in_progress");
         return 1;
     }
     char output[256];
@@ -115,6 +118,7 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
     if(jnx_send_message(machine_ip,9099,transmission_string) != 0)
     {
         printf("Failed to send message to target machine, aborting\n");
+        jnx_log("Failed to send message to target machine in transmit_job_orders");
         free(transmission_string);
         //LOG ERROR
         return; 
@@ -146,6 +150,7 @@ int response_from_db(char *sqlh, char* sqlu, char *sqlp)
     if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
     {
         printf("Error connecting to sql\n");
+        jnx_log("Error connecting to sql in response_from_db");
         return 1;
     }
     /*
@@ -156,6 +161,7 @@ int response_from_db(char *sqlh, char* sqlu, char *sqlp)
     if(jnx_sql_resultfill_query("USE AUTOMATION; call get_incomplete_jobs();",&result) != 0)
     {
         printf("An error occured whilst sending query\n");
+        jnx_log("Error sending query from response_from_db");
         return 1;
     }
     //close our db connection to stop it from sleeping
@@ -183,6 +189,7 @@ int write_result_to_db(char *job_id,char *result_input,char *sqlh,char *sqlu,cha
     if(setup_sql(sqlh,sqlu,sqlp) != 0)
     {
         printf("Error connecting to sql\n");
+        jnx_log("Error connecting to sql in write_result_to_db");
         return 1;
 
     }
@@ -199,6 +206,7 @@ int write_result_to_db(char *job_id,char *result_input,char *sqlh,char *sqlu,cha
     if(jnx_sql_resultfill_query(query,&result) != 0)
     {
         printf("An error occured whilst sending query\n");
+        jnx_log("Error whilst sending query in write_result_to_db");
         return 1;
     }
     //we don't need to free result as it will be null on an insert of this type
