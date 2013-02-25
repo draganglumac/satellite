@@ -87,8 +87,10 @@ int set_job_progress(char *job_id,char*status)
     if(jnx_sql_query(output,c) != 0)
     {
         return 1;
-    }
+    }else{
+    //avoids a crash if sql fails
     jnx_sql_close();
+    }
     return 0;
 }
 //here we transmit the actual job
