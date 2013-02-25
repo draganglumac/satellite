@@ -136,7 +136,7 @@ int main(int argc, char **argv)
     {
         if(!jnx_hash_get(config,"sqlhost") || !jnx_hash_get(config,"sqluser")|| ! jnx_hash_get(config,"sqlpass")) { usage(); exit(1); }
         jnx_log("Starting daemon");
-        printf("Saving sql data as : %s %s %s\n",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass"));
+        printf("Saving sql data as : %s %s %s\n",(char*)jnx_hash_get(config,"sqlhost"),(char*)jnx_hash_get(config,"sqluser"),(char*)jnx_hash_get(config,"sqlpass"));
         while(1)
         {
             //setjmp is the return point after the sql functions have left the main loop
