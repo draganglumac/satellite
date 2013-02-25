@@ -67,18 +67,20 @@ char* resolve_machine_ip(char *machine_number)
     jnx_sql_close();
     return current_machine_ip;
 }
-int set_job_to_in_progress(char *job_id)
+int set_job_progress(char *job_id,char*status)
 {
     if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
     {
         printf("Error connecting to sql\n");
-        jnx_log("Error connecting to sql in set_job_to_in_progress");
+        jnx_log("Error connecting to sql in set_job_progress");
         return 1;
     }
     char output[256];
     strcpy(output,"use AUTOMATION; call set_job_status_from_id("); 
     strcat(output,job_id);
-    strcat(output,",'INPROGRESS'");
+    strcat(output,",'");
+    strcat(output,status);
+    strcat(output,"'");
     strcat(output,");");
     printf("%s\n",output);
     sql_callback c = &generic_sql_callback;
@@ -120,12 +122,18 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
         printf("Failed to send message to target machine, aborting\n");
         jnx_log("Failed to send message to target machine in transmit_job_orders");
         free(transmission_string);
+
+    if(set_job_progress(job_id,"FAILED") != 0)
+    {
+        printf("Unable to set job to FAILED, aborting\n");
+        exit(1);
+    }    
         //LOG ERROR
         return; 
     }
     free(transmission_string);
     //Write job in progress to sql
-    if(set_job_to_in_progress(job_id) != 0)
+    if(set_job_progress(job_id,"INPROGRESS") != 0)
     {
         printf("Unable to set job to INPROGRESS, aborting\n");
         exit(1);

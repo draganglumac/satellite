@@ -63,7 +63,7 @@ int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
         }
         /* more results? -1 = no, >0 = error, 0 = yes (keep looping) */
         if ((status = mysql_next_result(connection)) > 0)
-            printf("Could not execute statement\n");
+            printf("Could not execute statement in jnx_sql_query\n");
     } while (status == 0);
     return 0;
 }
@@ -104,7 +104,7 @@ int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
         }
         /* more results? -1 = no, >0 = error, 0 = yes (keep looping) */
         if ((status = mysql_next_result(connection)) > 0)
-            printf("Could not execute statement\n");
+            printf("Could not execute statement in jnx_sql_resultfill_query\n");
     } while (status == 0);
     return 0;
 }

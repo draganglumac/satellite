@@ -23,3 +23,182 @@ Sun Feb 24 18:09:56 2013 : src/jnxlog.c : job_name
 Sun Feb 24 18:09:56 2013 : src/jnxlog.c : 172.20.160.147
 Sun Feb 24 18:09:56 2013 : src/jnxlog.c : echo hello
 Sun Feb 24 18:09:56 2013 : src/jnxlog.c : **Transmitting job***
+Satellite Started
+Starting daemon
+Connecting to sql
+Satellite Started
+Starting daemon
+Connecting to sql
+Satellite Started
+Starting daemon
+Connecting to sql
+Satellite Started
+Starting daemon
+Connecting to sql
+Satellite Started
+Starting daemon
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+**Transmitting job***
+149
+job_name
+172.20.160.147
+echo hello
+**Transmitting job***
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+
+Received an interrupt! About to exit ..
+
+Satellite Started
+Starting daemon
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+**Transmitting job***
+149
+job_name
+172.20.160.147
+echo hello
+**Transmitting job***
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Satellite Started
+Starting daemon
+Connecting to sql
+Connecting to sql
+Connecting to sql
+Connecting to sql
+**Transmitting job***
+149
+job_name
+172.20.160.147
+echo hello
+**Transmitting job***
+Connecting to sql
+Connecting to sql
