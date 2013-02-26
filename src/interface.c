@@ -195,9 +195,9 @@ int response_from_db(char *sqlh, char* sqlu, char *sqlp)
     mysql_free_result(result);
     return 0;
 }
-int write_result_to_db(char *job_id,char *result_input,char *sqlh,char *sqlu,char *sqlp)
+int write_result_to_db(char *job_id,char *result_input)
 {
-    if(setup_sql(sqlh,sqlu,sqlp) != 0)
+    if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
     {
         printf("Error connecting to sql\n");
         jnx_log("Error connecting to sql in write_result_to_db");
@@ -223,4 +223,10 @@ int write_result_to_db(char *job_id,char *result_input,char *sqlh,char *sqlu,cha
     //we don't need to free result as it will be null on an insert of this type
     jnx_sql_close();
     return 0;
+}
+int store_sql_credentials(char* host_addr, char* username, char* pass)
+{
+    sqlhost = host_addr;
+    sqluser = username;
+    sqlpass = pass;
 }

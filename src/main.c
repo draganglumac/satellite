@@ -57,7 +57,7 @@ void server_update(char *received_msg)
     }
     printf("Execution completed\n");
     //this step sets up our sql database globals
-    if(write_result_to_db(job_id,"COMPLETED",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
+    if(write_result_to_db(job_id,"COMPLETED") != 0)
     {
         printf("Error with write_result_to_db\n");
         jnx_log("Error writing write_result_to_db");
@@ -120,28 +120,37 @@ int main(int argc, char **argv)
     } 
     jnx_log("Satellite Started");
 
+    jnx_log("Storing SQL credentials temporarily");
+    
+   printf("%s %s %s","Saving sql data as",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass"));
+   
+   if(store_sql_credentials(jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
+    {
+        // could not store creds?
+        printf("Error with sql credentials\n");
+        jnx_log("Error in store_sql_credentials");
+        exit(1);
+    }
+    jnx_log("Done");
+    
     if(strcmp(mode,"RECEIVE") == 0)
     {
         if(!jnx_hash_get(config,"listenport"))
         { printf("Requires port number, option -p\n");return 1; };
 
         jnx_log("Starting listener");
-        // jnx_log("%s %s","Starting listener on port",jnx_hash_get(config,"listenport"));
-        // jnx_log("%s %s %s %s","Saving sql data as",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass"));
         jnx_listener_callback c = &server_update;
         jnx_setup_listener(atoi(jnx_hash_get(config,"listenport")),c);
         return 0;
     }
     if(strcmp(mode,"TRANSMIT") == 0)
     {
-        if(!jnx_hash_get(config,"sqlhost") || !jnx_hash_get(config,"sqluser")|| ! jnx_hash_get(config,"sqlpass")) { usage(); exit(1); }
         jnx_log("Starting daemon");
-        printf("Saving sql data as : %s %s %s\n",(char*)jnx_hash_get(config,"sqlhost"),(char*)jnx_hash_get(config,"sqluser"),(char*)jnx_hash_get(config,"sqlpass"));
         while(1)
         {
             //setjmp is the return point after the sql functions have left the main loop
             jnx_log("Connecting to sql");
-            if(response_from_db(jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
+            if(response_from_db() != 0)
             {
                 jnx_log("Error with sql request");
                 printf("An error occured with sql request\n");
