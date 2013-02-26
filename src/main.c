@@ -63,6 +63,10 @@ void server_update(char *received_msg)
         jnx_log("Error writing write_result_to_db");
         //this needs to be logged or exit
     }
+    if(set_job_progress(job_id,"COMPLETED")!=0)
+    {
+        printf("Error with write_result_to_db\n");
+    }
 }
 jnx_hashmap* set_configuration(char *path)
 {

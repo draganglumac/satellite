@@ -214,7 +214,6 @@ int store_sql_credentials(char* host_addr, char* username, char* pass)
     sqlhost = host_addr;
     sqluser = username;
     sqlpass = pass;
-
     int ret = 0;
     MYSQL_RES *result;
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
