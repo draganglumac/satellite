@@ -88,8 +88,8 @@ int set_job_progress(char *job_id,char*status)
     {
         return 1;
     }else{
-    //avoids a crash if sql fails
-    jnx_sql_close();
+        //avoids a crash if sql fails
+        jnx_sql_close();
     }
     return 0;
 }
@@ -125,11 +125,11 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
         jnx_log("Failed to send message to target machine in transmit_job_orders");
         free(transmission_string);
 
-    if(set_job_progress(job_id,"FAILED") != 0)
-    {
-        printf("Unable to set job to FAILED, aborting\n");
-        exit(1);
-    }    
+        if(set_job_progress(job_id,"FAILED") != 0)
+        {
+            printf("Unable to set job to FAILED, aborting\n");
+            exit(1);
+        }    
         //LOG ERROR
         return; 
     }
@@ -189,7 +189,8 @@ int response_from_db(char *sqlh, char* sqlu, char *sqlp)
             }
 
         }
-        transmit_job_orders(row[0],row[1]/*  row[2] is time stamp we don't use currently */,resolve_machine_ip(row[5]) /*  we do another call to find machine ip */,row[3]);
+        //void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
+        transmit_job_orders(row[0],row[1],resolve_machine_ip(row[5]),row[3]);
     }
     mysql_free_result(result);
     return 0;

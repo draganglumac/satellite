@@ -202,3 +202,15 @@ echo hello
 **Transmitting job***
 Connecting to sql
 Connecting to sql
+Satellite Started
+Starting daemon
+Connecting to sql
+**Transmitting job***
+149
+job_name
+127.0.0.1
+echo hello
+**Transmitting job***
+Failed to send message to target machine in transmit_job_orders
+Connecting to sql
+Connecting to sql
