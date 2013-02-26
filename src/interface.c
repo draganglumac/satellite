@@ -8,9 +8,8 @@
 #include <jnxc_headers/jnxnetwork.h>
 #include <jnxc_headers/jnxlog.h>
 #include <setjmp.h>
-
 //Forward declarations
-int setup_sql(char*sqlhost,char*sqluser,char*sqlpass);
+int jnx_sql_interface_setup(char*sqlhost,char*sqluser,char*sqlpass);
 //global vars
 char *sqlhost = NULL,*sqluser = NULL,*sqlpass = NULL;
 //callback hooks for jnx_sql_query
@@ -20,7 +19,7 @@ void generic_sql_callback(MYSQL_RES *res)
 }
 char* resolve_machine_ip(char *machine_number)
 {
-    if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
+    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
         printf("Error connecting to sql to resolve machine ip, aborting\n");
         jnx_log("Error connecting to sql to resolve machine ip, aborting");
@@ -69,7 +68,7 @@ char* resolve_machine_ip(char *machine_number)
 }
 int set_job_progress(char *job_id,char*status)
 {
-    if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
+    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
         printf("Error connecting to sql\n");
         jnx_log("Error connecting to sql in set_job_progress");
@@ -141,10 +140,6 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
         exit(1);
     }    
 } 
-int setup_sql(char* sqlh, char* sqlu, char* sqlp)
-{
-    return jnx_sql_interface_setup(sqlh,sqlu,sqlp);
-}
 int response_from_db()
 {
     int i;
@@ -152,7 +147,7 @@ int response_from_db()
     MYSQL_ROW row;
     printf("Started response_from_db\n");
     //set our sql data
-    if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
+    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
         printf("Error connecting to sql\n");
         jnx_log("Error connecting to sql in response_from_db");
@@ -192,7 +187,7 @@ int response_from_db()
 }
 int write_result_to_db(char *job_id,char *result_input)
 {
-    if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
+    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
         printf("Error connecting to sql\n");
         jnx_log("Error connecting to sql in write_result_to_db");

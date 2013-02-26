@@ -35,3 +35,13 @@ Done
 Starting daemon
 Connecting to sql
 Connecting to sql
+Tue Feb 26 11:20:41 2013 : src/jnxlog.c : Satellite Started
+Tue Feb 26 11:20:41 2013 : src/jnxlog.c : Storing SQL credentials temporarily
+Tue Feb 26 11:20:41 2013 : src/jnxlog.c : Starting daemon
+Tue Feb 26 11:20:41 2013 : src/jnxlog.c : Connecting to sql
+Tue Feb 26 11:20:41 2013 : src/jnxlog.c : Done
+Tue Feb 26 11:23:05 2013 : src/jnxlog.c : Satellite Started
+Tue Feb 26 11:23:05 2013 : src/jnxlog.c : Storing SQL credentials temporarily
+Tue Feb 26 11:23:05 2013 : src/jnxlog.c : Connecting to sql
+Tue Feb 26 11:23:05 2013 : src/jnxlog.c : Starting daemon
+Tue Feb 26 11:23:05 2013 : src/jnxlog.c : Done
