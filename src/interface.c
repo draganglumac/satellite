@@ -141,9 +141,9 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
         exit(1);
     }    
 } 
-int setup_sql(char* host_addr, char* username, char* port)
+int setup_sql(char* sqlh, char* sqlu, char* sqlp)
 {
-    return jnx_sql_interface_setup(host_addr,username,port);
+    return jnx_sql_interface_setup(sqlh,sqlu,sqlp);
 }
 int response_from_db()
 {
