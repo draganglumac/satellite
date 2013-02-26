@@ -210,7 +210,7 @@ int write_result_to_db(char *job_id,char *result_input)
         jnx_log("Error whilst sending query in write_result_to_db");
         return 1;
     }
-    //we don't need to free result as it will be null on an insert of this type
+    if(result != NULL) { mysql_free_result(result); };
     jnx_sql_close();
     return 0;
 }
@@ -219,5 +219,16 @@ int store_sql_credentials(char* host_addr, char* username, char* pass)
     sqlhost = host_addr;
     sqluser = username;
     sqlpass = pass;
-    return 0;
+
+    int ret = 0;
+    MYSQL_RES *result;
+    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
+    {
+        printf("Error connecting to sql\n");
+        jnx_log("Error connecting to sql in store_sql_credentials");
+        return 1;
+    }
+    ret = jnx_sql_resultfill_query("use AUTOMATION; select 'test';",&result);
+    if(ret == 0 ) { mysql_free_result(result); jnx_sql_close();};
+    return ret;
 }
