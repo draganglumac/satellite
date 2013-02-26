@@ -15,7 +15,6 @@ char *sqlhost = NULL,*sqluser = NULL,*sqlpass = NULL;
 //callback hooks for jnx_sql_query
 void generic_sql_callback(MYSQL_RES *res)
 {
-    //our generic callback
 }
 char* resolve_machine_ip(char *machine_number)
 {
@@ -200,17 +199,13 @@ int write_result_to_db(char *job_id,char *result_input)
     strcat(query,"','");
     strcat(query,result_input);
     strcat(query,"');");
-
     printf("Write result output : %s\n",query);
-
-    MYSQL_RES *result;
-    if(jnx_sql_resultfill_query(query,&result) != 0)
+    sql_callback c = &generic_sql_callback;
+    if(jnx_sql_query(query,c) != 0)
     {
-        printf("An error occured whilst sending query\n");
-        jnx_log("Error whilst sending query in write_result_to_db");
+        printf("Error with query in write_result_to_db\n");
         return 1;
     }
-    if(result != NULL) { mysql_free_result(result); };
     jnx_sql_close();
     return 0;
 }
@@ -230,5 +225,6 @@ int store_sql_credentials(char* host_addr, char* username, char* pass)
     }
     ret = jnx_sql_resultfill_query("use AUTOMATION; select 'test';",&result);
     if(ret == 0 ) { mysql_free_result(result); jnx_sql_close();};
+
     return ret;
 }
