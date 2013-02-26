@@ -145,18 +145,13 @@ int setup_sql(char* host_addr, char* username, char* port)
 {
     return jnx_sql_interface_setup(host_addr,username,port);
 }
-int response_from_db(char *sqlh, char* sqlu, char *sqlp)
+int response_from_db()
 {
     int i;
     int num_fields;
     MYSQL_ROW row;
     printf("Started response_from_db\n");
     //set our sql data
-    printf("%s %s %s\n",sqlh,sqlu,sqlp);
-    sqlhost = sqlh;
-    sqluser = sqlu;
-    sqlpass = sqlp;
-
     if(setup_sql(sqlhost,sqluser,sqlpass) != 0)
     {
         printf("Error connecting to sql\n");
@@ -229,4 +224,5 @@ int store_sql_credentials(char* host_addr, char* username, char* pass)
     sqlhost = host_addr;
     sqluser = username;
     sqlpass = pass;
+    return 0;
 }

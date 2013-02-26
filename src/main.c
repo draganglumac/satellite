@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 
     jnx_log("Storing SQL credentials temporarily");
     
-   printf("%s %s %s","Saving sql data as",jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass"));
+   printf("%s %s %s %s\n","Saving sql data as",(char*)jnx_hash_get(config,"sqlhost"),(char*)jnx_hash_get(config,"sqluser"),(char*)jnx_hash_get(config,"sqlpass"));
    
    if(store_sql_credentials(jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
     {
