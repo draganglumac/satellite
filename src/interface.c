@@ -144,13 +144,15 @@ int check_trigger_time(char *time_)
 {
     time_t current_time = time(0);
     time_t triggertime = atoi(time_);
-    printf("Trigger time: %d %s\n",triggertime,ctime(&triggertime));
-    printf("Current time: %d %s\n",current_time,ctime(&current_time));
+    printf("Trigger time: %d %s\n",(signed int)triggertime,ctime(&triggertime));
+    printf("Current time: %d %s\n",(signed int)current_time,ctime(&current_time));
     //CHECK THE DIFFERENCE BETWEEN TIMES
     printf("The time difference is %ld\n",(triggertime - current_time));
+    jnx_log("**check_trigger_time**");
     if((triggertime - current_time) <= 60)
     {
         printf("Trigger time within 60 seconds of current\n");
+        jnx_log("**pulling trigger**");        
         return 0;
     }
     return 1;
@@ -161,6 +163,7 @@ int response_from_db()
     int num_fields;
     MYSQL_ROW row;
     printf("Started response_from_db\n");
+    jnx_log("Started response_from_db");
     //set our sql data
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
