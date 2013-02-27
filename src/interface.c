@@ -1,3 +1,4 @@
+#include <time.h>
 #include "interface.h"
 #include <string.h>
 #include <stdio.h>
@@ -138,7 +139,22 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
         printf("Unable to set job to INPROGRESS, aborting\n");
         exit(1);
     }    
-} 
+}
+int check_trigger_time(char *time_)
+{
+    time_t current_time = time(0);
+    time_t triggertime = atoi(time_);
+    printf("Trigger time: %d %s\n",triggertime,ctime(&triggertime));
+    printf("Current time: %d %s\n",current_time,ctime(&current_time));
+    //CHECK THE DIFFERENCE BETWEEN TIMES
+    printf("The time difference is %ld\n",(triggertime - current_time));
+    if((triggertime - current_time) <= 60)
+    {
+        printf("Trigger time within 60 seconds of current\n");
+        return 0;
+    }
+    return 1;
+}
 int response_from_db()
 {
     int i;
@@ -178,8 +194,13 @@ int response_from_db()
             }
 
         }
-        //void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
-        transmit_job_orders(row[0],row[1],resolve_machine_ip(row[5]),row[3]);
+        //CHECK TRANSMISSION DUE TIME
+        if(check_trigger_time(row[6]) == 0)
+        {      
+            printf("Trigger pulled! Running job\n");
+            //void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
+            transmit_job_orders(row[0],row[1],resolve_machine_ip(row[5]),row[3]);
+        }
     }
     mysql_free_result(result);
     return 0;
