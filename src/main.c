@@ -55,17 +55,18 @@ void server_update(char *received_msg)
         printf("Error with execution of %s : System returned %d\n",received_msg,ret);
         jnx_log("Error with execution of command");
     }
-    printf("Execution completed\n");
+    jnx_term_printf_in_color(JNX_COL_GREEN,"Execution completed\n");
     //this step sets up our sql database globals
     if(write_result_to_db(job_id,"COMPLETED") != 0)
     {
-        printf("Error with write_result_to_db\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"Error with write_result_to_db\n");
         jnx_log("Error writing write_result_to_db");
         //this needs to be logged or exit
     }
     if(set_job_progress(job_id,"COMPLETED")!=0)
     {
-        printf("Error with write_result_to_db\n");
+        jnx_term_printf_in_color(JNX_COL_RED
+                ,"Error with write_result_to_db\n");
     }
 }
 jnx_hashmap* set_configuration(char *path)
@@ -119,11 +120,11 @@ int main(int argc, char **argv)
 
     if(jnx_log_setup(jnx_hash_get(config,"logpath"),LOGWNEWLINE) != 0)
     {
-        printf("WARNING: Could not start logger\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"WARNING: Could not start logger\n");
         exit(0);
     } 
     jnx_log("Satellite Started");
-
+    jnx_term_printf_in_color(JNX_COL_GREEN,"Starting satellite\n");
     jnx_log("Storing SQL credentials temporarily");
     
    printf("%s %s %s %s\n","Saving sql data as",(char*)jnx_hash_get(config,"sqlhost"),(char*)jnx_hash_get(config,"sqluser"),(char*)jnx_hash_get(config,"sqlpass"));
@@ -131,7 +132,7 @@ int main(int argc, char **argv)
    if(store_sql_credentials(jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
     {
         // could not store creds?
-        printf("Error with sql credentials\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"Error with sql credentials\n");
         jnx_log("Error in store_sql_credentials");
         exit(1);
     }
@@ -157,7 +158,8 @@ int main(int argc, char **argv)
             if(response_from_db() != 0)
             {
                 jnx_log("Error with sql request");
-                printf("An error occured with sql request\n");
+                jnx_term_printf_in_color
+                    (JNX_COL_RED,"An error occured with sql request\n");
                 printf("Continuing\n");
             }  
 
