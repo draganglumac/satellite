@@ -21,7 +21,7 @@ char* resolve_machine_ip(char *machine_number)
 {
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        printf("Error connecting to sql to resolve machine ip, aborting\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql to resolve machine ip, aborting\n");
         jnx_log("Error connecting to sql to resolve machine ip, aborting");
         exit(1);
     }
@@ -43,7 +43,7 @@ char* resolve_machine_ip(char *machine_number)
     MYSQL_RES *result;
     if(jnx_sql_resultfill_query(output,&result) != 0)
     {
-        printf("An error occured whilst sending query\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"An error occured whilst sending query\n");
         jnx_log("An error occured whilst sending query rom resolve_machine_ip");
         return "ERROR WITH MACHINE IP";
     }
@@ -70,7 +70,7 @@ int set_job_progress(char *job_id,char*status)
 {
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        printf("Error connecting to sql\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql\n");
         jnx_log("Error connecting to sql in set_job_progress");
         return 1;
     }
@@ -120,7 +120,7 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
 
     if(jnx_send_message(machine_ip,9099,transmission_string) != 0)
     {
-        printf("Failed to send message to target machine, aborting\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"Failed to send message to target machine, aborting\n");
         jnx_log("Failed to send message to target machine in transmit_job_orders");
         free(transmission_string);
 
@@ -151,7 +151,7 @@ int check_trigger_time(char *time_)
     jnx_log("**check_trigger_time**");
     if((triggertime - current_time) <= 60)
     {
-        printf("Trigger time within 60 seconds of current\n");
+        jnx_term_printf_in_color(JNX_COL_BLUE,"Trigger time within 60 seconds of current\n");
         jnx_log("**pulling trigger**");        
         return 0;
     }
@@ -167,7 +167,7 @@ int response_from_db()
     //set our sql data
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        printf("Error connecting to sql\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql\n");
         jnx_log("Error connecting to sql in response_from_db");
         return 1;
     }
@@ -200,7 +200,7 @@ int response_from_db()
         //CHECK TRANSMISSION DUE TIME
         if(check_trigger_time(row[6]) == 0)
         {      
-            printf("Trigger pulled! Running job\n");
+            jnx_term_printf_in_color(JNX_COL_GREEN,"Trigger pulled! Running job\n");
             //void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
             transmit_job_orders(row[0],row[1],resolve_machine_ip(row[5]),row[3]);
         }
@@ -212,7 +212,7 @@ int write_result_to_db(char *job_id,char *result_input)
 {
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        printf("Error connecting to sql\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql\n");
         jnx_log("Error connecting to sql in write_result_to_db");
         return 1;
 
@@ -227,7 +227,7 @@ int write_result_to_db(char *job_id,char *result_input)
     sql_callback c = &generic_sql_callback;
     if(jnx_sql_query(query,c) != 0)
     {
-        printf("Error with query in write_result_to_db\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"Error with query in write_result_to_db\n");
         return 1;
     }
     jnx_sql_close();
@@ -242,7 +242,7 @@ int store_sql_credentials(char* host_addr, char* username, char* pass)
     MYSQL_RES *result;
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        printf("Error connecting to sql\n");
+        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql\n");
         jnx_log("Error connecting to sql in store_sql_credentials");
         return 1;
     }
