@@ -56,6 +56,8 @@ char* resolve_machine_ip(char *machine_number)
             if(row[0] != NULL)
             {
                 current_machine_ip = row[0];
+                //break so we only return the first entry
+                break;
             }
             else{
                 current_machine_ip = "ERROR";
