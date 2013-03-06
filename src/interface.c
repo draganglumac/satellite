@@ -68,6 +68,27 @@ char* resolve_machine_ip(char *machine_number)
     jnx_sql_close();
     return current_machine_ip;
 }
+int update_job_trigger(char *job_id)
+{
+    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
+    {
+        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql\n");
+        jnx_log("Error connecting to sql in set_job_progress");
+        return 1;
+    }
+    char output[256];
+    strcpy(output,"use AUTOMATION; call add_day_to_trigger_from_id("); 
+    strcat(output,job_id);
+    strcat(output,");");
+    printf("%s\n",output);
+    
+    sql_callback c = &generic_sql_callback;
+    if(jnx_sql_query(output,c) != 0)
+    {
+        return 1;
+    }else
+        return 0;
+}
 int set_job_progress(char *job_id,char*status)
 {
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
@@ -159,6 +180,16 @@ int check_trigger_time(char *time_)
     }
     return 1;
 }
+int update_on_recursive_job(char *recursionflag)
+{
+    if(atoi(recursionflag) == 0)
+    {
+        printf("No recursion flag set\n");
+        return 1;
+    }
+    printf("Recursion flag found\n");
+    return 0;
+}
 int response_from_db()
 {
     int i;
@@ -203,8 +234,25 @@ int response_from_db()
         if(check_trigger_time(row[6]) == 0)
         {      
             jnx_term_printf_in_color(JNX_COL_GREEN,"Trigger pulled! Running job\n");
+
             //void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
             transmit_job_orders(row[0],row[1],resolve_machine_ip(row[5]),row[3]);
+            //CHECK JOB RECURSION
+            if(update_on_recursive_job(row[7]) == 0)
+            {
+                printf("Updating unixtimestamp of job to +24hrs\n");
+                //we need to firstly, update the job timer, 
+                //secondly update the progress
+                printf("Setting job progress back to INCOMPLETE\n");
+                if(update_job_trigger(row[0]) != 0)
+                {
+                    jnx_term_printf_in_color(JNX_COL_RED,"Error with update_job_trigger\n");
+                    //if there is an error setting we won't continue the job recursion, otherwise it will create an infinite loop
+                    continue;
+                }
+                set_job_progress(row[0],"INCOMPLETE");
+            }
+            //check if the job was on a recursive timer!
         }
     }
     mysql_free_result(result);
