@@ -18,7 +18,7 @@ int check_trigger_time(char *time_, char *job_id)
     char *s = ctime(&triggertime);
     s[strlen(s)-1]=0; 
    
-    printf("Job %s is set to run at %s which is %d from current\n",job_id,s,(triggertime - current_time)); 
+    printf("Job %s is set to run at %s which is %d from current\n",job_id,s,(int)(triggertime - current_time)); 
     
     jnx_log("**check_trigger_time**");
     if((triggertime - current_time) <= 60)
