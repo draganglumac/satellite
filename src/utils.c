@@ -20,18 +20,18 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <stdio.h>
-
+#include <string.h>
 void print_streams(int fg_col,const char* format, ...)
 {
     jnx_term_color(fg_col);
+    char buffer[1024];
     va_list ap;
     va_start(ap, format);
-    vprintf(format, ap);
-    
-    char temp[1024];
-    sprintf(temp,format,ap);
-//    jnx_log(temp); 
+    vsprintf(buffer,format,ap);
     va_end(ap);
-
+    printf(buffer);
     jnx_term_default();
+    buffer[strlen(buffer)-1] = 0;
+    jnx_log(buffer);
+
 }

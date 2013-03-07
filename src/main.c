@@ -119,6 +119,7 @@ int main(int argc, char **argv)
         exit(0);
     }
     //Starting program
+
     jnx_log("Satellite Started");
     jnx_term_printf_in_color(JNX_COL_GREEN,"Starting satellite\n");
     jnx_log("Storing SQL credentials temporarily");

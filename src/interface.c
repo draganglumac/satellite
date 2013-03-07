@@ -17,8 +17,13 @@ int check_trigger_time(char *time_, char *job_id)
     
     char *s = ctime(&triggertime);
     s[strlen(s)-1]=0; 
-   
-    printf("Job %s is set to run at %s which is %d from current\n",job_id,s,(int)(triggertime - current_time)); 
+  
+    long diff = (triggertime - current_time); 
+    long  diff_time_h = diff / 3600;
+    long diff_time_m = diff % 3600 /60;
+    long diff_time_s = diff % 3600 % 60;
+
+    printf("Job %s is set to run at %s which is %dh %dm %ds from current\n",job_id,s,diff_time_h,diff_time_m,diff_time_s); 
     
     jnx_log("**check_trigger_time**");
     if((triggertime - current_time) <= 60)
@@ -97,7 +102,6 @@ int perform_job_cycle()
                 printf("Setting non recursive to complete\n");
                 set_job_progress(row[0],"COMPLETED"); 
             }
-            //check if the job was on a recursive timer!
         }
     }
     mysql_free_result(result);
@@ -118,6 +122,5 @@ int perform_store_sql_credentials(char* host_addr, char* username, char* pass)
     }
     ret = jnx_sql_resultfill_query("use AUTOMATION; select 'test';",&result);
     if(ret == 0 ) { mysql_free_result(result); jnx_sql_close();};
-
     return ret;
 }
