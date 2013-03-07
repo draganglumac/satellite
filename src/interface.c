@@ -251,6 +251,10 @@ int response_from_db()
                     continue;
                 }
                 set_job_progress(row[0],"INCOMPLETE");
+            }else
+            {
+                printf("Setting non recursive to complete\n");
+                set_job_progress(row[0],"COMPLETED"); 
             }
             //check if the job was on a recursive timer!
         }
