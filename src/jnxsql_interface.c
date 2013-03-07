@@ -53,8 +53,6 @@ int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
         {
             if (mysql_field_count(connection) == 0)
             {
-                printf("%lld rows affected\n",
-                        mysql_affected_rows(connection));
             }
             else  /* some error occurred */
             {
@@ -93,9 +91,7 @@ int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
         else          /* no result set or error */
         {
             if (mysql_field_count(connection) == 0)
-            {
-                printf("%lld rows affected\n",
-                        mysql_affected_rows(connection));
+            {    
             }
             else  /* some error occurred */
             {

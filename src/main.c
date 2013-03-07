@@ -10,9 +10,8 @@
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxfile.h>
-#include <jnxc_headers/jnxterm.h>
 #include <jnxc_headers/jnxhash.h>
-#include <jnxc_headers/jnxlog.h>
+#include "utils.h"
 #include "interface.h"
 #define TIMEWAIT 5
 jnx_hashmap *config;
@@ -105,27 +104,26 @@ int main(int argc, char **argv)
                 usage();
                 exit(1);
         }
-
     }
     if(conf == NULL || mode == NULL)
     {
         usage();
         return ARG_UP;
     }
+    //Setting up config
     config = set_configuration(conf);
-
+    //Setting up logging
     if(jnx_log_setup(jnx_hash_get(config,"logpath"),LOGWNEWLINE) != 0)
     {
         jnx_term_printf_in_color(JNX_COL_RED,"WARNING: Could not start logger\n");
         exit(0);
-    } 
+    }
+    //Starting program
     jnx_log("Satellite Started");
     jnx_term_printf_in_color(JNX_COL_GREEN,"Starting satellite\n");
     jnx_log("Storing SQL credentials temporarily");
-    
-   printf("%s %s %s %s\n","Saving sql data as",(char*)jnx_hash_get(config,"sqlhost"),(char*)jnx_hash_get(config,"sqluser"),(char*)jnx_hash_get(config,"sqlpass"));
-   
-   if(store_sql_credentials(jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
+    //Setting up SQL
+    if(perform_store_sql_credentials(jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
     {
         // could not store creds?
         jnx_term_printf_in_color(JNX_COL_RED,"Error with sql credentials\n");
@@ -133,7 +131,6 @@ int main(int argc, char **argv)
         exit(1);
     }
     jnx_log("Done");
-    
     if(strcmp(mode,"RECEIVE") == 0)
     {
         if(!jnx_hash_get(config,"listenport"))
@@ -142,7 +139,6 @@ int main(int argc, char **argv)
         jnx_log("Starting listener");
         jnx_listener_callback c = &server_update;
         jnx_setup_listener(atoi(jnx_hash_get(config,"listenport")),c);
-        return 0;
     }
     if(strcmp(mode,"TRANSMIT") == 0)
     {
@@ -151,19 +147,17 @@ int main(int argc, char **argv)
         {
             //setjmp is the return point after the sql functions have left the main loop
             jnx_log("Connecting to sql");
-            if(response_from_db() != 0)
+            if(perform_job_cycle() != 0)
             {
                 jnx_log("Error with sql request");
                 jnx_term_printf_in_color
                     (JNX_COL_RED,"An error occured with sql request\n");
                 printf("Continuing\n");
             }  
-
             sleep(TIMEWAIT);
         }
-        return 0;
     }
-
+    jnx_hash_delete(config);
     return 0;
 }
 
