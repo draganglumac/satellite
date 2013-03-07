@@ -116,7 +116,7 @@ int set_job_progress(char *job_id,char*status)
     return 0;
 }
 //here we transmit the actual job
-void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
+int transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
 {
     /*  lets print our expected results for visual confirmation */
     printf("Transmitting job_id -> %s\n",job_id);
@@ -153,7 +153,7 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
             exit(1);
         }    
         //LOG ERROR
-        return; 
+        return 1; 
     }
     free(transmission_string);
     //Write job in progress to sql
@@ -162,6 +162,7 @@ void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *co
         printf("Unable to set job to INPROGRESS, aborting\n");
         exit(1);
     }    
+    return 0;
 }
 int check_trigger_time(char *time_)
 {
@@ -236,7 +237,12 @@ int response_from_db()
             jnx_term_printf_in_color(JNX_COL_GREEN,"Trigger pulled! Running job\n");
 
             //void transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
-            transmit_job_orders(row[0],row[1],resolve_machine_ip(row[5]),row[3]);
+            if(transmit_job_orders(row[0],row[1],resolve_machine_ip(row[5]),row[3]) != 0)
+            {
+                jnx_log("Major failure in transmit_job_orders");
+                jnx_term_printf_in_color(JNX_COL_RED,"Warning catastrophic failure in transmit_job_orders\n");
+                continue;
+            }
             //CHECK JOB RECURSION
             if(update_on_recursive_job(row[7]) == 0)
             {

@@ -32,6 +32,7 @@ void catch_int (int signum)
     fflush(stdout);
     my_pid = getpid();
     kill(my_pid, SIGKILL);	
+    system("sudo killall -9 satellite");
 }
 void server_update(char *received_msg)
 {
