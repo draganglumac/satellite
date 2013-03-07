@@ -17,5 +17,5 @@
  */
 #include <jnxc_headers/jnxlog.h>
 #include <jnxc_headers/jnxterm.h>
-
+#define DEFAULTCOLOR -1
 void print_streams(int col,const char* format, ...);

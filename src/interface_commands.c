@@ -25,8 +25,7 @@ char* resolve_machine_ip(char *machine_number)
 {
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql to resolve machine ip, aborting\n");
-        jnx_log("Error connecting to sql to resolve machine ip, aborting");
+        print_streams(JNX_COL_RED,"Error connecting to sql to resolve machine ip, aborting\n");
         exit(1);
     }
     /* 
@@ -47,8 +46,7 @@ char* resolve_machine_ip(char *machine_number)
     MYSQL_RES *result;
     if(jnx_sql_resultfill_query(output,&result) != 0)
     {
-        jnx_term_printf_in_color(JNX_COL_RED,"An error occured whilst sending query\n");
-        jnx_log("An error occured whilst sending query rom resolve_machine_ip");
+        print_streams(JNX_COL_RED,"An error occured whilst sending query\n");
         return "ERROR WITH MACHINE IP";
     }
     num_fields = mysql_num_fields(result);
@@ -76,16 +74,13 @@ int update_job_trigger(char *job_id)
 {
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql\n");
-        jnx_log("Error connecting to sql in set_job_progress");
+        print_streams(JNX_COL_RED,"Error connecting to sql\n");
         return 1;
     }
     char output[256];
     strcpy(output,"use AUTOMATION; call add_day_to_trigger_from_id("); 
     strcat(output,job_id);
     strcat(output,");");
-    printf("%s\n",output);
-
     sql_callback c = &generic_sql_callback;
     if(jnx_sql_query(output,c) != 0)
     {
@@ -97,8 +92,7 @@ int set_job_progress(char *job_id,char*status)
 {
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql\n");
-        jnx_log("Error connecting to sql in set_job_progress");
+        print_streams(JNX_COL_RED,"Error connecting to sql\n");
         return 1;
     }
     char output[256];
@@ -123,10 +117,8 @@ int write_result_to_db(char *job_id,char *result_input)
 {
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql\n");
-        jnx_log("Error connecting to sql in write_result_to_db");
+        print_streams(JNX_COL_RED,"Error connecting to sql\n");
         return 1;
-
     }
     char query[1024];
     strcpy(query,"USE AUTOMATION; call add_result_from_job('");
@@ -138,7 +130,7 @@ int write_result_to_db(char *job_id,char *result_input)
     sql_callback c = &generic_sql_callback;
     if(jnx_sql_query(query,c) != 0)
     {
-        jnx_term_printf_in_color(JNX_COL_RED,"Error with query in write_result_to_db\n");
+        print_streams(JNX_COL_RED,"Error with query in write_result_to_db\n");
         return 1;
     }
     jnx_sql_close();
@@ -147,32 +139,23 @@ int write_result_to_db(char *job_id,char *result_input)
 int transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
 {
     /*  lets print our expected results for visual confirmation */
-    printf("Transmitting job_id -> %s\n",job_id);
-    printf("Transmitting job_name -> %s\n",job_name);
-    printf("Transmitting machine_ip -> %s\n",machine_ip);
-    printf("Transmitting command -> %s\n",command);
-    //Form job string 
-    jnx_log("**Transmitting job***");
-    jnx_log(job_id);
-    jnx_log(job_name);
-    jnx_log(machine_ip);
-    jnx_log(command);
-    //Transmit job string
-    jnx_log("**Transmitting job***");
-
+    print_streams(DEFAULTCOLOR,"Transmitting job_id -> %s\n",job_id);
+    print_streams(DEFAULTCOLOR,"Transmitting job_name -> %s\n",job_name);
+    print_streams(DEFAULTCOLOR,"Transmitting machine_ip -> %s\n",machine_ip);
+    print_streams(DEFAULTCOLOR,"Transmitting command -> %s\n",command);
     //Append to command the job id ->
     int command_len = strlen(command); 
     char *transmission_string = (char*)malloc(command_len + 1);
     strcpy(transmission_string,command);
-    printf("Copy of command is %s\n",transmission_string);
+    print_streams(DEFAULTCOLOR,"Copy of command is %s\n",transmission_string);
     jnx_string_join(&transmission_string,"!");
     jnx_string_join(&transmission_string,job_id);
-    printf("Outgoing transmission %s\n",transmission_string);
+    print_streams(DEFAULTCOLOR,"Outgoing transmission %s\n",transmission_string);
 
     if(jnx_send_message(machine_ip,9099,transmission_string) != 0)
     {
-        jnx_term_printf_in_color(JNX_COL_RED,"Failed to send message to target machine, aborting\n");
-        jnx_log("Failed to send message to target machine in transmit_job_orders");
+
+        print_streams(JNX_COL_RED,"Failed to send message to target machine, aborting\n");
         free(transmission_string);
 
         if(set_job_progress(job_id,"FAILED") != 0)
@@ -196,18 +179,15 @@ MYSQL_RES *get_incomplete_jobs(void)
 {
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql\n");
-        jnx_log("Error connecting to sql in response_from_db");
+        print_streams(JNX_COL_RED,"Error connecting to sql\n");
         exit(1);
     }
     MYSQL_RES *result;
     if(jnx_sql_resultfill_query("USE AUTOMATION; call get_incomplete_jobs();",&result) != 0)
     {
-        printf("An error occured whilst sending query\n");
-        jnx_log("Error sending query from response_from_db");
+        print_streams(DEFAULTCOLOR,"An error occured whilst sending query\n");
         exit(1);
     }
-    //close our db connection to stop it from sleeping
-    jnx_sql_close();
+    //close our db connection to stop,
     return result;
 }

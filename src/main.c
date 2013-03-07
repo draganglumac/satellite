@@ -16,16 +16,19 @@
 #define TIMEWAIT 5
 jnx_hashmap *config;
 enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
+#define DEFAULTCOLOR -1
 void usage()
 {
-    printf("Satellite is a half duplex server/client in one for transmission of several shell commands\n");
-    printf("No mode selected, please try again using -m [TRANSMIT,RECEIVE]\n");
-    printf("--conf [PATH TO CONF FILE]\n");
+    print_streams(DEFAULTCOLOR,"Satellite is a half duplex server/client in one for transmission of several shell commands\n");
+    print_streams(DEFAULTCOLOR,"No mode selected, please try again using -m [TRANSMIT,RECEIVE]\n");
+    print_streams(DEFAULTCOLOR,"--conf [PATH TO CONF FILE]\n");
+
+  
 }
 void catch_int (int signum) 
 { 
     pid_t my_pid;
-    jnx_log("\nReceived an interrupt! About to exit ..\n");
+    print_streams(DEFAULTCOLOR,"\nReceived an interrupt! About to exit ..\n");
 
     jnx_cancel_listener();
     fflush(stdout);
@@ -35,7 +38,7 @@ void catch_int (int signum)
 }
 void server_update(char *received_msg)
 {
-    printf("Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
+    print_streams(DEFAULTCOLOR,"Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
 
     char *delimiter = "!";
     char *job_id = NULL;
@@ -44,23 +47,21 @@ void server_update(char *received_msg)
     strcpy(cp,received_msg);
     char *token = strtok(cp,delimiter);
     command = token;
-    printf("COMMAND: %s\n",command);
+    print_streams(DEFAULTCOLOR,"COMMAND: %s\n",command);
     token = strtok(NULL,delimiter);
     //We should really chop off the job so it doesnt come out as a system error
     job_id = token;
-    printf("Job ID: %s\n",job_id);
+    print_streams(DEFAULTCOLOR,"Job ID: %s\n",job_id);
     int ret = system(command);
     if(ret != 0)
     {
-        printf("Error with execution of %s : System returned %d\n",received_msg,ret);
-        jnx_log("Error with execution of command");
+        print_streams(DEFAULTCOLOR,"Error with execution of %s : System returned %d\n",received_msg,ret);
     }
-    jnx_term_printf_in_color(JNX_COL_GREEN,"Execution completed\n");
+    print_streams(JNX_COL_GREEN,"Execution completed\n");
     //this step sets up our sql database globals
     if(write_result_to_db(job_id,"COMPLETED") != 0)
     {
-        jnx_term_printf_in_color(JNX_COL_RED,"Error with write_result_to_db\n");
-        jnx_log("Error writing write_result_to_db");
+        print_streams(JNX_COL_RED,"Error with write_result_to_db\n");
         //this needs to be logged or exit
     }
 }
@@ -120,38 +121,32 @@ int main(int argc, char **argv)
     }
     //Starting program
 
-    jnx_log("Satellite Started");
-    jnx_term_printf_in_color(JNX_COL_GREEN,"Starting satellite\n");
-    jnx_log("Storing SQL credentials temporarily");
+    print_streams(JNX_COL_GREEN,"Satellite Started\n");
+    print_streams(DEFAULTCOLOR,"Storing SQL credentials temporarily\n");
     //Setting up SQL
     if(perform_store_sql_credentials(jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
     {
         // could not store creds?
-        jnx_term_printf_in_color(JNX_COL_RED,"Error with sql credentials\n");
-        jnx_log("Error in store_sql_credentials");
-        exit(1);
+        print_streams(JNX_COL_RED,"Error with sql credentials\n");
     }
-    jnx_log("Done");
     if(strcmp(mode,"RECEIVE") == 0)
     {
         if(!jnx_hash_get(config,"listenport"))
-        { printf("Requires port number, option -p\n");return 1; };
+        { print_streams(JNX_COL_RED,"Requires port number, option -p\n");return 1; };
 
-        jnx_log("Starting listener");
+        print_streams(DEFAULTCOLOR,"Starting listener\n");
         jnx_listener_callback c = &server_update;
         jnx_setup_listener(atoi(jnx_hash_get(config,"listenport")),c);
     }
     if(strcmp(mode,"TRANSMIT") == 0)
     {
-        jnx_log("Starting daemon");
+        print_streams(DEFAULTCOLOR,"Starting daemon\n");
         while(1)
         {
             //setjmp is the return point after the sql functions have left the main loop
-            jnx_log("Connecting to sql");
             if(perform_job_cycle() != 0)
             {
-                jnx_log("Error with sql request");
-                jnx_term_printf_in_color
+                print_streams
                     (JNX_COL_RED,"An error occured with sql request\n");
                 printf("Continuing\n");
             }  

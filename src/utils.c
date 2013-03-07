@@ -23,14 +23,19 @@
 #include <string.h>
 void print_streams(int fg_col,const char* format, ...)
 {
+    if(fg_col != -1)
     jnx_term_color(fg_col);
+    
     char buffer[1024];
     va_list ap;
     va_start(ap, format);
     vsprintf(buffer,format,ap);
     va_end(ap);
     printf(buffer);
+    
+    if(fg_col != -1)
     jnx_term_default();
+
     buffer[strlen(buffer)-1] = 0;
     jnx_log(buffer);
 

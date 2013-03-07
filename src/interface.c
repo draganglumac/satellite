@@ -14,22 +14,16 @@ int check_trigger_time(char *time_, char *job_id)
 {
     time_t current_time = time(0);
     time_t triggertime = atoi(time_);
-    
     char *s = ctime(&triggertime);
     s[strlen(s)-1]=0; 
-  
     long diff = (triggertime - current_time); 
     long  diff_time_h = diff / 3600;
     long diff_time_m = diff % 3600 /60;
     long diff_time_s = diff % 3600 % 60;
-
-    printf("Job %s is set to run at %s which is %dh %dm %ds from current\n",job_id,s,diff_time_h,diff_time_m,diff_time_s); 
-    
-    jnx_log("**check_trigger_time**");
+    print_streams(DEFAULTCOLOR,"Job %s is set to run at %s which is %dh %dm %ds from current\n",job_id,s,diff_time_h,diff_time_m,diff_time_s); 
     if((triggertime - current_time) <= 60)
     {
-        jnx_term_printf_in_color(JNX_COL_BLUE,"Trigger time within 60 seconds of current\n");
-        jnx_log("**pulling trigger**");        
+        print_streams(JNX_COL_BLUE,"Trigger time within 60 seconds of current\n");
         return 0;
     }
     return 1;
@@ -38,16 +32,14 @@ int update_on_recursive_job(char *recursionflag)
 {
     if(atoi(recursionflag) == 0)
     {
-        printf("No recursion flag set\n");
+        print_streams(JNX_COL_RED,"No recursion flag set\n");
         return 1;
     }
-    printf("Recursion flag found\n");
+    print_streams(DEFAULTCOLOR,"Recursion flag found\n");
     return 0;
 }
 int perform_job_cycle()
 {
-    printf("Started response_from_db\n");
-    jnx_log("Started response_from_db");
     MYSQL_RES *result = get_incomplete_jobs();
     int i;
     int num_fields;
@@ -60,10 +52,9 @@ int perform_job_cycle()
         {
             if(row[i] == NULL)
             {
-                printf("Error in sql syntax for row %d\n",i);
+                print_streams(DEFAULTCOLOR,"Error in sql syntax for row %d\n",i);
                 return 1;
             }
-
         }
         //CHECK TRANSMISSION DUE TIME
         /*
@@ -79,27 +70,26 @@ int perform_job_cycle()
          */
         if(check_trigger_time(row[6],row[1]) == 0)
         {      
-            jnx_term_printf_in_color(JNX_COL_GREEN,"Trigger pulled! Running job\n");
+            print_streams(JNX_COL_GREEN,"Trigger pulled! Running job\n");
             if(transmit_job_orders(row[0],row[1],resolve_machine_ip(row[5]),row[3]) != 0)
             {
-                jnx_log("Major failure in transmit_job_orders");
                 jnx_term_printf_in_color(JNX_COL_RED,"Warning catastrophic failure in transmit_job_orders\n");
                 continue;
             }
             //CHECK JOB RECURSION
             if(update_on_recursive_job(row[7]) == 0)
             {
-                printf("Updating unixtimestamp of job to +24hrs\n");
+                print_streams(DEFAULTCOLOR,"Updating unixtimestamp of job to +24hrs\n");
                 if(update_job_trigger(row[0]) != 0)
                 {
-                    jnx_term_printf_in_color(JNX_COL_RED,"Error with update_job_trigger\n");
+                    print_streams(JNX_COL_RED,"Error with update_job_trigger\n");
                     continue;
                 }
-                printf("Setting job progress back to INCOMPLETE\n");
+                print_streams(DEFAULTCOLOR,"Setting job progress back to INCOMPLETE\n");
                 set_job_progress(row[0],"INCOMPLETE");
             }else
             {
-                printf("Setting non recursive to complete\n");
+                print_streams(DEFAULTCOLOR,"Setting non recursive to complete\n");
                 set_job_progress(row[0],"COMPLETED"); 
             }
         }
@@ -116,8 +106,8 @@ int perform_store_sql_credentials(char* host_addr, char* username, char* pass)
     MYSQL_RES *result;
     if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
     {
-        jnx_term_printf_in_color(JNX_COL_RED,"Error connecting to sql\n");
-        jnx_log("Error connecting to sql in perform_store_sql_credentials");
+        print_streams(JNX_COL_RED,"Error connecting to sql\n");
+        print_streams(DEFAULTCOLOR,"Error connecting to sql in perform_store_sql_credentials\n");
         return 1;
     }
     ret = jnx_sql_resultfill_query("use AUTOMATION; select 'test';",&result);
