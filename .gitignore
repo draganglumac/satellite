@@ -1,3 +1,4 @@
+conf/satellite.conf
 *.dSYM
 tags
 sat.log
