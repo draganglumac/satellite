@@ -2,6 +2,18 @@
 
 echo "Configuring Satellite"
 
+#default log path
+OS=`uname`
+if [ "$OS" = "Darwin" ]; then
+logpath="/Users/`whoami`/.satellite/sat.log"
+#lets make a satellite folder just incase it doesn't exist
+mkdir -p /Users/`whoami`/.satellite
+else
+logpath="/home/`whoami`/.satellite/sat.log"
+#lets make a satellite folder just incase it doesn't exist
+mkdir -p /home/`whoami`/.satellite
+fi
+echo "logpath set to: $logpath"
 function setup_conf()
 {
     echo "Please enter host name for sql db"
@@ -10,6 +22,13 @@ function setup_conf()
     read user
     echo "Please enter sql password"
     read pass
+    echo "Please enter listener port (leave blank for default 9099)"
+    read listenport
+
+    if [ -z "$listenport" ]; then
+        echo "Using default port"
+        listenport=9099
+    fi
 
     cat conf/default.conf | while IFS='' read -r LINE
     do
@@ -21,6 +40,10 @@ function setup_conf()
         
         elif [[ "$LINE" = *sqlpass* ]]; then
             echo "sqlpass=$pass" >> conf/satellite.conf
+        elif [[ "$LINE" = *listenport* ]]; then
+            echo "listenport=$listenport" >> conf/satellite.conf
+        elif [[ "$LINE" = *logpath* ]]; then
+            echo "logpath=$logpath" >> conf/satellite.conf
         else
             echo "$LINE" >> conf/satellite.conf
         fi
