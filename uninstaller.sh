@@ -10,4 +10,12 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
+OS=`uname`
+
+if [ "$OS" = "Darwin" ]; then
+    rm -rf /Users/`whoami`/.satellite
+else
+    rm -rf /home/`whoami`/.satellite
+fi
+
 sudo rm $path
