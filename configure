@@ -1,6 +1,37 @@
 #!/bin/bash
 
+echo "Configuring Satellite"
 
+function setup_conf()
+{
+    echo "Please enter host name for sql db"
+    read host
+    echo "Please enter sql username"
+    read user
+    echo "Please enter sql password"
+    read pass
+
+    cat conf/default.conf | while IFS='' read -r LINE
+    do
+        if [[ "$LINE" = *sqlhost* ]]; then
+            echo "sqlhost=$host" >> conf/satellite.conf
+        
+        elif [[ "$LINE" = *sqluser* ]]; then
+            echo "sqluser=$user" >> conf/satellite.conf
+        
+        elif [[ "$LINE" = *sqlpass* ]]; then
+            echo "sqlpass=$pass" >> conf/satellite.conf
+        else
+            echo "$LINE" >> conf/satellite.conf
+        fi
+    
+    done
+
+}
+
+if [ -e conf/satellite.conf ]; then
+    rm conf/satellite.conf
+fi
 if [ -e Makefile ]; then
 	rm Makefile
 fi
@@ -12,6 +43,8 @@ cat Makefile.in | while IFS='' read -r LINE
 do
 	echo "$LINE" >> Makefile
 done
+
+setup_conf
 
 echo "All done!"
 echo "Please run make"
