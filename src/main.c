@@ -114,7 +114,7 @@ int main(int argc, char **argv)
     //Setting up config
     config = set_configuration(conf);
     //Setting up logging
-    if(jnx_log_setup(jnx_hash_get(config,"logpath"),LOGWNEWLINE) != 0)
+    if(jnx_log_setup(jnx_hash_get(config,"logpath")) != 0)
     {
         jnx_term_printf_in_color(JNX_COL_RED,"WARNING: Could not start logger\n");
         exit(0);

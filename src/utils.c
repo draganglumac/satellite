@@ -32,11 +32,10 @@ void print_streams(int fg_col,const char* format, ...)
     vsprintf(buffer,format,ap);
     va_end(ap);
     printf(buffer);
-    
-    if(fg_col != -1)
+   
+    if(fg_col > 0) 
     jnx_term_default();
-
-    buffer[strlen(buffer)-1] = 0;
+    
     jnx_log(buffer);
 
 }
