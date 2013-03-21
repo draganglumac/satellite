@@ -17,7 +17,6 @@ void jnx_sql_close(void )
 }
 int jnx_sql_interface_setup(char* _host, char* _username, char* _password)
 {
-    printf("Connecting...\n");
     connection = mysql_init(connection);
     if(connection == NULL) return 1;
 

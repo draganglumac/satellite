@@ -22,8 +22,6 @@ void usage()
     print_streams(DEFAULTCOLOR,"Satellite is a half duplex server/client in one for transmission of several shell commands\n");
     print_streams(DEFAULTCOLOR,"No mode selected, please try again using -m [TRANSMIT,RECEIVE]\n");
     print_streams(DEFAULTCOLOR,"--conf [PATH TO CONF FILE]\n");
-
-  
 }
 void catch_int (int signum) 
 { 
@@ -117,10 +115,9 @@ int main(int argc, char **argv)
     if(jnx_log_setup(jnx_hash_get(config,"logpath")) != 0)
     {
         jnx_term_printf_in_color(JNX_COL_RED,"WARNING: Could not start logger\n");
-        exit(0);
+        return 1;
     }
     //Starting program
-
     print_streams(JNX_COL_GREEN,"Satellite Started\n");
     print_streams(DEFAULTCOLOR,"Storing SQL credentials temporarily\n");
     //Setting up SQL
@@ -128,6 +125,7 @@ int main(int argc, char **argv)
     {
         // could not store creds?
         print_streams(JNX_COL_RED,"Error with sql credentials\n");
+        return 1;
     }
     if(strcmp(mode,"RECEIVE") == 0)
     {
