@@ -1,6 +1,10 @@
 #ifndef __JNXSQL_INTERFACE_H__
 #define __JNXSQL_INTERFACE_H__
+#ifdef __APPLE__
+#include <mysql.h>
+#else 
 #include <mysql/mysql.h>
+#endif
 ///function pointer callback
 typedef void (*sql_callback)(MYSQL_RES*);
 ///Warning: SQL will need to be included into project as dependency

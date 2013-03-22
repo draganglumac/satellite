@@ -1,5 +1,4 @@
 #include "jnxsql_interface.h"
-#include <mysql/mysql.h>
 #include <stdio.h>
 #include <stdlib.h>
 MYSQL *connection;
