@@ -28,7 +28,7 @@ void catch_int (int signum)
     pid_t my_pid;
     print_streams(DEFAULTCOLOR,"\nReceived an interrupt! About to exit ..\n");
 
-    jnx_cancel_listener();
+    jnx_network_cancel_listener();
     fflush(stdout);
     my_pid = getpid();
     kill(my_pid, SIGKILL);	
@@ -133,8 +133,8 @@ int main(int argc, char **argv)
         { print_streams(JNX_COL_RED,"Requires port number, option -p\n");return 1; };
 
         print_streams(DEFAULTCOLOR,"Starting listener\n");
-        jnx_listener_callback c = &server_update;
-        jnx_setup_listener(atoi(jnx_hash_get(config,"listenport")),c);
+        jnx_network_listener_callback c = &server_update;
+        jnx_network_setup_listener(atoi(jnx_hash_get(config,"listenport")),c);
     }
     if(strcmp(mode,"TRANSMIT") == 0)
     {
