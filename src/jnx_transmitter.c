@@ -19,11 +19,11 @@
 #include <unistd.h>
 #include "utils.h"
 #include "jnxsql_interface.h"
-#include "interface_commands.h"
+#include "sql_commands.h"
 #define TIMEWAIT 5
 void parse_job(MYSQL_ROW row)
 {
-    if(check_trigger_time(row[6],row[1]) == 0)
+    if(utils_check_trigger_time(row[6],row[1]) == 0)
     {      
         print_streams(JNX_COL_GREEN,"Trigger pulled! Running job\n");
         if(sql_transmit_job_orders(row[0],row[1],sql_resolve_machine_ip(row[5]),row[3]) != 0)

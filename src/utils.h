@@ -22,4 +22,4 @@
 #define DEFAULTCOLOR -1
 void print_streams(int col,const char* format, ...);
 jnx_hashmap* utils_set_configuration(char *path);
-int check_trigger_time(char *time_, char *job_id);
+int utils_check_trigger_time(char *time_, char *job_id);

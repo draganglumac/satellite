@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-int check_trigger_time(char *time_, char *job_id)
+int utils_check_trigger_time(char *time_, char *job_id)
 {
     time_t current_time = time(0);
     time_t triggertime = atoi(time_);
