@@ -26,16 +26,11 @@
 #include <unistd.h>
 #include <jnxc_headers/jnxstring.h>
 
-extern char* sqlhost;
-extern char* sqluser;
-extern char* sqlpass;
-
-int write_result_to_db(char *job_id,char *result_input);
-void generic_sql_callback(MYSQL_RES *res);
-char* resolve_machine_ip(char *machine_number);
-int update_job_trigger(char *job_id);
-int set_job_progress(char *job_id,char*status);
-int transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command);
-//you are assuming responsibility to free this 
-MYSQL_RES *get_incomplete_jobs(void);
+int sql_write_result_to_db(char *job_id,char *result_input);
+void sql_generic_sql_callback(MYSQL_RES *res);
+char* sql_resolve_machine_ip(char *machine_number);
+int sql_update_job_trigger(char *job_id);
+int sql_set_job_progress(char *job_id,char*status);
+int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command);
+MYSQL_RES *sql_get_incomplete_jobs(void);
 #endif

@@ -1,4 +1,3 @@
-#include <jnxc_headers/jnxnetwork.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <stdlib.h>
@@ -7,12 +6,14 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/stat.h>
+#include "jnxsql_interface.h"
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxfile.h>
 #include <jnxc_headers/jnxhash.h>
+#include "jnx_transmitter.h"
+#include "jnx_receiver.h"
 #include "utils.h"
-#include "interface.h"
 #define TIMEWAIT 5
 jnx_hashmap *config;
 enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
@@ -33,46 +34,6 @@ void catch_int (int signum)
     my_pid = getpid();
     kill(my_pid, SIGKILL);	
     system("sudo killall -9 satellite");
-}
-void server_update(char *received_msg)
-{
-    print_streams(DEFAULTCOLOR,"Raw received message: %s of length %d\n",received_msg,(int)strlen(received_msg));
-
-    char *delimiter = "!";
-    char *job_id = NULL;
-    char *command = NULL;
-    char cp[1024];
-    strcpy(cp,received_msg);
-    char *token = strtok(cp,delimiter);
-    command = token;
-    print_streams(DEFAULTCOLOR,"COMMAND: %s\n",command);
-    token = strtok(NULL,delimiter);
-    //We should really chop off the job so it doesnt come out as a system error
-    job_id = token;
-    print_streams(DEFAULTCOLOR,"Job ID: %s\n",job_id);
-    int ret = system(command);
-    if(ret != 0)
-    {
-        print_streams(DEFAULTCOLOR,"Error with execution of %s : System returned %d\n",received_msg,ret);
-    }
-    print_streams(JNX_COL_GREEN,"Execution completed\n");
-    //this step sets up our sql database globals
-    if(write_result_to_db(job_id,"COMPLETED") != 0)
-    {
-        print_streams(JNX_COL_RED,"Error with write_result_to_db\n");
-        //this needs to be logged or exit
-    }
-}
-jnx_hashmap* set_configuration(char *path)
-{
-    jnx_hashmap *hash = jnx_hash_init(1024);
-    jnx_file_kvp_node *kvpnode = jnx_file_read_keyvaluepairs(path,"="); 
-    while(kvpnode)
-    {
-        jnx_hash_put(hash,kvpnode->key,kvpnode->value);
-        kvpnode = kvpnode->next;
-    }
-    return hash;
 }
 int main(int argc, char **argv) 
 {
@@ -109,21 +70,22 @@ int main(int argc, char **argv)
         usage();
         return ARG_UP;
     }
-    //Setting up config
-    config = set_configuration(conf);
-    //Setting up logging
+    config = utils_set_configuration(conf);
+    /*-----------------------------------------------------------------------------
+     *  Setup our log
+     *-----------------------------------------------------------------------------*/
     if(jnx_log_setup(jnx_hash_get(config,"logpath")) != 0)
     {
         jnx_term_printf_in_color(JNX_COL_RED,"WARNING: Could not start logger\n");
         return 1;
     }
-    //Starting program
     print_streams(JNX_COL_GREEN,"Satellite Started\n");
     print_streams(DEFAULTCOLOR,"Storing SQL credentials temporarily\n");
-    //Setting up SQL
+    /*-----------------------------------------------------------------------------
+     *  Store sql credentials
+     *-----------------------------------------------------------------------------*/
     if(perform_store_sql_credentials(jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
     {
-        // could not store creds?
         print_streams(JNX_COL_RED,"Error with sql credentials\n");
         return 1;
     }
@@ -131,25 +93,15 @@ int main(int argc, char **argv)
     {
         if(!jnx_hash_get(config,"listenport"))
         { print_streams(JNX_COL_RED,"Requires port number, option -p\n");return 1; };
-
-        print_streams(DEFAULTCOLOR,"Starting listener\n");
-        jnx_network_listener_callback c = &server_update;
-        jnx_network_setup_listener(atoi(jnx_hash_get(config,"listenport")),c);
+        if(jnx_start_listener(jnx_hash_get(config,"listenport")) != 0)
+        {
+            print_streams(JNX_COL_RED,"Error starting the listener\n");
+            return 1;
+        }
     }
     if(strcmp(mode,"TRANSMIT") == 0)
     {
-        print_streams(DEFAULTCOLOR,"Starting daemon\n");
-        while(1)
-        {
-            //setjmp is the return point after the sql functions have left the main loop
-            if(perform_job_cycle() != 0)
-            {
-                print_streams
-                    (JNX_COL_RED,"An error occured with sql request\n");
-                printf("Continuing\n");
-            }  
-            sleep(TIMEWAIT);
-        }
+        jnx_start_transmitter();        
     }
     jnx_hash_delete(config);
     return 0;

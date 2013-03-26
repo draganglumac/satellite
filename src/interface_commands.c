@@ -21,9 +21,9 @@
 void generic_sql_callback(MYSQL_RES *res)
 {
 }
-char* resolve_machine_ip(char *machine_number)
+char* sql_resolve_machine_ip(char *machine_number)
 {
-    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
+    if(jnx_sql_interface_setup() != 0)
     {
         print_streams(JNX_COL_RED,"Error connecting to sql to resolve machine ip, aborting\n");
         exit(1);
@@ -70,9 +70,9 @@ char* resolve_machine_ip(char *machine_number)
     jnx_sql_close();
     return current_machine_ip;
 }
-int update_job_trigger(char *job_id)
+int sql_update_job_trigger(char *job_id)
 {
-    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
+    if(jnx_sql_interface_setup() != 0)
     {
         print_streams(JNX_COL_RED,"Error connecting to sql\n");
         return 1;
@@ -88,15 +88,15 @@ int update_job_trigger(char *job_id)
     }else
         return 0;
 }
-int set_job_progress(char *job_id,char*status)
+int sql_set_job_progress(char *job_id,char*status)
 {
-    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
+    if(jnx_sql_interface_setup() != 0)
     {
         print_streams(JNX_COL_RED,"Error connecting to sql\n");
         return 1;
     }
     char output[256];
-    strcpy(output,"use AUTOMATION; call set_job_status_from_id("); 
+    strcpy(output,"use AUTOMATION; call sql_set_job_status_from_id("); 
     strcat(output,job_id);
     strcat(output,",'");
     strcat(output,status);
@@ -113,9 +113,9 @@ int set_job_progress(char *job_id,char*status)
     }
     return 0;
 }
-int write_result_to_db(char *job_id,char *result_input)
+int sql_write_result_to_db(char *job_id,char *result_input)
 {
-    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
+    if(jnx_sql_interface_setup() != 0)
     {
         print_streams(JNX_COL_RED,"Error connecting to sql\n");
         return 1;
@@ -136,7 +136,7 @@ int write_result_to_db(char *job_id,char *result_input)
     jnx_sql_close();
     return 0;
 }
-int transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
+int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
 {
     /*  lets print our expected results for visual confirmation */
     print_streams(DEFAULTCOLOR,"Transmitting job_id -> %s\n",job_id);
@@ -158,7 +158,7 @@ int transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *com
         print_streams(JNX_COL_RED,"Failed to send message to target machine, aborting\n");
         free(transmission_string);
 
-        if(set_job_progress(job_id,"FAILED") != 0)
+        if(sql_set_job_progress(job_id,"FAILED") != 0)
         {
             printf("Unable to set job to FAILED, aborting\n");
             exit(1);
@@ -168,16 +168,16 @@ int transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *com
     }
     free(transmission_string);
     //Write job in progress to sql
-    if(set_job_progress(job_id,"INPROGRESS") != 0)
+    if(sql_set_job_progress(job_id,"INPROGRESS") != 0)
     {
         printf("Unable to set job to INPROGRESS, aborting\n");
         exit(1);
     }    
     return 0;
 }
-MYSQL_RES *get_incomplete_jobs(void)
+MYSQL_RES *sql_get_incomplete_jobs(void)
 {
-    if(jnx_sql_interface_setup(sqlhost,sqluser,sqlpass) != 0)
+    if(jnx_sql_interface_setup() != 0)
     {
         print_streams(JNX_COL_RED,"Error connecting to sql\n");
         exit(1);
