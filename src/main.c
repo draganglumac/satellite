@@ -6,13 +6,13 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/stat.h>
-#include "jnxsql_interface.h"
+#include "backend/jnxsql_interface.h"
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxfile.h>
 #include <jnxc_headers/jnxhash.h>
-#include "jnx_transmitter.h"
-#include "jnx_receiver.h"
+#include "network/jnx_transmitter.h"
+#include "network/jnx_receiver.h"
 #include "utils.h"
 #define TIMEWAIT 5
 jnx_hashmap *config;
