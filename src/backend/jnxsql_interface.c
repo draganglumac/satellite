@@ -81,9 +81,20 @@ int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
 }
 int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
 {
-    if(connection == NULL) return 1;
+    if(connection == NULL) 
+	{
+		jnx_term_printf_in_color(JNX_COL_RED,"Connecting to jnx_sql_resultfill_query is null\n");
+		return 1;}
     /* multi statements is useful for giving a string of commmands that are delimited with ; */
-if(mysql_real_connect(connection,host,username,password,0,0,NULL, CLIENT_MULTI_STATEMENTS) != connection) { printf("Connection error in jnx_sql_resultfill_query\n"); return 1; }
+if(mysql_real_connect(connection,host,username,password,0,0,NULL, CLIENT_MULTI_STATEMENTS) != connection)
+{ 
+	jnx_term_printf_in_color(JNX_COL_RED,"Connection error in jnx_sql_resultfill_query - Your request: %s\n",query);
+	if(strcmp(query,"") == 0 ) { printf("query is empty\n");  } ;	
+	/*-----------------------------------------------------------------------------
+	 *  May require another return code for unsuccessful connection
+	 *-----------------------------------------------------------------------------*/
+	return 1;
+}
     int status = mysql_query(connection,query);
     if(status)
     {

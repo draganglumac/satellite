@@ -5,6 +5,7 @@
 #else 
 #include <mysql/mysql.h>
 #endif
+#include <jnxc_headers/jnxterm.h>
 typedef void (*sql_callback)(MYSQL_RES*);
 
 int perform_store_sql_credentials(char* host_addr, char* user, char* pass);
