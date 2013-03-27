@@ -31,7 +31,11 @@ void parse_job(MYSQL_ROW row)
             jnx_term_printf_in_color(JNX_COL_RED,"Warning catastrophic failure in transmit_job_orders\n");
             return;
         }
-        if(atoi(row[7]) == 0)
+        
+        /*-----------------------------------------------------------------------------
+         *  0 indicates no recursive pattern set, 1 indicates it has been.
+         *-----------------------------------------------------------------------------*/
+        if(atoi(row[7]) != 0)
         {
             print_streams(DEFAULTCOLOR,"Updating unixtimestamp of job to +24hrs\n");
             if(sql_update_job_trigger(row[0]) != 0)
