@@ -17,7 +17,7 @@
  */
 #include <stdlib.h>
 #include <unistd.h>
-#include "utils.h"
+#include "../utils.h"
 #include "../backend/jnxsql_interface.h"
 #include "../backend/sql_commands.h"
 #define TIMEWAIT 5
