@@ -39,8 +39,10 @@ int jnx_sql_interface_setup()
 }
 int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
 {
+    
     if(connection == NULL) return 1;
-    /* multi statements is useful for giving a string of commmands that are delimited with ; */
+	
+/* multi statements is useful for giving a string of commmands that are delimited with ; */
     if(mysql_real_connect(connection,host,username,password,0,0,NULL, CLIENT_MULTI_STATEMENTS) == NULL){ printf("CONNECTION ERROR\n"); return 1;};    
     int status = mysql_query(connection,query);
     if(status)
@@ -81,7 +83,7 @@ int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
 {
     if(connection == NULL) return 1;
     /* multi statements is useful for giving a string of commmands that are delimited with ; */
-    if(mysql_real_connect(connection,host,username,password,0,0,NULL, CLIENT_MULTI_STATEMENTS) != connection) { printf("Connection error in jnx_sql_resultfill_query\n"); return 1; }
+if(mysql_real_connect(connection,host,username,password,0,0,NULL, CLIENT_MULTI_STATEMENTS) != connection) { printf("Connection error in jnx_sql_resultfill_query\n"); return 1; }
     int status = mysql_query(connection,query);
     if(status)
     {

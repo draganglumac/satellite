@@ -96,7 +96,7 @@ int sql_set_job_progress(char *job_id,char*status)
         return 1;
     }
     char output[256];
-    strcpy(output,"use AUTOMATION; call sql_set_job_status_from_id("); 
+    strcpy(output,"use AUTOMATION; call set_job_status_from_id("); 
     strcat(output,job_id);
     strcat(output,",'");
     strcat(output,status);
