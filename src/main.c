@@ -22,7 +22,14 @@ void usage()
 {
 	print_streams(DEFAULTCOLOR,"Satellite is a half duplex server/client in one for transmission of several shell commands\n");
 	print_streams(DEFAULTCOLOR,"No mode selected, please try again using -m [TRANSMIT,RECEIVE]\n");
-	print_streams(DEFAULTCOLOR,"--conf [PATH TO CONF FILE]\n");
+}
+char *conf_path()
+{
+	char *home_path = getenv("HOME");
+	char *buffer = malloc(2048);
+	strcpy(buffer,home_path);
+	strcat(buffer,"/.satellite/satellite.conf");
+	return buffer;
 }
 void catch_int (int signum) 
 { 
@@ -42,21 +49,15 @@ int main(int argc, char **argv)
 	static struct option long_options[] = 
 	{
 		{"mode",required_argument,0,'m'},
-		{"conf",required_argument,0,'c'},
 		{0,      0,                 0, 0 }
 	};
 	int option_index = 0;
 	int i;
-	int port;
-	char *conf = NULL;
 	char* mode = NULL;
-	while(( i = getopt_long_only(argc,argv,"c:m:",long_options,&option_index)) != -1)
+	while(( i = getopt_long_only(argc,argv,"m:",long_options,&option_index)) != -1)
 	{
 		switch(i)
 		{
-			case 'c':
-				conf = optarg;
-				break;
 			case 'm':
 				mode = optarg;
 				break;
@@ -65,12 +66,15 @@ int main(int argc, char **argv)
 				exit(1);
 		}
 	}
-	if(conf == NULL || mode == NULL)
+	if(mode == NULL)
 	{
 		usage();
 		return ARG_UP;
 	}
-	config = utils_set_configuration(conf);
+	char *_conf = conf_path();
+	printf("Configuration path %s\n",_conf);
+	config = utils_set_configuration(_conf);
+	free(_conf);
 	/*-----------------------------------------------------------------------------
 	 *  Setup our log
 	 *-----------------------------------------------------------------------------*/

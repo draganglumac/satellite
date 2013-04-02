@@ -17,11 +17,21 @@
  */
 #include "jnx_receiver.h"
 #include <stdlib.h>
+#include <stdio.h>
+#include "../logic/jnx_results.h"
 #include "../utils.h"
 #include <string.h>
+#include <unistd.h>
 void jnx_receiver_listener_callback(char *message_buffer)
 {
-    print_streams(DEFAULTCOLOR,"Raw received message: %s of length %d\n",message_buffer,(int)strlen(message_buffer));
+
+	//create an output directory
+	// remember that user commands may change the cwd!
+	int output_setup_complete = jnx_result_setup();
+	char working_directory[1024];
+	getcwd(working_directory,1024);	
+	printf("Working base directory %s\n", working_directory);
+	print_streams(DEFAULTCOLOR,"Raw received message: %s of length %d\n",message_buffer,(int)strlen(message_buffer));
     char *delimiter = "!";
     char *job_id = NULL;
     char *command = NULL;
@@ -40,6 +50,12 @@ void jnx_receiver_listener_callback(char *message_buffer)
         print_streams(DEFAULTCOLOR,"Error with execution of %s : System returned %d\n",message_buffer,ret);
     }
     print_streams(JNX_COL_GREEN,"Execution completed\n");
+
+	if(output_setup_complete == 0)
+	{
+		jnx_result_process();
+		jnx_result_teardown();
+	}
 }
 int jnx_start_listener(char *listener_port)
 {

@@ -34,10 +34,8 @@ function setup_conf()
     do
         if [[ "$LINE" = *sqlhost* ]]; then
             echo "sqlhost=$host" >> conf/satellite.conf
-        
         elif [[ "$LINE" = *sqluser* ]]; then
             echo "sqluser=$user" >> conf/satellite.conf
-        
         elif [[ "$LINE" = *sqlpass* ]]; then
             echo "sqlpass=$pass" >> conf/satellite.conf
         elif [[ "$LINE" = *listenport* ]]; then
@@ -50,6 +48,14 @@ function setup_conf()
     
     done
 
+}
+function place_conf()
+{
+	if [ "$OS" = "Darwin" ]; then
+		mv conf/satellite.conf /Users/`whoami`/.satellite
+	else
+		mv conf/satellite.conf /home/`whoami`/.satellite
+	fi
 }
 
 if [ -e conf/satellite.conf ]; then
@@ -68,6 +74,6 @@ do
 done
 
 setup_conf
-
+place_conf
 echo "All done!"
 echo "Please run make"
