@@ -72,8 +72,11 @@ int main(int argc, char **argv)
 		return ARG_UP;
 	}
 	char *_conf = conf_path();
-	printf("Configuration path %s\n",_conf);
-	config = utils_set_configuration(_conf);
+	if((config = utils_set_configuration(_conf)) == NULL)
+	{
+		print_streams(JNX_COL_RED,"Could not read configuration file\n");	
+		return 1;
+	}
 	free(_conf);
 	/*-----------------------------------------------------------------------------
 	 *  Setup our log
