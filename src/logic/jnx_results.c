@@ -25,17 +25,19 @@ int jnx_result_setup(void)
 {
 	return mkdir(OUTPUTDIR,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
+int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typeflag,struct FTW *ftwbuf)
+{
+	printf("File path: %s\n",fpath);	
+	/*-----------------------------------------------------------------------------
+	 * Send files back over jnx_network connection 
+	 *-----------------------------------------------------------------------------*/
+
+}
 void jnx_result_process(void)
 {
-
-	/*-----------------------------------------------------------------------------
-	 *  Check for entries in the directory
-	 *-----------------------------------------------------------------------------*/
+	nftw(OUTPUTDIR,jnx_result_process_callback,64,8|1);
 }
 int jnx_result_teardown(void)
 {
-	/*-----------------------------------------------------------------------------
-	 *  Remove the directory
-	 *-----------------------------------------------------------------------------*/
 	return remove(OUTPUTDIR);
 }
