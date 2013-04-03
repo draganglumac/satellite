@@ -27,6 +27,9 @@ void jnx_network_post_file_callback(char *message)
 }
 int file_size(char *path)
 {
+
+	system("pwd");
+	printf("Checking file size of %s\n", path);
 	FILE *fp = NULL;
 
 	if ((fp = fopen(path, "r")) == NULL) {
