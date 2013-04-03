@@ -18,6 +18,10 @@
 #include "sql_commands.h"
 #include <stdlib.h>
 //callback hooks for jnx_sql_query
+void jnx_network_send_message_local_callback(char *message)
+{
+
+}
 void generic_sql_callback(MYSQL_RES *res)
 {
 }
@@ -152,7 +156,8 @@ int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char 
     jnx_string_join(&transmission_string,job_id);
     print_streams(DEFAULTCOLOR,"Outgoing transmission %s\n",transmission_string);
 
-    if(jnx_network_send_message(machine_ip,9099,transmission_string) != 0)
+	jnx_network_send_message_callback smc = jnx_network_send_message_local_callback;
+    if(jnx_network_send_message(machine_ip,9099,transmission_string, smc) != 0)
     {
 
         print_streams(JNX_COL_RED,"Failed to send message to target machine, aborting\n");

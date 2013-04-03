@@ -78,6 +78,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	free(_conf);
+	
 	/*-----------------------------------------------------------------------------
 	 *  Setup our log
 	 *-----------------------------------------------------------------------------*/
@@ -113,5 +114,4 @@ int main(int argc, char **argv)
 	jnx_hash_delete(config);
 	return 0;
 }
-
 

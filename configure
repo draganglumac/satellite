@@ -16,7 +16,11 @@ fi
 echo "logpath set to: $logpath"
 function setup_conf()
 {
-    echo "Please enter host name for sql db"
+	echo "Please enter the hostname (or ip address) for the frontend server"
+	read frontend
+	echo "Please enter the port for the frontend server"
+	read frontendport
+	echo "Please enter hostname (or ip address) for sql db"
     read host
     echo "Please enter sql username"
     read user
@@ -42,7 +46,11 @@ function setup_conf()
             echo "listenport=$listenport" >> conf/satellite.conf
         elif [[ "$LINE" = *logpath* ]]; then
             echo "logpath=$logpath" >> conf/satellite.conf
-        else
+		elif [[ "$LINE" = *frontendserver* ]]; then
+			echo "frontendserver=$frontend" >> conf/satellite.conf
+		elif [[ "$LINE" = *frontendport* ]]; then
+			echo "frontendport=$frontendport" >> conf/satellite.conf
+		else
             echo "$LINE" >> conf/satellite.conf
         fi
     

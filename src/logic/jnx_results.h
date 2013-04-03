@@ -21,7 +21,7 @@
 #include <ftw.h>
 #include <jnxc_headers/jnxfile.h>
 int jnx_result_setup(void);
-void jnx_result_process(void);
+void jnx_result_process(char *job_id);
 int jnx_result_teardown(void);
 int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typeflag,struct FTW *ftwbuf);
 #endif

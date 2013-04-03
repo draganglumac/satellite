@@ -53,12 +53,12 @@ void jnx_receiver_listener_callback(char *message_buffer)
 
 	if(output_setup_complete == 0)
 	{
-		jnx_result_process();
+		jnx_result_process(job_id);
 		jnx_result_teardown();
 	}
 }
 int jnx_start_listener(char *listener_port)
 {
     jnx_network_listener_callback c = &jnx_receiver_listener_callback;
-    return jnx_network_setup_listener(atoi(listener_port),c);
+	return jnx_network_setup_listener(atoi(listener_port),c);
 }
