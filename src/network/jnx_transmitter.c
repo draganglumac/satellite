@@ -57,6 +57,11 @@ void parse_job(MYSQL_ROW row)
 int jnx_transmitter_perform_jobs()
 {       
 	MYSQL_RES *result = sql_get_incomplete_jobs();
+	if(result == NULL)
+	{
+        print_streams(JNX_COL_RED,"Error connecting to sql database, trying again...\n");
+		return 0;
+	}
 	int i = 0, num_fields = mysql_num_fields(result);
 	MYSQL_ROW row;
 	while((row = mysql_fetch_row(result)))

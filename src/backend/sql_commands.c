@@ -195,7 +195,7 @@ MYSQL_RES *sql_get_incomplete_jobs(void)
     if(jnx_sql_resultfill_query("USE AUTOMATION; call get_incomplete_jobs();",&result) != 0)
     {
         print_streams(DEFAULTCOLOR,"An error occured whilst sending query\n");
-        exit(1);
+        return NULL;
     }
     //close our db connection to stop,
     return result;
