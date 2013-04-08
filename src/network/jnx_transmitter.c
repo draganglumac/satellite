@@ -60,7 +60,7 @@ int jnx_transmitter_perform_jobs()
 	if(result == NULL)
 	{
         print_streams(JNX_COL_RED,"Error connecting to sql database, trying again...\n");
-		return 0;
+		return -1;
 	}
 	int i = 0, num_fields = mysql_num_fields(result);
 	MYSQL_ROW row;
@@ -84,10 +84,16 @@ void jnx_start_transmitter(void)
 	print_streams(DEFAULTCOLOR,"Starting daemon\n");
 	while(1)
 	{
-		if(jnx_transmitter_perform_jobs() != 0)
+		int ret = jnx_transmitter_perform_jobs();
+
+		if(ret == 1)
 		{
 			print_streams(JNX_COL_RED,"Error in perform jobs\n");
 			exit(0);
+		}else if(ret == -1)
+		{
+			print_streams(JNX_COL_RED,"jnx_start_transmitter encountered an error communicating with connecting to the sql database\n");		
+			sleep(10);	
 		}
 		sleep(TIMEWAIT);
 	}
