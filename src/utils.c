@@ -61,7 +61,11 @@ void print_streams(int fg_col,const char* format, ...)
 jnx_hashmap* utils_set_configuration(char *path)
 {
     jnx_hashmap *hash = jnx_hash_init(1024);
-    jnx_file_kvp_node *kvpnode = jnx_file_read_keyvaluepairs(path,"=");
+    jnx_file_kvp_node *kvpnode;
+	if((kvpnode = jnx_file_read_keyvaluepairs(path,"=")) == NULL)
+	{
+		return NULL;
+	}
     while(kvpnode)
     {
         jnx_hash_put(hash,kvpnode->key,kvpnode->value);
