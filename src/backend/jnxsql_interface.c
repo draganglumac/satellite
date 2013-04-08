@@ -61,6 +61,7 @@ int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
 			/* yes; process rows and free the result set */
 			(*sql_callback)(result);
 			mysql_free_result(result);
+			jnx_sql_close();
 		}
 		else          /* no result set or error */
 		{
@@ -111,6 +112,7 @@ int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
 		{
 			/* yes; process rows and free the result set */
 			(*resultptr) = result;
+			jnx_sql_close();
 		}
 		else          /* no result set or error */
 		{

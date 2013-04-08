@@ -75,7 +75,6 @@ char* sql_resolve_machine_ip(char *machine_number)
         }
     }
     mysql_free_result(result);
-    jnx_sql_close();
     return current_machine_ip;
 }
 int sql_update_job_trigger(char *job_id)
@@ -117,7 +116,6 @@ int sql_set_job_progress(char *job_id,char*status)
         return 1;
     }else{
         //avoids a crash if sql fails
-        jnx_sql_close();
     }
     return 0;
 }
@@ -141,7 +139,6 @@ int sql_write_result_to_db(char *job_id,char *result_input)
         print_streams(JNX_COL_RED,"Error with query in write_result_to_db\n");
         return 1;
     }
-    jnx_sql_close();
     return 0;
 }
 int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
