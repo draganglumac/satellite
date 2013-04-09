@@ -79,9 +79,15 @@ int jnx_transmitter_perform_jobs()
 	mysql_free_result(result); 
 	return 0;
 }
+int timeout_for_retry(int retry)
+{
+    // To Do - Fibonacci's sequence times 10 max number of times
+    return 10;
+}
 void jnx_start_transmitter(void)
 {
 	print_streams(DEFAULTCOLOR,"Starting daemon\n");
+    int retries_on_error = 0;
 	while(1)
 	{
 		int ret = jnx_transmitter_perform_jobs();
@@ -89,12 +95,24 @@ void jnx_start_transmitter(void)
 		if(ret == 1)
 		{
 			print_streams(JNX_COL_RED,"Error in perform jobs\n");
-			exit(0);
-		}else if(ret == -1)
-		{
-			print_streams(JNX_COL_RED,"jnx_start_transmitter encountered an error communicating with connecting to the sql database\n");		
-			sleep(10);	
+			exit(1);
 		}
+        else if(ret == -1)
+		{
+			print_streams(JNX_COL_RED,"jnx_start_transmitter encountered an error communicating with connecting to the sql database\nAttempting recovery...\n");        
+			
+            int next_timeout = timeout_for_retry(retries_on_error);
+            if ( next_timeout == -1 )
+            {
+                print_streams(JNX_COL_RED,"jnx_start_transmitter catastrophic failure!\nAborting satellite after the maximum number of unsucessful recovery attempts.\n");
+                exit(1);
+            }
+            
+            sleep(next_timeout);
+            retries_on_error++;
+            continue;
+		}
+        retries_on_error = 0;
 		sleep(TIMEWAIT);
 	}
 }
