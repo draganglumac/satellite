@@ -27,8 +27,10 @@
 char *current_id = NULL;
 int jnx_result_setup(void)
 {
-    int retval = mkdir(OUTPUTDIR,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH); 
-	return retval == EEXIST ? 0 : retval;
+    int retval = mkdir(OUTPUTDIR,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if ( retval != 0 && errno == EEXIST )
+       retval = 0; 
+	return retval;
 }
 int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typeflag,struct FTW *ftwbuf)
 {
