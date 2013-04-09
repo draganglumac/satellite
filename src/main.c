@@ -44,9 +44,10 @@ void catch_int (int signum)
 }
 int main(int argc, char **argv) 
 {
-	//Register for signal handling
+    //Register for signal handling
 	signal(SIGINT, catch_int);
-	static struct option long_options[] = 
+	signal(SIGTSTP,catch_int);
+    static struct option long_options[] = 
 	{
 		{"mode",required_argument,0,'m'},
 		{0,      0,                 0, 0 }
