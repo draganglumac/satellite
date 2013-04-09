@@ -22,6 +22,7 @@
 #include "../utils.h"
 #include <string.h>
 #include <unistd.h>
+#include "../backend/sql_commands.h"
 void jnx_receiver_listener_callback(char *message_buffer)
 {
 
@@ -55,6 +56,7 @@ void jnx_receiver_listener_callback(char *message_buffer)
 	{
 		jnx_result_process(job_id);
 		jnx_result_teardown();
+		sql_write_result_to_db(job_id,"COMPLETED");
 	}
 	else
 	{
