@@ -25,10 +25,6 @@ void jnx_network_send_message_local_callback(char *message)
 void generic_sql_callback(MYSQL_RES *res)
 {
 }
-void jnx_send_message_local_callback(char *message)
-{
-
-}
 char* sql_resolve_machine_ip(char *machine_number)
 {
     /* 
