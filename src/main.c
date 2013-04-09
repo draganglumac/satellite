@@ -46,6 +46,7 @@ int main(int argc, char **argv)
 {
 	//Register for signal handling
 	signal(SIGINT, catch_int);
+	signal(SIGTERM, catch_int);
 	static struct option long_options[] = 
 	{
 		{"mode",required_argument,0,'m'},
