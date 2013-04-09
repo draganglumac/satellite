@@ -17,10 +17,12 @@
  */
 #include <stdlib.h>
 #include <unistd.h>
+#include <jnxc_headers/jnxhash.h>
 #include "../utils.h"
 #include "../backend/jnxsql_interface.h"
 #include "../backend/sql_commands.h"
 #define TIMEWAIT 5
+extern jnx_hashmap *config;
 void parse_job(MYSQL_ROW row)
 {
 	if(utils_check_trigger_time(row[6],row[1]) == 0)
@@ -81,8 +83,30 @@ int jnx_transmitter_perform_jobs()
 }
 int timeout_for_retry(int retry)
 {
-    // To Do - Fibonacci's sequence times 10 max number of times
-    return 10;
+    int max_retries = atoi(jnx_hash_get(config, "max_retries"));
+    if ( retry == max_retries )
+        return -1;
+    
+    int  first = 1, second = 2, sum, i;
+    for ( i = 0; i < retry; i++ )
+    {
+        if ( i == 0 )
+        {
+            sum = 1;
+        }
+        else if ( i == 1 )
+        {
+            sum = 2;
+        }
+        else
+        {
+            sum = first + second;
+            first = second;
+            second = sum;
+        }
+    }
+
+    return 10 * sum;
 }
 void jnx_start_transmitter(void)
 {
@@ -101,6 +125,7 @@ void jnx_start_transmitter(void)
 		{
 			print_streams(JNX_COL_RED,"jnx_start_transmitter encountered an error communicating with connecting to the sql database\nAttempting recovery...\n");        
 			
+            retries_on_error++;
             int next_timeout = timeout_for_retry(retries_on_error);
             if ( next_timeout == -1 )
             {
@@ -109,7 +134,6 @@ void jnx_start_transmitter(void)
             }
             
             sleep(next_timeout);
-            retries_on_error++;
             continue;
 		}
         retries_on_error = 0;
