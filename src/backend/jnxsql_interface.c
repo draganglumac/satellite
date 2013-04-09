@@ -8,6 +8,10 @@ MYSQL_ROW row;
 char *host;
 char *username;
 char *password;
+
+int jnx_sql_interface_setup(void);
+void jnx_sql_close(void);
+
 int perform_store_sql_credentials(char* host_addr, char* user, char* pass)
 {
 	host = host_addr;
@@ -39,7 +43,7 @@ int jnx_sql_interface_setup()
 }
 int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
 {
-
+	jnx_sql_interface_setup();
 	if(connection == NULL) return 1;
 
 	/* multi statements is useful for giving a string of commmands that are delimited with ; */
@@ -61,7 +65,6 @@ int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
 			/* yes; process rows and free the result set */
 			(*sql_callback)(result);
 			mysql_free_result(result);
-			jnx_sql_close();
 		}
 		else          /* no result set or error */
 		{
@@ -78,14 +81,17 @@ int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
 		if ((status = mysql_next_result(connection)) > 0)
 			printf("Could not execute statement in jnx_sql_query\n");
 	} while (status == 0);
+	jnx_sql_close();
 	return 0;
 }
 int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
 {
+	jnx_sql_interface_setup();
 	if(connection == NULL) 
 	{
 		jnx_term_printf_in_color(JNX_COL_RED,"Connecting to jnx_sql_resultfill_query is null\n");
-		return 1;}
+		return 1;
+	}
 	/* multi statements is useful for giving a string of commmands that are delimited with ; */
 	if(mysql_real_connect(connection,host,username,password,0,0,NULL, CLIENT_MULTI_STATEMENTS) != connection)
 	{ 
@@ -112,7 +118,6 @@ int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
 		{
 			/* yes; process rows and free the result set */
 			(*resultptr) = result;
-			jnx_sql_close();
 		}
 		else          /* no result set or error */
 		{
@@ -129,5 +134,6 @@ int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
 		if ((status = mysql_next_result(connection)) > 0)
 			printf("Could not execute statement in jnx_sql_resultfill_query\n");
 	} while (status == 0);
+	jnx_sql_close();
 	return 0;
 }

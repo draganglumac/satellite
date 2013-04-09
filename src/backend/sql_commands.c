@@ -31,11 +31,6 @@ void jnx_send_message_local_callback(char *message)
 }
 char* sql_resolve_machine_ip(char *machine_number)
 {
-    if(jnx_sql_interface_setup() != 0)
-    {
-        print_streams(JNX_COL_RED,"Error connecting to sql to resolve machine ip, aborting\n");
-        exit(1);
-    }
     /* 
      * Warning this uses stored procedures 
      *
@@ -79,11 +74,6 @@ char* sql_resolve_machine_ip(char *machine_number)
 }
 int sql_update_job_trigger(char *job_id)
 {
-    if(jnx_sql_interface_setup() != 0)
-    {
-        print_streams(JNX_COL_RED,"Error connecting to sql\n");
-        return 1;
-    }
     char output[256];
     strcpy(output,"use AUTOMATION; call add_day_to_trigger_from_id("); 
     strcat(output,job_id);
@@ -97,11 +87,6 @@ int sql_update_job_trigger(char *job_id)
 }
 int sql_set_job_progress(char *job_id,char*status)
 {
-    if(jnx_sql_interface_setup() != 0)
-    {
-        print_streams(JNX_COL_RED,"Error connecting to sql\n");
-        return 1;
-    }
     char output[256];
     strcpy(output,"use AUTOMATION; call set_job_status_from_id("); 
     strcat(output,job_id);
@@ -121,11 +106,6 @@ int sql_set_job_progress(char *job_id,char*status)
 }
 int sql_write_result_to_db(char *job_id,char *result_input)
 {
-    if(jnx_sql_interface_setup() != 0)
-    {
-        print_streams(JNX_COL_RED,"Error connecting to sql\n");
-        return 1;
-    }
     char query[1024];
     strcpy(query,"USE AUTOMATION; call add_result_from_job('");
     strcat(query,job_id);
@@ -183,11 +163,6 @@ int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char 
 }
 MYSQL_RES *sql_get_incomplete_jobs(void)
 {
-    if(jnx_sql_interface_setup() != 0)
-    {
-        print_streams(JNX_COL_RED,"Error connecting to sql\n");
-        exit(1);
-    }
     MYSQL_RES *result;
     if(jnx_sql_resultfill_query("USE AUTOMATION; call get_incomplete_jobs();",&result) != 0)
     {
