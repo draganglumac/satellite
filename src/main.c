@@ -45,10 +45,10 @@ void catch_int (int signum)
 }
 int main(int argc, char **argv) 
 {
-    //Register for signal handling
+	//Register for signal handling
 	signal(SIGINT, catch_int);
 	signal(SIGTSTP,catch_int);
-    static struct option long_options[] = 
+	static struct option long_options[] = 
 	{
 		{"mode",required_argument,0,'m'},
 		{0,      0,                 0, 0 }
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	free(_conf);
-	
+
 	/*-----------------------------------------------------------------------------
 	 *  Setup our log
 	 *-----------------------------------------------------------------------------*/
@@ -104,6 +104,9 @@ int main(int argc, char **argv)
 		jnx_infrastructure_broadcast_listen();
 		if(!jnx_hash_get(config,"listenport"))
 		{ print_streams(JNX_COL_RED,"Requires port number, option -p\n");return 1; };
+		/*-----------------------------------------------------------------------------
+		 *  Start listening for new jobs
+		 *-----------------------------------------------------------------------------*/
 		if(jnx_start_listener(jnx_hash_get(config,"listenport")) != 0)
 		{
 			print_streams(JNX_COL_RED,"Error starting the listener\n");
@@ -112,11 +115,13 @@ int main(int argc, char **argv)
 	}
 	if(strcmp(mode,"TRANSMIT") == 0)
 	{
-		
 		/*-----------------------------------------------------------------------------
 		 *  Start broadcasting to see which nodes are available
 		 *-----------------------------------------------------------------------------*/
 		jnx_infrastructure_broadcast_send("[Multicast]: All nodes master is up\n");
+		/*-----------------------------------------------------------------------------
+		 *  Start trawling for jobs and sending them to nodes
+		 *-----------------------------------------------------------------------------*/
 		jnx_start_transmitter();        
 	}
 	jnx_hash_delete(config);

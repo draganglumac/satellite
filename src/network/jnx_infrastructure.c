@@ -22,7 +22,7 @@
 #include "../utils.h"
 void broadcast_callback(char *message)
 {
-	print_streams(JNX_COL_YELLOW,"Received from broadcast %s",message);
+	print_streams(JNX_COL_YELLOW,"Received: %s",message);
 }
 void *start_broadcast_listener(void *arg)
 {
@@ -37,5 +37,6 @@ void jnx_infrastructure_broadcast_listen(void)
 }
 void jnx_infrastructure_broadcast_send(char *message)
 {
+	print_streams(JNX_COL_YELLOW,"Multicasting: %s\n",message);
 	jnx_network_send_broadcast(BPORT,BGROUP,message);
 }
