@@ -112,7 +112,11 @@ int main(int argc, char **argv)
 	}
 	if(strcmp(mode,"TRANSMIT") == 0)
 	{
-		jnx_infrastructure_broadcast_send("Who is out there?\n");
+		
+		/*-----------------------------------------------------------------------------
+		 *  Start broadcasting to see which nodes are available
+		 *-----------------------------------------------------------------------------*/
+		jnx_infrastructure_broadcast_send("[Multicast]: All nodes master is up\n");
 		jnx_start_transmitter();        
 	}
 	jnx_hash_delete(config);
