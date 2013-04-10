@@ -100,23 +100,6 @@ int sql_set_job_progress(char *job_id,char*status)
     }
     return 0;
 }
-int sql_write_result_to_db(char *job_id,char *result_input)
-{
-    char query[1024];
-    strcpy(query,"USE AUTOMATION; call add_result_from_job('");
-    strcat(query,job_id);
-    strcat(query,"','");
-    strcat(query,result_input);
-    strcat(query,"');");
-    printf("Write result output : %s\n",query);
-    sql_callback c = &generic_sql_callback;
-    if(jnx_sql_query(query,c) != 0)
-    {
-        print_streams(JNX_COL_RED,"Error with query in write_result_to_db\n");
-        return 1;
-    }
-    return 0;
-}
 int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
 {
     /*  lets print our expected results for visual confirmation */

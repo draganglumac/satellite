@@ -24,7 +24,6 @@
 #include <unistd.h>
 #include <jnxc_headers/jnxstring.h>
 
-int sql_write_result_to_db(char *job_id,char *result_input);
 void sql_generic_sql_callback(MYSQL_RES *res);
 char* sql_resolve_machine_ip(char *machine_number);
 int sql_update_job_trigger(char *job_id);
