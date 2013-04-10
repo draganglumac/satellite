@@ -140,10 +140,10 @@ int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char 
     }    
     return 0;
 }
-MYSQL_RES *sql_get_incomplete_jobs(void)
+MYSQL_RES *sql_get_candidate_jobs(void)
 {
     MYSQL_RES *result;
-    if(jnx_sql_resultfill_query("USE AUTOMATION; call get_incomplete_jobs();",&result) != 0)
+    if(jnx_sql_resultfill_query("USE AUTOMATION; call get_candidate_jobs();",&result) != 0)
     {
         print_streams(DEFAULTCOLOR,"An error occured whilst sending query\n");
         return NULL;
