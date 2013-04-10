@@ -13,6 +13,7 @@
 #include <jnxc_headers/jnxhash.h>
 #include "network/jnx_transmitter.h"
 #include "network/jnx_receiver.h"
+#include "network/jnx_infrastructure.h"
 #include "utils.h"
 #define TIMEWAIT 5
 jnx_hashmap *config;
@@ -100,6 +101,7 @@ int main(int argc, char **argv)
 	}
 	if(strcmp(mode,"RECEIVE") == 0)
 	{
+		jnx_infrastructure_broadcast_listen();
 		if(!jnx_hash_get(config,"listenport"))
 		{ print_streams(JNX_COL_RED,"Requires port number, option -p\n");return 1; };
 		if(jnx_start_listener(jnx_hash_get(config,"listenport")) != 0)
@@ -110,6 +112,7 @@ int main(int argc, char **argv)
 	}
 	if(strcmp(mode,"TRANSMIT") == 0)
 	{
+		jnx_infrastructure_broadcast_send("Who is out there?\n");
 		jnx_start_transmitter();        
 	}
 	jnx_hash_delete(config);
