@@ -103,19 +103,11 @@ int sql_set_job_progress(char *job_id,char*status)
 int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
 {
     /*  lets print our expected results for visual confirmation */
-    print_streams(DEFAULTCOLOR,"Transmitting job_id -> %s\n",job_id);
-    print_streams(DEFAULTCOLOR,"Transmitting job_name -> %s\n",job_name);
-    print_streams(DEFAULTCOLOR,"Transmitting machine_ip -> %s\n",machine_ip);
-    print_streams(DEFAULTCOLOR,"Transmitting command -> %s\n",command);
-    //Append to command the job id ->
     int command_len = strlen(command); 
     char *transmission_string = (char*)malloc(command_len + 1);
     strcpy(transmission_string,command);
-    print_streams(DEFAULTCOLOR,"Copy of command is %s\n",transmission_string);
     jnx_string_join(&transmission_string,"!");
     jnx_string_join(&transmission_string,job_id);
-    print_streams(DEFAULTCOLOR,"Outgoing transmission %s\n",transmission_string);
-
 	jnx_network_send_message_callback smc = jnx_network_send_message_local_callback;
     if(jnx_network_send_message(machine_ip,9099,transmission_string, smc) != 0)
     {
@@ -136,7 +128,7 @@ int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char 
     if(sql_set_job_progress(job_id,"INPROGRESS") != 0)
     {
         printf("Unable to set job to INPROGRESS, aborting\n");
-        exit(1);
+        return 1;
     }    
     return 0;
 }

@@ -35,12 +35,10 @@ int utils_check_trigger_time(char *time_, char *job_id)
 	print_streams(DEFAULTCOLOR,"Job %s is set to run at %s which is %dh %dm %ds from current\n",job_id,s,diff_time_h,diff_time_m,diff_time_s); 
 	if((triggertime - current_time) < 0)
 	{
-		print_streams(JNX_COL_BLUE,"Trigger in the past\n");
 		return -1;
 	}
 	if((triggertime - current_time) <= 60)
 	{
-		print_streams(JNX_COL_BLUE,"Trigger time within 60 seconds of current\n");
 		return 0;
 	}
 
