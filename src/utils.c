@@ -41,7 +41,6 @@ int utils_check_trigger_time(char *time_, char *job_id)
 	{
 		return 0;
 	}
-
 	return 1;
 }
 void print_streams(int fg_col,const char* format, ...)
@@ -60,7 +59,6 @@ void print_streams(int fg_col,const char* format, ...)
 		jnx_term_default();
 
 	jnx_log(buffer);
-
 }
 jnx_hashmap* utils_set_configuration(char *path)
 {
