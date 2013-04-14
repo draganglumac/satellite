@@ -28,9 +28,8 @@ void parse_job(MYSQL_ROW row)
 	/*-----------------------------------------------------------------------------
 	 *  Checks to see whether the trigger time is within 60 seconds of current
 	 *-----------------------------------------------------------------------------*/
-	int is_recursive = atoi(row[8]);
+	int is_recursive = atoi(row[7]);
 	int trigger = utils_check_trigger_time(row[6],row[1]);	
-
 	switch(trigger)
 	{
 		case 0:
@@ -41,7 +40,7 @@ void parse_job(MYSQL_ROW row)
 			int orders_ret = sql_transmit_job_orders(row[0],row[1],sql_resolve_machine_ip(row[5]),row[3]);
 			if(orders_ret != 0)
 			{ 
-				print_streams(JNX_COL_RED,"Warning catastrophic failure in transmit_job_orders\n"); return;
+				print_streams(JNX_COL_RED,"Warning catastrophic failure in transmit_job_orders\n"); 
 				sql_set_job_progress(row[0],"FAILED");
 			}	
 			switch(is_recursive)

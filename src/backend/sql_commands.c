@@ -70,7 +70,8 @@ char* sql_resolve_machine_ip(char *machine_number)
 }
 int sql_update_job_trigger(char *job_id)
 {
-    char output[256];
+    print_streams(JNX_COL_CYAN,"Incrementing job trigger by 24 hours\n");
+	char output[256];
     strcpy(output,"use AUTOMATION; call add_day_to_trigger_from_id("); 
     strcat(output,job_id);
     strcat(output,");");
@@ -114,20 +115,14 @@ int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char 
 
         print_streams(JNX_COL_RED,"Failed to send message to target machine, aborting\n");
         free(transmission_string);
-
-        if(sql_set_job_progress(job_id,"FAILED") != 0)
-        {
-            printf("Unable to set job to FAILED, aborting\n");
-            exit(1);
-        }    
         //LOG ERROR
         return 1; 
     }
     free(transmission_string);
     //Write job in progress to sql
-    if(sql_set_job_progress(job_id,"INPROGRESS") != 0)
+    if(sql_set_job_progress(job_id,"IN PROGRESS") != 0)
     {
-        printf("Unable to set job to INPROGRESS, aborting\n");
+        printf("Unable to set job to IN PROGRESS, aborting\n");
         return 1;
     }    
     return 0;
