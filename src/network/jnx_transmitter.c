@@ -51,12 +51,15 @@ void parse_job(MYSQL_ROW row)
 					 *  Job is recursive
 					 *-----------------------------------------------------------------------------*/
 					sql_update_job_trigger(row[0]);					
+					if(!orders_ret)
 					sql_set_job_progress(row[0],"SCHEDULED");
 					break;
 				case 0:
 					/*-----------------------------------------------------------------------------
 					 *  Job is not recursive
 					 *-----------------------------------------------------------------------------*/
+
+					if(!orders_ret)
 					sql_set_job_progress(row[0],"COMPLETED");
 					break;
 			}
