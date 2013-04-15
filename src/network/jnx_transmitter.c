@@ -32,11 +32,12 @@ void parse_job(MYSQL_ROW row)
 	int trigger = utils_check_trigger_time(row[6],row[1]);	
 
 	char *job_status = row[4];
-
+	print_streams(JNX_COL_GREEN,"%s status: %s\n",row[1],job_status);
 	if(strcmp(job_status,"COMPLETED") == 0)
+	{	
 		print_streams(JNX_COL_CYAN,"Job has already been run in this trigger period\n");
 		return;
-
+	}
 	switch(trigger)
 	{
 		case 0:
