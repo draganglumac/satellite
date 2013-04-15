@@ -34,6 +34,7 @@ void parse_job(MYSQL_ROW row)
 	char *job_status = row[4];
 
 	if(strcmp(job_status,"COMPLETED") == 0)
+		print_streams(JNX_COL_CYAN,"Job has already been run in this trigger period\n");
 		return;
 
 	switch(trigger)
