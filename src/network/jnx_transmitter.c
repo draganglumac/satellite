@@ -30,6 +30,12 @@ void parse_job(MYSQL_ROW row)
 	 *-----------------------------------------------------------------------------*/
 	int is_recursive = atoi(row[7]);
 	int trigger = utils_check_trigger_time(row[6],row[1]);	
+
+	char *job_status = row[4];
+
+	if(strcmp(job_status,"COMPLETED") == 0)
+		return;
+
 	switch(trigger)
 	{
 		case 0:
@@ -51,7 +57,7 @@ void parse_job(MYSQL_ROW row)
 					 *-----------------------------------------------------------------------------*/
 					sql_update_job_trigger(row[0]);					
 					if(!orders_ret)
-					sql_set_job_progress(row[0],"SCHEDULED");
+						sql_set_job_progress(row[0],"SCHEDULED");
 					break;
 				case 0:
 					/*-----------------------------------------------------------------------------
@@ -59,7 +65,7 @@ void parse_job(MYSQL_ROW row)
 					 *-----------------------------------------------------------------------------*/
 
 					if(!orders_ret)
-					sql_set_job_progress(row[0],"COMPLETED");
+						sql_set_job_progress(row[0],"COMPLETED");
 					break;
 			}
 			break;

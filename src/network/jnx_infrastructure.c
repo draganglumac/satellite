@@ -23,6 +23,10 @@
 void broadcast_callback(char *message)
 {
 	print_streams(JNX_COL_YELLOW,"Received: %s",message);
+	
+	/*-----------------------------------------------------------------------------
+	 *  Work here to be done on sending back IP to master; either through broadcast or TCP connection
+	 *-----------------------------------------------------------------------------*/
 }
 void *start_broadcast_listener(void *arg)
 {
