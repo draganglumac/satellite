@@ -37,15 +37,18 @@ void parse_job(MYSQL_ROW row)
 	switch(trigger)
 	{
 		case READYTORUN:
+			if(is_recursive == NO && strcmp(job_status,"COMPLETED") == 0)
+			{
+				printf("Job has already been completed and is on a single run cycle\n");
+				return;
+			}
 			if(strcmp(job_status,"IN PROGRESS") == 0)
 			{
 				printf("Job has already been run and is in progress\n");
 				return;
 			}
 			print_streams(JNX_COL_GREEN,"Starting to run job\n");	
-			/*-----------------------------------------------------------------------------
-			 *  Ready to run job
-			 *-----------------------------------------------------------------------------*/
+			
 			int orders_ret = sql_transmit_job_orders(row[0],row[1],sql_resolve_machine_ip(row[5]),row[3]);
 			if(orders_ret != 0)
 			{ 
