@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+
 int utils_check_trigger_time(char *time_, char *job_id)
 {
 	time_t current_time = time(0);
@@ -32,16 +33,16 @@ int utils_check_trigger_time(char *time_, char *job_id)
 	long  diff_time_h = diff / 3600;
 	long diff_time_m = diff % 3600 /60;
 	long diff_time_s = diff % 3600 % 60;
-	print_streams(DEFAULTCOLOR,"Job %s is set to run at %s which is %dh %dm %ds from current\n",job_id,s,diff_time_h,diff_time_m,diff_time_s); 
+	print_streams(DEFAULTCOLOR,"Job %s is set to run at %s which is %dh %dm %ds from current with current status of ",job_id,s,diff_time_h,diff_time_m,diff_time_s); 
 	if((triggertime - current_time) < 0)
 	{
-		return -1;
+		return ALREADYRUN;
 	}
 	if((triggertime - current_time) <= 60)
 	{
-		return 0;
+		return READYTORUN;
 	}
-	return 1;
+	return NOTREADYTORUN;
 }
 void print_streams(int fg_col,const char* format, ...)
 {

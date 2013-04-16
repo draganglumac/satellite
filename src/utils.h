@@ -14,12 +14,17 @@
  *   Organization:  
  *
  * =====================================================================================
- */
+*/
+#ifndef __UTILS_H__
+#define __UTILS_H__
 #include <jnxc_headers/jnxlog.h>
 #include <jnxc_headers/jnxterm.h>
 #include <jnxc_headers/jnxhash.h>
 #include <jnxc_headers/jnxfile.h>
 #define DEFAULTCOLOR -1
+typedef enum { NO, YES } bool;
+typedef enum { READYTORUN, ALREADYRUN, NOTREADYTORUN } state;
 void print_streams(int col,const char* format, ...);
 jnx_hashmap* utils_set_configuration(char *path);
 int utils_check_trigger_time(char *time_, char *job_id);
+#endif

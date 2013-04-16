@@ -61,6 +61,8 @@ void jnx_receiver_listener_callback(char *message_buffer)
 	{
 		printf("Error with results processing, probably means the directory already exists!\n");
 	}
+
+	sql_set_job_progress(job_id,"COMPLETED");
 }
 int jnx_start_listener(char *listener_port)
 {

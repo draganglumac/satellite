@@ -30,17 +30,18 @@ void parse_job(MYSQL_ROW row)
 	 *-----------------------------------------------------------------------------*/
 	int is_recursive = atoi(row[7]);
 	int trigger = utils_check_trigger_time(row[6],row[1]);	
-
 	char *job_status = row[4];
-	print_streams(JNX_COL_GREEN,"%s status: %s\n",row[1],job_status);
-	if(strcmp(job_status,"COMPLETED") == 0)
-	{	
-		print_streams(JNX_COL_CYAN,"Job has already been run in this trigger period\n");
-		return;
-	}
+	
+	print_streams(JNX_COL_GREEN,"%s\n", job_status);
+
 	switch(trigger)
 	{
-		case 0:
+		case READYTORUN:
+			if(strcmp(job_status,"IN PROGRESS") == 0)
+			{
+				printf("Job has already been run and is in progress\n");
+				return;
+			}
 			print_streams(JNX_COL_GREEN,"Starting to run job\n");	
 			/*-----------------------------------------------------------------------------
 			 *  Ready to run job
@@ -53,35 +54,32 @@ void parse_job(MYSQL_ROW row)
 			}	
 			switch(is_recursive)
 			{
-				case 1:
+				case YES:
 					/*-----------------------------------------------------------------------------
 					 *  Job is recursive
 					 *-----------------------------------------------------------------------------*/
 					sql_update_job_trigger(row[0]);					
-					if(!orders_ret)
-						sql_set_job_progress(row[0],"SCHEDULED");
+					if(orders_ret == 0)
+						sql_set_job_progress(row[0],"IN PROGRESS");
 					break;
-				case 0:
+				case NO:
 					/*-----------------------------------------------------------------------------
 					 *  Job is not recursive
 					 *-----------------------------------------------------------------------------*/
 
-					if(!orders_ret)
-						sql_set_job_progress(row[0],"COMPLETED");
+					if(orders_ret == 0)
+						sql_set_job_progress(row[0],"IN PROGRESS");
 					break;
 			}
+			printf("Run complete\n");
 			break;
-		case 1:
-			print_streams(JNX_COL_MAGENTA,"Not yet ready to run job\n");	
-			/*-----------------------------------------------------------------------------
-			 *  Job not ready to run
-			 *-----------------------------------------------------------------------------*/
+		
+		/*  Jobs not ready to run */
+		case ALREADYRUN:
+			printf("Already run\n");
 			break;
-		case -1:
-			print_streams(JNX_COL_MAGENTA,"Job already run\n");	
-			/*-----------------------------------------------------------------------------
-			 *  Job already run
-			 *-----------------------------------------------------------------------------*/
+		case NOTREADYTORUN:
+			printf("Not ready to run\n");
 			break;
 	}
 
