@@ -23,7 +23,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "../backend/sql_commands.h"
-void jnx_receiver_listener_callback(char *message_buffer)
+void jnx_receiver_listener_callback(char *message_buffer, char *client_ip)
 {
 
 	//create an output directory
@@ -32,7 +32,7 @@ void jnx_receiver_listener_callback(char *message_buffer)
 	char working_directory[1024];
 	getcwd(working_directory,1024);	
 	printf("Working base directory %s\n", working_directory);
-	print_streams(DEFAULTCOLOR,"Raw received message: %s of length %d\n",message_buffer,(int)strlen(message_buffer));
+	print_streams(DEFAULTCOLOR,"Raw received message: %s of length %d from %s\n",message_buffer,strlen(message_buffer), client_ip);
 	char *delimiter = "!";
 	char *job_id = NULL;
 	char *command = NULL;
