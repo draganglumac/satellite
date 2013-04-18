@@ -20,5 +20,6 @@
 #define BPORT 12345
 #define BGROUP "225.0.0.37"
 void jnx_infrastructure_broadcast_listen(void);
+void jnx_infrastructure_update_daemon(void);
 void jnx_infrastructure_broadcast_send(char *message);
 #endif

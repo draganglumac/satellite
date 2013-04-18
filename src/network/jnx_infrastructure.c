@@ -22,7 +22,7 @@
 #include "../utils.h"
 #include <string.h>
 #include <stdlib.h>
-
+#define BROADCAST_TIMEWAIT 30
 extern jnx_hashmap *config;
 void jnx_network_post_status_callback(char *message, char *client_ip)
 {
@@ -54,6 +54,22 @@ void broadcast_callback(char *message)
 		return;
 	}
 
+}
+void *jnx_infrastructure_update_worker(void*args)
+{
+	while(1)
+	{
+		jnx_infrastructure_broadcast_send("[Multicast]: All nodes tell me your status\n");
+		sleep(BROADCAST_TIMEWAIT);
+	}
+}
+void jnx_infrastructure_update_daemon(void)
+{
+	/*-----------------------------------------------------------------------------
+	 *  Spawns a thread to perform peroidic broadcasts
+	 *-----------------------------------------------------------------------------*/
+	pthread_t _updatethread;
+	pthread_create(&_updatethread,NULL,jnx_infrastructure_update_worker,NULL);
 }
 void *start_broadcast_listener(void *arg)
 {
