@@ -71,9 +71,9 @@ void *jnx_infrastructure_update_worker(void*args)
 		 *  Before getting all node status, we set all nodes to offline momentarily
 		 *-----------------------------------------------------------------------------*/
 		
+		sleep(BROADCAST_TIMEWAIT);
 		jnx_infrastructure_set_node_challenge();
 		jnx_infrastructure_broadcast_send("[Multicast]: All nodes tell me your status\n");
-		sleep(BROADCAST_TIMEWAIT);
 	}
 }
 void jnx_infrastructure_update_daemon(void)
@@ -92,6 +92,7 @@ void *start_broadcast_listener(void *arg)
 }
 void jnx_infrastructure_broadcast_listen(void)
 {
+	sleep(5);
 	pthread_t _listener_thread;
 	pthread_create(&_listener_thread,NULL,start_broadcast_listener,NULL);	
 }

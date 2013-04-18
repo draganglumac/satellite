@@ -32,7 +32,6 @@ int sql_set_machines_offline(void)
 	{
 		return 1;
 	}
-	free(result);
 	return 0;
 }
 char* sql_resolve_machine_ip(char *machine_number)
