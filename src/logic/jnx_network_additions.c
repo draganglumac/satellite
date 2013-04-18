@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 extern jnx_hashmap *config;
-void jnx_network_post_file_callback(char *message)
+void jnx_network_post_file_callback(char *message, char *client_ip)
 {
 
 }

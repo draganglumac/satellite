@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 		/*-----------------------------------------------------------------------------
 		 *  Start broadcasting to see which nodes are available
 		 *-----------------------------------------------------------------------------*/
-		jnx_infrastructure_broadcast_send("[Multicast]: All nodes master is up\n");
+		jnx_infrastructure_broadcast_send("[Multicast]: All nodes tell me your status\n");
 		/*-----------------------------------------------------------------------------
 		 *  Start trawling for jobs and sending them to nodes
 		 *-----------------------------------------------------------------------------*/
