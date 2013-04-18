@@ -24,6 +24,17 @@ void jnx_network_send_message_local_callback(char *message)
 void generic_sql_callback(MYSQL_RES *res)
 {
 }
+int sql_set_machines_offline(void)
+{
+	char *output = "use AUTOMATION; update machines set status='OFFLINE' where status!='OFFLINE';";
+	MYSQL_RES *result;
+	if(jnx_sql_resultfill_query(output,&result) != 0)
+	{
+		return 1;
+	}
+	free(result);
+	return 0;
+}
 char* sql_resolve_machine_ip(char *machine_number)
 {
 	/* 

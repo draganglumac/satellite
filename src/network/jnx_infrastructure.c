@@ -20,6 +20,7 @@
 #include <jnxc_headers/jnxnetwork.h>
 #include <pthread.h>
 #include "../utils.h"
+#include "../backend/sql_commands.h"
 #include <string.h>
 #include <stdlib.h>
 #define BROADCAST_TIMEWAIT 30
@@ -54,10 +55,23 @@ void broadcast_callback(char *message)
 		return;
 	}
 }
+void jnx_infrastructure_set_node_challenge()
+{
+	printf("jnx_infrastructure_set_node_challenge, setting all nodes temporarily to offline...\n");
+	if(sql_set_machines_offline())
+	{
+		print_streams(JNX_COL_RED,"Unable to set all nodes offline in DB for update challenge\n");
+	}
+}
 void *jnx_infrastructure_update_worker(void*args)
 {
 	while(1)
 	{
+		/*-----------------------------------------------------------------------------
+		 *  Before getting all node status, we set all nodes to offline momentarily
+		 *-----------------------------------------------------------------------------*/
+		
+		jnx_infrastructure_set_node_challenge();
 		jnx_infrastructure_broadcast_send("[Multicast]: All nodes tell me your status\n");
 		sleep(BROADCAST_TIMEWAIT);
 	}
