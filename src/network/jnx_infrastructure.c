@@ -31,6 +31,8 @@ void jnx_network_post_status_callback(char *message, char *client_ip)
 void broadcast_callback(char *message)
 {
 	print_streams(JNX_COL_YELLOW,"Received: %s",message);
+
+	print_streams(JNX_COL_YELLOW,"Replying to master...\n");
 	// /machines/status/id/status
  	char sendline[MAXBUFFER];
 	int size = 0;	
@@ -45,15 +47,12 @@ void broadcast_callback(char *message)
 		"\r\n";
 
 	snprintf(sendline,MAXBUFFER,post,relative_path_buffer,jnx_hash_get(config,"frontendserver"),jnx_hash_get(config,"frontendport"),size);
-	printf("TOTAL RESULT %s\n",sendline);
-	
 	jnx_network_send_message_callback c = jnx_network_post_status_callback;
 	if(jnx_network_send_message(jnx_hash_get(config,"frontendserver"),atoi(jnx_hash_get(config,"frontendport")),sendline, c) == 1)
 	{
 		print_streams(JNX_COL_RED,"Failed to send updated machine status\n");
 		return;
 	}
-
 }
 void *jnx_infrastructure_update_worker(void*args)
 {
