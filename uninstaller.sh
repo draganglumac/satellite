@@ -18,4 +18,5 @@ else
     rm -rf /home/`whoami`/.satellite
 fi
 
+rm -rf $HOME/.satellite
 sudo rm $path
