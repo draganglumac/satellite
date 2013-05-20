@@ -16,55 +16,14 @@ fi
 echo "logpath set to: $logpath"
 function setup_conf()
 {
-    echo "Please enter the hostname (or ip address) for the frontend server"
-    read frontend
-    echo "Please enter the port for the frontend server"
-    read frontendport
-    echo "Please enter hostname (or ip address) for sql db"
-    read host
-    echo "Please enter sql username"
-    read user
-    echo "Please enter sql password"
-    read pass
-    echo "Please enter listener port (leave blank for default 9099)"
-    read listenport
-    echo "Please enter number of retries for transmition errors (leave blank for default 5)"
-    read max_retries
-
-    if [ -z "$listenport" ]; then
-        echo "Using default port"
-        listenport=9099
-    fi
-
-    if [ -z "$max_retries" ]; then
-        echo "Using default number of retries"
-        max_retries=5
-    fi
-
-    cat conf/default.conf | while IFS='' read -r LINE
-do
-    if [[ "$LINE" = *sqlhost* ]]; then
-        echo "sqlhost=$host" >> conf/satellite.conf
-    elif [[ "$LINE" = *sqluser* ]]; then
-        echo "sqluser=$user" >> conf/satellite.conf
-    elif [[ "$LINE" = *sqlpass* ]]; then
-        echo "sqlpass=$pass" >> conf/satellite.conf
-    elif [[ "$LINE" = *listenport* ]]; then
-        echo "listenport=$listenport" >> conf/satellite.conf
-    elif [[ "$LINE" = *logpath* ]]; then
-        echo "logpath=$logpath" >> conf/satellite.conf
-    elif [[ "$LINE" = *frontendserver* ]]; then
-        echo "frontendserver=$frontend" >> conf/satellite.conf
-    elif [[ "$LINE" = *frontendport* ]]; then
-        echo "frontendport=$frontendport" >> conf/satellite.conf
-    elif [[ "$LINE" = *max_retries* ]]; then
-        echo "max_retries=$max_retries" >> conf/satellite.conf
-    else
-        echo "$LINE" >> conf/satellite.conf
-    fi
-
-done
-
+    echo "sqlhost=$sqlhost" >> conf/satellite.conf
+    echo "sqluser=$sqluser" >> conf/satellite.conf
+    echo "sqlpass=$sqlpass" >> conf/satellite.conf
+    echo "listenport=9099" >> conf/satellite.conf
+    echo "logpath=$logpath" >> conf/satellite.conf
+	echo "frontendserver=$frontend" >> conf/satellite.conf
+    echo "frontendport=$frontendport" >> conf/satellite.conf
+    echo "max_retries=5" >> conf/satellite.conf
 }
 function place_conf()
 {
@@ -74,7 +33,6 @@ function place_conf()
         mv conf/satellite.conf /home/`whoami`/.satellite
     fi
 }
-
 if [ -e conf/satellite.conf ]; then
     rm conf/satellite.conf
 fi
