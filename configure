@@ -14,6 +14,19 @@ else
     mkdir -p /home/`whoami`/.satellite
 fi
 echo "logpath set to: $logpath"
+
+function check_deps()
+{
+OS=`uname`
+if [ "$OS" = "Darwin" ]; then
+	brew list | grep mysql 
+	if [ $? -ne 0 ]; then
+		brew install mysql-connector-c mysql
+	fi
+else
+	echo "Unable to check mysql deps on linux system"
+fi
+}
 function setup_conf()
 {
     echo "sqlhost=$sqlhost" >> conf/satellite.conf
@@ -47,7 +60,7 @@ cat Makefile.in | while IFS='' read -r LINE
 do
     echo "$LINE" >> Makefile
 done
-
+check_deps
 setup_conf
 place_conf
 echo "All done!"
