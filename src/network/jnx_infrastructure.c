@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #define BROADCAST_TIMEWAIT 30
 extern jnx_hashmap *config;
-void jnx_network_post_status_callback(char *message, char *client_ip)
+void jnx_network_post_status_callback(char *message)
 {
 
 }
