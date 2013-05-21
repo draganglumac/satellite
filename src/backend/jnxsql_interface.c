@@ -2,9 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../utils.h"
-MYSQL *connection;
-MYSQL_RES *result;
-MYSQL_ROW row;
 char *host;
 char *username;
 char *password;
@@ -19,31 +16,13 @@ int perform_store_sql_credentials(char* host_addr, char* user, char* pass)
 	password = pass;
 	int ret = 0;
 	MYSQL_RES *result;
-	if(jnx_sql_interface_setup() != 0)
-	{
-		print_streams(JNX_COL_RED,"Error connecting to sql\n");
-		print_streams(DEFAULTCOLOR,"Error connecting to sql in perform_store_sql_credentials\n");
-		return 1;
-	}
 	ret = jnx_sql_resultfill_query("use AUTOMATION; select 'test';",&result);
-	if(ret == 0 ) { mysql_free_result(result); jnx_sql_close();};
 	return ret;
-}
-void jnx_sql_close(void )
-{
-	if(connection == NULL) return;
-	mysql_close(connection);
-	connection = NULL;
-}
-int jnx_sql_interface_setup()
-{
-	connection = mysql_init(connection);
-	if(connection == NULL) return 1;
-	return 0;
 }
 int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
 {
-	jnx_sql_interface_setup();
+	MYSQL *connection = mysql_init(NULL);
+	MYSQL_RES *result;
 	if(connection == NULL) return 1;
 
 	/* multi statements is useful for giving a string of commmands that are delimited with ; */
@@ -81,12 +60,13 @@ int jnx_sql_query(char* query,void (*sql_callback)(MYSQL_RES*))
 		if ((status = mysql_next_result(connection)) > 0)
 			printf("Could not execute statement in jnx_sql_query\n");
 	} while (status == 0);
-	jnx_sql_close();
+	mysql_close(connection);
 	return 0;
 }
 int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
 {
-	jnx_sql_interface_setup();
+	MYSQL *connection = mysql_init(NULL);
+	MYSQL_RES *result;
 	if(connection == NULL) 
 	{
 		jnx_term_printf_in_color(JNX_COL_RED,"Connecting to jnx_sql_resultfill_query is null\n");
@@ -134,6 +114,6 @@ int jnx_sql_resultfill_query(char *query, MYSQL_RES **resultptr)
 		if ((status = mysql_next_result(connection)) > 0)
 			printf("Could not execute statement in jnx_sql_resultfill_query\n");
 	} while (status == 0);
-	jnx_sql_close();
+	mysql_close(connection);
 	return 0;
 }

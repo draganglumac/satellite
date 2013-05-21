@@ -4,15 +4,9 @@ echo "Configuring Satellite"
 
 #default log path
 OS=`uname`
-if [ "$OS" = "Darwin" ]; then
-    logpath="/Users/`whoami`/.satellite/sat.log"
+    logpath="$HOME/.satellite/sat.log"
     #lets make a satellite folder just incase it doesn't exist
-    mkdir -p /Users/`whoami`/.satellite
-else
-    logpath="/home/`whoami`/.satellite/sat.log"
-    #lets make a satellite folder just incase it doesn't exist
-    mkdir -p /home/`whoami`/.satellite
-fi
+    mkdir -p $HOME/.satellite
 echo "logpath set to: $logpath"
 
 function check_deps()
@@ -29,6 +23,9 @@ fi
 }
 function setup_conf()
 {
+if [ -e conf/satellite.conf ]; then
+    rm conf/satellite.conf
+fi
     echo "sqlhost=$sqlhost" >> conf/satellite.conf
     echo "sqluser=$sqluser" >> conf/satellite.conf
     echo "sqlpass=$sqlpass" >> conf/satellite.conf
@@ -40,22 +37,11 @@ function setup_conf()
 }
 function place_conf()
 {
-    if [ "$OS" = "Darwin" ]; then
-        mv conf/satellite.conf /Users/`whoami`/.satellite
-    else
-        mv conf/satellite.conf /home/`whoami`/.satellite
-    fi
+	cp conf/satellite.conf $HOME/.satellite
 }
-if [ -e conf/satellite.conf ]; then
-    rm conf/satellite.conf
-fi
 if [ -e Makefile ]; then
     rm Makefile
 fi
-if [ -e isotope ]; then
-    rm isotope
-fi
-
 cat Makefile.in | while IFS='' read -r LINE
 do
     echo "$LINE" >> Makefile
