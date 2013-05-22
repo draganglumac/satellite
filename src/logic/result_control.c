@@ -17,7 +17,7 @@
  */
 #include <stdlib.h>
 #include "result_control.h"
-#include "jnx_network_additions.h"
+#include "../network/jnx_network_additions.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdio.h>
