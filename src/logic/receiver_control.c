@@ -42,7 +42,6 @@ void jnx_receiver_listener_callback(char *message_buffer, char *client_ip)
 	command = token;
 	print_streams(DEFAULTCOLOR,"COMMAND: %s\n",command);
 	token = strtok(NULL,delimiter);
-	//We should really chop off the job so it doesnt come out as a system error
 	job_id = token;
 	print_streams(DEFAULTCOLOR,"Job ID: %s\n",job_id);
 	int ret = system(command);
