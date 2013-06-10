@@ -31,7 +31,7 @@ fi
     echo "sqlpass=$sqlpass" >> conf/satellite.conf
     echo "listenport=9099" >> conf/satellite.conf
     echo "logpath=$logpath" >> conf/satellite.conf
-	echo "frontendserver=$frontend" >> conf/satellite.conf
+	echo "frontendserver=$frontendserver" >> conf/satellite.conf
     echo "frontendport=$frontendport" >> conf/satellite.conf
     echo "max_retries=5" >> conf/satellite.conf
 }
