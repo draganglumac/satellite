@@ -29,6 +29,5 @@ char* sql_resolve_machine_ip(char *machine_number);
 int sql_update_job_trigger(char *job_id);
 int sql_set_job_progress(char *job_id,char*status);
 int sql_set_machines_offline(void);
-int sql_transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command);
 MYSQL_RES *sql_get_candidate_jobs(void);
 #endif

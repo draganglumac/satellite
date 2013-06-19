@@ -23,6 +23,36 @@
 #include "../network/sql_command_interface.h"
 #define TIMEWAIT 15
 extern jnx_hashmap *config;
+void transmit_orders_callback(char *message)
+{
+	printf("Transmit orders callback: %s",message);
+}
+int transmit_job_orders(char *job_id,char *job_name, char *machine_ip, char *command)
+{
+	/*  lets print our expected results for visual confirmation */
+	int command_len = strlen(command); 
+	char *transmission_string = (char*)malloc(command_len + 1);
+	strcpy(transmission_string,command);
+	jnx_string_join(&transmission_string,"!");
+	jnx_string_join(&transmission_string,job_id);
+	jnx_network_send_message_callback smc = transmit_orders_callback;
+	if(jnx_network_send_message(machine_ip,9099,transmission_string, smc) != 0)
+	{
+
+		print_streams(JNX_COL_RED,"Failed to send message to target machine, aborting\n");
+		free(transmission_string);
+		//LOG ERROR
+		return 1; 
+	}
+	free(transmission_string);
+	//Write job in progress to sql
+	if(sql_set_job_progress(job_id,"IN PROGRESS") != 0)
+	{
+		printf("Unable to set job to IN PROGRESS, aborting\n");
+		return 1;
+	}    
+	return 0;
+}
 void parse_job(MYSQL_ROW row)
 {
 	/*-----------------------------------------------------------------------------
@@ -49,7 +79,7 @@ void parse_job(MYSQL_ROW row)
 			}
 			print_streams(JNX_COL_GREEN,"Starting to run job\n");	
 			
-			int orders_ret = sql_transmit_job_orders(row[0],row[1],sql_resolve_machine_ip(row[5]),row[3]);
+			int orders_ret = transmit_job_orders(row[0],row[1],sql_resolve_machine_ip(row[5]),row[3]);
 			if(orders_ret != 0)
 			{ 
 				print_streams(JNX_COL_RED,"Warning catastrophic failure in transmit_job_orders\n"); 
