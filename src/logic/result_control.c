@@ -24,6 +24,7 @@
 #include <jnxc_headers/jnxfile.h>
 #define OUTPUTDIR "output"
 #include <errno.h>
+#include <string.h>
 char *current_id = NULL;
 int jnx_result_setup(void)
 {
@@ -36,6 +37,12 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 {
 	printf("File path: %s\n",fpath);	
 
+	char *ext = strrchr(fpath,'.');
+	if(!ext)
+	{
+		ext = "";
+	}
+	printf("File format is %s\n",ext);
 	if(S_ISREG(sb->st_mode))
 	{
 		printf("Sending %s to jnx_network_post_file\n",fpath);
