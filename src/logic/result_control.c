@@ -25,6 +25,7 @@
 #define OUTPUTDIR "output"
 #include <errno.h>
 #include <string.h>
+#include "../utils.h"
 char *current_id = NULL;
 int accepted_file_format_count = 4;
 char *accepted_file_formats[4] =
@@ -58,8 +59,25 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 			if(strcmp(accepted_file_formats[count], ext +1) == 0)
 			{
 				printf("File format is on approved list, sending through\n");
-				printf("Sending %s to jnx_network_post_file\n",fpath);
-				jnx_network_post_file(fpath + ftwbuf->base, current_id);
+		
+				if((strcmp(ext +1,"jpeg")) == 0 || (strcmp(ext +1,"jpg")) == 0)
+				{
+				//base64encode here
+			
+					FILE *fp = fopen(fpath,"r");
+					fseek(fp,0,SEEK_END);
+					long int size = ftell(fp);
+					rewind(fp);
+					char *from_file = calloc(size +1,sizeof(char));
+					fread(from_file,1,size,fp);
+					fclose(fp);
+
+					char *base64output;
+					utils_base64_encode(from_file,&base64output);
+					printf("base64 output : %s\n",base64output);
+				}
+				//now we know the file is on the approval list, we must process it if it's a binary file	
+				//jnx_network_post_file(fpath + ftwbuf->base, current_id);
 			}
 		}
 	
