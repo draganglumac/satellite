@@ -26,10 +26,10 @@
 #include <errno.h>
 #include <string.h>
 char *current_id = NULL;
-int accepted_file_format_count = 5;
-char *accepted_file_formats[5] =
+int accepted_file_format_count = 4;
+char *accepted_file_formats[4] =
 {
-	"jpeg","jpg",".txt",".html",""
+	"jpeg","jpg",".txt",".html"
 };
 
 int jnx_result_setup(void)
@@ -55,13 +55,14 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 		int count; 
 		for(count = 0; count < accepted_file_format_count; ++count)
 		{
-			if(strcmp(accepted_file_formats[count],ext) == 0)
+			if(strcmp(accepted_file_formats[count], ext +1) == 0)
 			{
 				printf("File format is on approved list, sending through\n");
 				printf("Sending %s to jnx_network_post_file\n",fpath);
 				jnx_network_post_file(fpath + ftwbuf->base, current_id);
 			}
 		}
+	
 	}
 	return 0;
 }
