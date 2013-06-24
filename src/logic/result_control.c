@@ -43,6 +43,7 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 		ext = "";
 	}
 	printf("File format is %s\n",ext);
+
 	if(S_ISREG(sb->st_mode))
 	{
 		printf("Sending %s to jnx_network_post_file\n",fpath);
