@@ -26,17 +26,22 @@
 #include <errno.h>
 #include <string.h>
 char *current_id = NULL;
+int accepted_file_format_count = 5;
+char *accepted_file_formats[5] =
+{
+	"jpeg","jpg",".txt",".html",""
+};
+
 int jnx_result_setup(void)
 {
-    int retval = mkdir(OUTPUTDIR,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    if ( retval != 0 && errno == EEXIST )
-       retval = 0; 
+	int retval = mkdir(OUTPUTDIR,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	if ( retval != 0 && errno == EEXIST )
+		retval = 0; 
 	return retval;
 }
 int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typeflag,struct FTW *ftwbuf)
 {
 	printf("File path: %s\n",fpath);	
-
 	char *ext = strrchr(fpath,'.');
 	if(!ext)
 	{
@@ -44,10 +49,19 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 	}
 	printf("File format is %s\n",ext);
 
+	//check the fileformat is on the approved list before continuing.
 	if(S_ISREG(sb->st_mode))
 	{
-		printf("Sending %s to jnx_network_post_file\n",fpath);
-		jnx_network_post_file(fpath + ftwbuf->base, current_id);
+		int count; 
+		for(count = 0; count < accepted_file_format_count; ++count)
+		{
+			if(strcmp(accepted_file_formats[count],ext) == 0)
+			{
+				printf("File format is on approved list, sending through\n");
+				printf("Sending %s to jnx_network_post_file\n",fpath);
+				jnx_network_post_file(fpath + ftwbuf->base, current_id);
+			}
+		}
 	}
 	return 0;
 }
