@@ -62,22 +62,12 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 		
 				if((strcmp(ext +1,"jpeg")) == 0 || (strcmp(ext +1,"jpg")) == 0)
 				{
-				//base64encode here
 			
-					FILE *fp = fopen(fpath,"r");
-					fseek(fp,0,SEEK_END);
-					long int size = ftell(fp);
-					rewind(fp);
-					char *from_file = calloc(size +1,sizeof(char));
-					fread(from_file,1,size,fp);
-					fclose(fp);
-
-					char *base64output;
-					utils_base64_encode(from_file,&base64output);
-					printf("base64 output : %s\n",base64output);
+				}else
+				{
+					jnx_network_post_file(fpath + ftwbuf->base, current_id);
 				}
 				//now we know the file is on the approval list, we must process it if it's a binary file	
-				//jnx_network_post_file(fpath + ftwbuf->base, current_id);
 			}
 		}
 	
