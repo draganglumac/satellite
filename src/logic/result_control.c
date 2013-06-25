@@ -27,10 +27,10 @@
 #include <string.h>
 #include "../base64.h"
 char *current_id = NULL;
-int accepted_file_format_count = 4;
-char *accepted_file_formats[4] =
+int accepted_file_format_count = 5;
+char *accepted_file_formats[5] =
 {
-	"jpeg","jpg",".txt",".html"
+	"jpeg","jpg","txt","html","png"
 };
 
 int jnx_result_setup(void)
