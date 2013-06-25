@@ -54,26 +54,22 @@ int jnx_network_post_file(file_type f,const char *filepath, char *jobid)
 
 
 	char *fcont = NULL;
-	char *filename = NULL;
 	size_t size = 0;
 	char *rel_path = NULL;
 	switch(f)
 	{
 		case TEXT:
+			printf("TEXT MODE TRANSMISSION\n");
 			fcont = jnx_file_read((char*)filepath); 
 			size = file_size((char*)filepath);
 			
 			rel_path = "/upload/%s/%s";	
 			break;
 		case BIN:
-			filename = strrchr(filepath,'/');
-			if(!filename)
-			{
-				//something went wrong here 
-				return 1;
-			}
+			printf("BIN MODE TRANSMISSION\n");
+			printf("File name %s\n",filepath);
 			//filename + 1
-			FILE *fp = fopen(filename +1,"r");
+			FILE *fp = fopen(filepath,"r");
 			if(fp == NULL)
 			{
 				return 1;
@@ -81,6 +77,7 @@ int jnx_network_post_file(file_type f,const char *filepath, char *jobid)
 			fseek(fp,0,SEEK_END);
 			long int fp_size = ftell(fp);
 			rewind(fp);
+			printf("size is %d\n",fp_size);
 			char *data = calloc(fp_size,sizeof(char));
 			fread(data,fp_size,sizeof(char),fp);
 			fclose(fp);
@@ -89,7 +86,7 @@ int jnx_network_post_file(file_type f,const char *filepath, char *jobid)
 			rel_path = "/upload/%s/%s/bin";
 			break;
 	}
-	if ( size < 0  || filename == NULL || fcont == NULL)
+	if ( size < 0 ||  fcont == NULL)
 	{
 		printf("send_file_to_server error in determining the size of the file...");
 		return 1;
@@ -114,11 +111,13 @@ int jnx_network_post_file(file_type f,const char *filepath, char *jobid)
 	strcat(buffy, fcont);
 
 	jnx_network_send_message_callback c = jnx_network_post_file_callback;
+	printf("SENDING MESSAGE!!!!\n");
 	if(jnx_network_send_message(jnx_hash_get(config,"frontendserver"),atoi(jnx_hash_get(config,"frontendport")),buffy, c) == 1)
 	{
 		printf("Failed to transmit %s\n",filepath);
 		return 1;
 	}
+	printf("Sent\n");
 	free(buffy);
 	free(fcont);
 	return 0;

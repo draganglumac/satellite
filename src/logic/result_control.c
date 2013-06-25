@@ -62,36 +62,6 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 		
 				if((strcmp(ext +1,"jpeg")) == 0 || (strcmp(ext +1,"jpg")) == 0)
 				{	
-					//what directory are we in?
-					//open the file 
-					char *filename = strrchr(fpath,'/');
-					if(!filename)
-					{
-						//something went wrong here 
-						perror("jnx_result_process_callback ");
-						return 1;
-					}
-					//filename + 1
-					
-					FILE *fp = fopen(filename +1,"r");
-					if(fp == NULL)
-					{
-						perror("jnx_result_process_callback ");
-						return 1;
-					}	
-					fseek(fp,0,SEEK_END);
-					long int fp_size = ftell(fp);
-					rewind(fp);
-					char *data = calloc(fp_size,sizeof(char));
-
-					fread(data,fp_size,sizeof(char),fp);
-				
-					fclose(fp);
-					size_t *output_len;
-
-					char *encoded_data = base64_encode(data,fp_size,output_len);	
-	
-					printf("%s",encoded_data);
 					//encode the file
 					jnx_network_post_file(BIN,fpath + ftwbuf->base, current_id);
 					
