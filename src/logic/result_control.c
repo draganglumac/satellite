@@ -93,11 +93,12 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 	
 					printf("%s",encoded_data);
 					//encode the file
-					//
+					jnx_network_post_file(BIN,fpath + ftwbuf->base, current_id);
+					
 					//transmit the file
 				}else
 				{
-					jnx_network_post_file(fpath + ftwbuf->base, current_id);
+					jnx_network_post_file(TEXT,fpath + ftwbuf->base, current_id);
 				}
 			}
 		}

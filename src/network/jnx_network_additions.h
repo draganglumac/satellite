@@ -17,7 +17,9 @@
  */
 #ifndef __JNX_NETWORK_ADDITIONS_H__
 #define __JNX_NETWORK_ADDITIONS_H__
-int jnx_network_post_file(const char *filepath, char *jobid);
+typedef enum { TEXT, BIN } file_type;
+int jnx_network_post_file(file_type f,const char *filepath, char *jobid);
 #endif
+
 
 

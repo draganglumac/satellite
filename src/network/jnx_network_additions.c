@@ -20,6 +20,8 @@
 #include <jnxc_headers/jnxnetwork.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "jnx_network_additions.h"
+#include "../base64.h"
 extern jnx_hashmap *config;
 void jnx_network_post_file_callback(char *message)
 {
@@ -45,20 +47,54 @@ int file_size(char *path)
 
 	return size;
 }
-int jnx_network_post_file(char *filepath, char *jobid)
+int jnx_network_post_file(file_type f,const char *filepath, char *jobid)
 {
 	char sendline[MAXBUFFER];
 	bzero(&sendline, MAXBUFFER);
 
-	char *fcont = jnx_file_read(filepath); 
-	int size = file_size(filepath);
-	if ( size < 0 )
+
+	char *fcont = NULL;
+	char *filename = NULL;
+	size_t size = 0;
+	char *rel_path = NULL;
+	switch(f)
+	{
+		case TEXT:
+			fcont = jnx_file_read((char*)filepath); 
+			size = file_size((char*)filepath);
+			
+			rel_path = "/upload/%s/%s";	
+			break;
+		case BIN:
+			filename = strrchr(filepath,'/');
+			if(!filename)
+			{
+				//something went wrong here 
+				return 1;
+			}
+			//filename + 1
+			FILE *fp = fopen(filename +1,"r");
+			if(fp == NULL)
+			{
+				return 1;
+			}	
+			fseek(fp,0,SEEK_END);
+			long int fp_size = ftell(fp);
+			rewind(fp);
+			char *data = calloc(fp_size,sizeof(char));
+			fread(data,fp_size,sizeof(char),fp);
+			fclose(fp);
+			fcont  = base64_encode(data,fp_size,&size);	
+			free(data);	
+			rel_path = "/upload/%s/%s/bin";
+			break;
+	}
+	if ( size < 0  || filename == NULL || fcont == NULL)
 	{
 		printf("send_file_to_server error in determining the size of the file...");
 		return 1;
 	}
 
-	char *rel_path = "/upload/%s/%s";
 	char relative_path_buffer[256];
 	snprintf(relative_path_buffer,256,rel_path,jobid,filepath);
 	printf("jnx_network_post_file relative path : %s\n",relative_path_buffer);
