@@ -87,13 +87,11 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 					fread(data,fp_size,sizeof(char),fp);
 				
 					fclose(fp);
-			
-					int i;
-					for(i = 0; i < fp_size; ++i)
-					{
-						printf("%X",data[i]);
-					}
-			
+					size_t *output_len;
+
+					char *encoded_data = base64_encode(data,fp_size,output_len);	
+	
+					printf("%s",encoded_data);
 					//encode the file
 					//
 					//transmit the file
