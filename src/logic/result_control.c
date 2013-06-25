@@ -65,7 +65,35 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 					//what directory are we in?
 					//open the file 
 					char *filename = strrchr(fpath,'/');
-					printf("filename %s\n",filename);	
+					if(!filename)
+					{
+						//something went wrong here 
+						perror("jnx_result_process_callback ");
+						return 1;
+					}
+					//filename + 1
+					
+					FILE *fp = fopen(filename +1,"r");
+					if(fp == NULL)
+					{
+						perror("jnx_result_process_callback ");
+						return 1;
+					}	
+					fseek(fp,0,SEEK_END);
+					long int fp_size = ftell(fp);
+					rewind(fp);
+					char *data = calloc(fp_size,sizeof(char));
+
+					fread(data,fp_size,sizeof(char),fp);
+				
+					fclose(fp);
+			
+					int i;
+					for(i = 0; i < fp_size; ++i)
+					{
+						printf("%X",data[i]);
+					}
+			
 					//encode the file
 					//
 					//transmit the file
