@@ -25,7 +25,7 @@
 #define OUTPUTDIR "output"
 #include <errno.h>
 #include <string.h>
-#include "../utils.h"
+#include "../base64.h"
 char *current_id = NULL;
 int accepted_file_format_count = 4;
 char *accepted_file_formats[4] =
@@ -61,8 +61,14 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 				printf("File format is on approved list, sending through\n");
 		
 				if((strcmp(ext +1,"jpeg")) == 0 || (strcmp(ext +1,"jpg")) == 0)
-				{
-			
+				{	
+					//what directory are we in?
+					system("pwd");
+					//open the file 
+					
+					//encode the file
+					//
+					//transmit the file
 				}else
 				{
 					jnx_network_post_file(fpath + ftwbuf->base, current_id);
