@@ -63,9 +63,9 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 				if((strcmp(ext +1,"jpeg")) == 0 || (strcmp(ext +1,"jpg")) == 0)
 				{	
 					//what directory are we in?
-					system("pwd");
 					//open the file 
-					
+					char *filename = strrchr(fpath,'/');
+					printf("filename %s\n",filename);	
 					//encode the file
 					//
 					//transmit the file
