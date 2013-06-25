@@ -60,7 +60,7 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 			{
 				printf("File format is on approved list, sending through\n");
 		
-				if((strcmp(ext +1,"jpeg")) == 0 || (strcmp(ext +1,"jpg")) == 0)
+				if( (strcmp(ext + 1, "png")) == 0 || (strcmp(ext +1,"jpeg")) == 0 || (strcmp(ext +1,"jpg")) == 0)
 				{	
 					//encode the file
 					jnx_network_post_file(BIN,fpath + ftwbuf->base, current_id);
