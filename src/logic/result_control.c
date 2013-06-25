@@ -73,7 +73,6 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 				{
 					jnx_network_post_file(fpath + ftwbuf->base, current_id);
 				}
-				//now we know the file is on the approval list, we must process it if it's a binary file	
 			}
 		}
 	
