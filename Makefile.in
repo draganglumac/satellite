@@ -1,5 +1,6 @@
+subdir=`find . -type f -iname *.c -print`
 all:
-	gcc src/logic/*.c src/network/*.c src/*.c -o satellite -ljnxc -lmysqlclient -ldl -pthread -g
+	gcc $(subdir) -o satellite -ljnxc -lmysqlclient -ldl -pthread -g
 
 install:
 	 mv satellite /usr/bin
