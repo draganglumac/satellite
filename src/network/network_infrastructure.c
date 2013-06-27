@@ -20,7 +20,7 @@
 #include <jnxc_headers/jnxnetwork.h>
 #include <pthread.h>
 #include "../utils.h"
-#include "sql_command_interface.h"
+#include "../backend/sql_command_interface.h"
 #include <string.h>
 #include <stdlib.h>
 #define BROADCAST_TIMEWAIT 30

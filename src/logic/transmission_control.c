@@ -19,8 +19,7 @@
 #include <unistd.h>
 #include <jnxc_headers/jnxhash.h>
 #include "../utils.h"
-#include "../network/jnxsql_interface.h"
-#include "../network/sql_command_interface.h"
+#include "../backend/sql_command_interface.h"
 #define TIMEWAIT 15
 extern jnx_hashmap *config;
 void transmit_orders_callback(char *message)

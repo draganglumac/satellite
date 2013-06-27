@@ -6,7 +6,7 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/stat.h>
-#include "network/jnxsql_interface.h"
+#include "backend/jnxsql_interface.h"
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxfile.h>

@@ -27,26 +27,6 @@ void jnx_network_post_file_callback(char *message)
 {
 
 }
-int file_size(char *path)
-{
-	printf("Checking file size of %s\n", path);
-	FILE *fp = NULL;
-
-	if ((fp = fopen(path, "r")) == NULL) {
-		perror("file: ");
-		return -1;
-	}
-	if(fseek(fp, 0, SEEK_END) != 0)
-	{
-		perror("file: ");
-		exit(1);
-	}
-
-	int size = ftell(fp);
-	fclose(fp);
-
-	return size;
-}
 int jnx_network_post_file(file_type f,const char *filepath, char *jobid)
 {
 	char sendline[MAXBUFFER];
@@ -60,8 +40,8 @@ int jnx_network_post_file(file_type f,const char *filepath, char *jobid)
 	{
 		case TEXT:
 			printf("TEXT MODE TRANSMISSION\n");
-			fcont = jnx_file_read((char*)filepath); 
-			size = file_size((char*)filepath);
+			size = jnx_file_read((char*)filepath,&fcont); 
+			
 			
 			rel_path = "/upload/%s/%s";	
 			break;
