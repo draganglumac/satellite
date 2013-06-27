@@ -107,8 +107,14 @@ int jnx_network_post_file(file_type f,const char *filepath, char *jobid)
 	size_t msgsize = strlen(sendline) + size + 1;
 	char *buffy = malloc(msgsize);
 	bzero(buffy, msgsize);
+
+	if(fcont[strlen(fcont)] != '\0')
+	{
+		printf("Caught an unterminated string\n");
+		fcont[strlen(fcont)] = '\0';
+	}
 	strcpy(buffy, sendline);
-	strcat(buffy, fcont);
+	strncat(buffy, fcont, strlen(fcont));
 
 	jnx_network_send_message_callback c = jnx_network_post_file_callback;
 	printf("SENDING MESSAGE!!!!\n");
