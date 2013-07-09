@@ -1,42 +1,16 @@
+#include "logic/job_control.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <ctype.h>
 #include <signal.h>
 #include <string.h>
-#include <sys/stat.h>
-#include "backend/jnxsql_interface.h"
-#include <jnxc_headers/jnxstring.h>
-#include <jnxc_headers/jnxlist.h>
-#include <jnxc_headers/jnxfile.h>
-#include <jnxc_headers/jnxhash.h>
-#include "logic/transmission_control.h"
-#include "logic/receiver_control.h"
-#include "network/network_infrastructure.h"
-#include "utils.h"
-#define TIMEWAIT 5
-jnx_hashmap *config;
-enum ERROR_CODE { SER_UP, ARG_UP,SQL_UP }; 
-#define DEFAULTCOLOR -1
-void usage()
-{
-	print_streams(DEFAULTCOLOR,"Satellite is a half duplex server/client in one for transmission of several shell commands\n");
-	print_streams(DEFAULTCOLOR,"No mode selected, please try again using -m [TRANSMIT,RECEIVE]\n");
-}
-char *conf_path()
-{
-	char *home_path = getenv("HOME");
-	char *buffer = malloc(2048);
-	strcpy(buffer,home_path);
-	strcat(buffer,"/.satellite/satellite.conf");
-	return buffer;
-}
+#include <jnxc_headers/jnxnetwork.h>
+#include <jnxc_headers/jnxterm.h>
 void catch_int (int signum) 
 { 
 	pid_t my_pid;
-	print_streams(DEFAULTCOLOR,"\nReceived an interrupt! About to exit ..\n");
-
+	jnx_term_printf_in_color(JNX_COL_RED,"\nReceived an interrupt! About to exit ..\n");
 	jnx_network_cancel_listener();
 	fflush(stdout);
 	my_pid = getpid();
@@ -48,82 +22,8 @@ int main(int argc, char **argv)
 	//Register for signal handling
 	signal(SIGINT, catch_int);
 	signal(SIGTSTP,catch_int);
-	static struct option long_options[] = 
-	{
-		{"mode",required_argument,0,'m'},
-		{0,      0,                 0, 0 }
-	};
-	int option_index = 0;
-	int i;
-	char* mode = NULL;
-	while(( i = getopt_long_only(argc,argv,"m:",long_options,&option_index)) != -1)
-	{
-		switch(i)
-		{
-			case 'm':
-				mode = optarg;
-				break;
-			default:
-				usage();
-				exit(1);
-		}
-	}
-	if(mode == NULL)
-	{
-		usage();
-		return ARG_UP;
-	}
-	char *_conf = conf_path();
-	if((config = utils_set_configuration(_conf)) == NULL)
-	{
-		print_streams(JNX_COL_RED,"Could not read configuration file\n");	
-		return 1;
-	}
-	free(_conf);
-	/*-----------------------------------------------------------------------------
-	 *  Setup our log
-	 *-----------------------------------------------------------------------------*/
-	if(jnx_log_setup(jnx_hash_get(config,"logpath")) != 0)
-	{
-		jnx_term_printf_in_color(JNX_COL_RED,"WARNING: Could not start logger\n");
-		return 1;
-	}
-	print_streams(JNX_COL_GREEN,"Satellite Started\n");
-	print_streams(DEFAULTCOLOR,"Storing SQL credentials temporarily\n");
-	/*-----------------------------------------------------------------------------
-	 *  Store sql credentials
-	 *-----------------------------------------------------------------------------*/
-	if(perform_store_sql_credentials(jnx_hash_get(config,"sqlhost"),jnx_hash_get(config,"sqluser"),jnx_hash_get(config,"sqlpass")) != 0)
-	{
-		print_streams(JNX_COL_RED,"Error with sql credentials\n");
-		return 1;
-	}
-	if(strcmp(mode,"RECEIVE") == 0)
-	{
-		jnx_infrastructure_broadcast_listen();
-		if(!jnx_hash_get(config,"listenport"))
-		{ print_streams(JNX_COL_RED,"Requires port number, option -p\n");return 1; };
-		/*-----------------------------------------------------------------------------
-		 *  Start listening for new jobs
-		 *-----------------------------------------------------------------------------*/
-		if(jnx_start_listener(jnx_hash_get(config,"listenport")) != 0)
-		{
-			print_streams(JNX_COL_RED,"Error starting the listener\n");
-			return 1;
-		}
-	}
-	if(strcmp(mode,"TRANSMIT") == 0)
-	{
-		/*-----------------------------------------------------------------------------
-		 *  Start broadcasting to see which nodes are available
-		 *-----------------------------------------------------------------------------*/
-		jnx_infrastructure_update_daemon();
-		/*-----------------------------------------------------------------------------
-		 *  Start trawling for jobs and sending them to nodes
-		 *-----------------------------------------------------------------------------*/
-		jnx_start_transmitter();        
-	}
-	jnx_hash_delete(config);
+	job_control_start_listening();	
+
 	return 0;
 }
 
