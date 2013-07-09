@@ -16,8 +16,9 @@
  * =====================================================================================
  */
 #include <stdlib.h>
+#include "../network/transaction_api.h"
+#include "../base64.h"
 #include "result_control.h"
-#include "../network/jnx_network_additions.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -25,8 +26,12 @@
 #define OUTPUTDIR "output"
 #include <errno.h>
 #include <string.h>
-#include "../base64.h"
+int query(char *hostaddr, char* hostport, const char *template, ...);
 char *current_id = NULL;
+char *current_host = NULL;
+char *current_port = NULL;
+char *current_sender_ip = NULL;
+char *current_sender_port = NULL;
 int accepted_file_format_count = 5;
 char *accepted_file_formats[5] =
 {
@@ -44,6 +49,7 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 {
 	printf("File path: %s\n",fpath);	
 	char *ext = strrchr(fpath,'.');
+	char *filename = strrchr(fpath,'/');
 	if(!ext)
 	{
 		ext = "";
@@ -59,26 +65,25 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 			if(strcmp(accepted_file_formats[count], ext +1) == 0)
 			{
 				printf("File format is on approved list, sending through\n");
-		
-				if( (strcmp(ext + 1, "png")) == 0 || (strcmp(ext +1,"jpeg")) == 0 || (strcmp(ext +1,"jpg")) == 0)
-				{	
-					//encode the file
-					jnx_network_post_file(BIN,fpath + ftwbuf->base, current_id);
-					
-					//transmit the file
-				}else
-				{
-					jnx_network_post_file(TEXT,fpath + ftwbuf->base, current_id);
-				}
+				const char* filepath = fpath + ftwbuf->base;
+				char *raw;	
+				size_t bytes_read = jnx_file_readb((char*)filepath,&raw);
+				size_t *outputlen;
+				char *encoded_string = base64_encode(raw,bytes_read,outputlen);
+				query(current_host,current_port,API_COMMAND,"RESULT",current_id,encoded_string,filename,current_sender_ip,current_sender_port);
 			}
 		}
 	
 	}
 	return 0;
 }
-void jnx_result_process(char *job_id)
+void jnx_result_process(char *host, char *port,char *job_id, char *sender_ip, char *sender_port)
 {
 	current_id = job_id;
+	current_host = host;
+	current_port = port;
+	current_sender_ip = sender_ip;
+	current_sender_port = sender_port;
 	nftw(OUTPUTDIR,jnx_result_process_callback,64,8|1);
 	printf("Results finished processing and tree has been walked\n");
 }
