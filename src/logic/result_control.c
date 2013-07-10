@@ -50,6 +50,11 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 	printf("File path: %s\n",fpath);	
 	char *ext = strrchr(fpath,'.');
 	char *filename = strrchr(fpath,'/');
+	if(filename)
+	{
+		//removing our slash from the beginning
+		filename = filename +1;
+	}
 	if(!ext)
 	{
 		ext = "";
@@ -68,12 +73,14 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 				const char* filepath = fpath + ftwbuf->base;
 				char *raw;	
 				size_t bytes_read = jnx_file_readb((char*)filepath,&raw);
-				size_t *outputlen;
-				char *encoded_string = base64_encode(raw,bytes_read,outputlen);
+				size_t outputlen;
+				char *encoded_string = base64_encode(raw,bytes_read,&outputlen);
+				printf("Encoded string %s\n",encoded_string);
+			
+				
 				query(current_host,current_port,API_COMMAND,"RESULT",current_id,encoded_string,filename,current_sender_ip,current_sender_port);
 			}
 		}
-	
 	}
 	return 0;
 }

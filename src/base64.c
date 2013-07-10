@@ -1,3 +1,5 @@
+#include <strings.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include "base64.h"
@@ -18,17 +20,19 @@ char *base64_encode(const unsigned char *data,
 		size_t *output_length) {
 
 	*output_length = 4 * ((input_length + 2) / 3);
-
-	char *encoded_data = malloc(*output_length);
+	char *encoded_data = malloc(((*output_length) +1) * sizeof (char));
 	if (encoded_data == NULL) return NULL;
 
 	int i,j;
+
 	for ( i = 0, j = 0; i < input_length;) {
 
-		uint32_t octet_a = i < input_length ? data[i++] : 0;
-		uint32_t octet_b = i < input_length ? data[i++] : 0;
-		uint32_t octet_c = i < input_length ? data[i++] : 0;
-
+		uint32_t octet_a = i < input_length ? data[i] : 0;
+		i++;
+		uint32_t octet_b = i < input_length ? data[i] : 0;
+		i++;
+		uint32_t octet_c = i < input_length ? data[i] : 0;
+		i++;
 		uint32_t triple = (octet_a << 0x10) + (octet_b << 0x08) + octet_c;
 
 		encoded_data[j++] = encoding_table[(triple >> 3 * 6) & 0x3F];
@@ -36,10 +40,13 @@ char *base64_encode(const unsigned char *data,
 		encoded_data[j++] = encoding_table[(triple >> 1 * 6) & 0x3F];
 		encoded_data[j++] = encoding_table[(triple >> 0 * 6) & 0x3F];
 	}
-	int l;
-	for (l = 0; l < mod_table[input_length % 3]; l++)
-		encoded_data[*output_length - 1 - l] = '=';
 
+	int l;
+	for(l = 0; l < mod_table[input_length %3]; l++)
+	{
+		encoded_data[*output_length -1 -l] = '=';
+	}
+	encoded_data[*output_length ] = '\0';
 	return encoded_data;
 }
 
@@ -56,7 +63,8 @@ unsigned char *base64_decode(const char *data,
 	if (data[input_length - 1] == '=') (*output_length)--;
 	if (data[input_length - 2] == '=') (*output_length)--;
 
-	unsigned char *decoded_data = malloc(*output_length);
+	unsigned char *decoded_data = calloc(*output_length, sizeof(unsigned char));
+	bzero(decoded_data,*output_length);
 	if (decoded_data == NULL) return NULL;
 
 	int i,j;
@@ -76,16 +84,21 @@ unsigned char *base64_decode(const char *data,
 		if (j < *output_length) decoded_data[j++] = (triple >> 1 * 8) & 0xFF;
 		if (j < *output_length) decoded_data[j++] = (triple >> 0 * 8) & 0xFF;
 	}
-
 	return decoded_data;
 }
 
 
 void build_decoding_table() {
 
-	decoding_table = malloc(256);
+	decoding_table = malloc(256 * sizeof(char));
+
+	int z;
+	for(z = 0; z < 256;++z)
+	{
+		decoding_table[z] = (char)-1;
+	}
 	int i;
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < 65; i++)
 		decoding_table[(unsigned char) encoding_table[i]] = i;
 }
 
