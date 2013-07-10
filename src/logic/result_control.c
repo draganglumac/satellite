@@ -17,11 +17,11 @@
  */
 #include <stdlib.h>
 #include "../network/transaction_api.h"
-#include "../base64.h"
 #include "result_control.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdio.h>
+#include <jnxc_headers/jnxbase64.h>
 #include <jnxc_headers/jnxfile.h>
 #define OUTPUTDIR "output"
 #include <errno.h>
@@ -74,7 +74,7 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 				char *raw;	
 				size_t bytes_read = jnx_file_readb((char*)filepath,&raw);
 				size_t outputlen;
-				char *encoded_string = base64_encode(raw,bytes_read,&outputlen);
+				char *encoded_string = jnx_base64_encode(raw,bytes_read,&outputlen);
 				printf("Encoded string %s\n",encoded_string);
 			
 				query(current_host,current_port,API_COMMAND,"RESULT",current_id,encoded_string,filename,current_sender_ip,current_sender_port);
