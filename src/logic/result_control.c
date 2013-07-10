@@ -77,7 +77,6 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 				char *encoded_string = base64_encode(raw,bytes_read,&outputlen);
 				printf("Encoded string %s\n",encoded_string);
 			
-				
 				query(current_host,current_port,API_COMMAND,"RESULT",current_id,encoded_string,filename,current_sender_ip,current_sender_port);
 			}
 		}
