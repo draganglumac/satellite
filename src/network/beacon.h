@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  job_control.h
+ *       Filename:  beacon.h
  *
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  09/07/2013 10:46:45
+ *        Created:  07/12/13 11:14:15
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -15,14 +15,8 @@
  *
  * =====================================================================================
  */
-#ifndef __JOB_CONTROL_H__
-#define __JOB_CONTROL_H__
-#define LISTENPORT 9090
-#ifdef __APPLE__ 
-#define INTERFACE "en0"
-#else
-#define INTERFACE "eth0"
-#endif
-void job_control_start_listening(void);
-
+#ifndef __BEACON_H__
+#define __BEACON_H__
+void beacon_pulse(void);
+void beacon_listen(void);
 #endif

@@ -1,4 +1,5 @@
 #include "logic/job_control.h"
+#include "network/beacon.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <stdlib.h>
@@ -22,8 +23,8 @@ int main(int argc, char **argv)
 	//Register for signal handling
 	signal(SIGINT, catch_int);
 	signal(SIGTSTP,catch_int);
+	beacon_listen();
 	job_control_start_listening();	
-
 	return 0;
 }
 

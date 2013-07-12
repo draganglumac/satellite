@@ -25,12 +25,6 @@
 #include <stdarg.h>
 #include <jnxc_headers/jnxhash.h>
 #include <jnxc_headers/jnxstring.h>
-#define LISTENPORT 9090
-#ifdef __APPLE__ 
-#define INTERFACE "en0"
-#else
-#define INTERFACE "eth0"
-#endif
 
 int query(char *hostaddr, char* hostport, const char *template, ...)
 {
