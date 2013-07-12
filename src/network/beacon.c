@@ -54,11 +54,7 @@ void beacon_pulse(void)
 }
 void beacon_message_intercept(char *msg)
 {
-	if(strcmp(msg,"CHALLENGE") == 0)
-	{
-		printf("Responding to challenge...\n");
-		
-	}
+	printf("Responding to challenge...%s\n",msg);
 }
 void *beacon_receive(void*ar)
 {
