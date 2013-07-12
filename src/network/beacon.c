@@ -23,7 +23,6 @@
 #include <jnxc_headers/jnxnetwork.h>
 #include <jnxc_headers/jnxhash.h>
 #include "transaction_api.h"
-#include "../logic/job_control.h"
 #include "beacon.h"
 #define BPORT 12345
 #define BGROUP "225.0.0.37"
@@ -60,7 +59,12 @@ void beacon_message_intercept(char *msg)
 	char *node_ip = jnx_network_local_ip(INTERFACE);
 	char *node_port = jnx_string_itos(LISTENPORT);
 	char *port = jnx_string_itos(obj->PORT);
-	query(obj->SENDER,port,API_COMMAND,"ALIVE","","ONLINE"," ",node_ip,node_port);
+
+	char query[1024];
+	sprintf(query,API_COMMAND,"ALIVE","","ONLINE","",node_ip,node_port);
+
+	jnx_network_send_message(obj->SENDER,obj->PORT,query,strlen(query));
+
 
 	free(port);
 	free(node_port);
