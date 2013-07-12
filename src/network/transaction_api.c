@@ -43,7 +43,7 @@ api_command_obj *transaction_api_create_obj(char *query)
 			}
 			//split the current KVP 
 			char *candidate_string;
-			char *split_string = strtok_r(line,"::",&candidate_string);
+			char *split_string = strtok_r(line,"`",&candidate_string);
 
 
 			/*-----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ api_command_obj *transaction_api_create_obj(char *query)
 			 *-----------------------------------------------------------------------------*/
 			if(strcmp(split_string,"CMD") == 0)
 			{
-				char *raw_command = strtok_r(NULL,"::",&candidate_string);
+				char *raw_command = strtok_r(NULL,"`",&candidate_string);
 				if(!raw_command)
 				{
 					cmd_obj->CMD = UNKNOWN;
@@ -74,7 +74,7 @@ api_command_obj *transaction_api_create_obj(char *query)
 			}
 			else if(strcmp(split_string,"ID") == 0)
 			{
-				char *id = strtok_r(NULL,"::",&candidate_string);
+				char *id = strtok_r(NULL,"`",&candidate_string);
 				if(!id){
 				cmd_obj->ID = strndup("NULL",strlen("NULL"));
 				}else{
@@ -84,7 +84,7 @@ api_command_obj *transaction_api_create_obj(char *query)
 			}
 			else if(strcmp(split_string,"DATA") == 0)
 			{
-				char *data = strtok_r(NULL,"::",&candidate_string);
+				char *data = strtok_r(NULL,"`",&candidate_string);
 				if(!data){
 					cmd_obj->DATA = strndup("NULL",strlen("NULL"));
 				}else{
@@ -94,7 +94,7 @@ api_command_obj *transaction_api_create_obj(char *query)
 			}
 			else if(strcmp(split_string,"OTHER") == 0)
 			{
-				char *other = strtok_r(NULL,"::",&candidate_string);
+				char *other = strtok_r(NULL,"`",&candidate_string);
 				if(!other)
 				{
 					cmd_obj->OTHER = strndup("NULL",strlen("NULL"));
@@ -105,7 +105,7 @@ api_command_obj *transaction_api_create_obj(char *query)
 			}
 			else if(strcmp(split_string,"SENDER") == 0)
 			{
-				char *sender = strtok_r(NULL,"::",&candidate_string);
+				char *sender = strtok_r(NULL,"`",&candidate_string);
 				if(!sender)
 				{
 					cmd_obj->SENDER = strndup("NULL",strlen("NULL"));
@@ -117,7 +117,7 @@ api_command_obj *transaction_api_create_obj(char *query)
 			}
 			else if(strcmp(split_string,"PORT") == 0)
 			{
-				char *port = strtok_r(NULL,"::",&candidate_string);
+				char *port = strtok_r(NULL,"`",&candidate_string);
 				if(!port)
 				{
 					cmd_obj->PORT = -1;
