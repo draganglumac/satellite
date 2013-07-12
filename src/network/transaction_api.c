@@ -66,7 +66,12 @@ api_command_obj *transaction_api_create_obj(char *query)
 				}else if(strcmp(raw_command,"STATUS") == 0)
 				{
 					cmd_obj->CMD = STATUS;
-				}else
+				}
+				else if(strcmp(raw_command,"ALIVE") == 0)
+				{
+					cmd_obj->CMD = ALIVE;
+				}
+				else
 				{
 					cmd_obj->CMD = UNKNOWN;
 				}

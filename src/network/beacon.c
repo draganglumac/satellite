@@ -23,8 +23,8 @@
 #include <jnxc_headers/jnxnetwork.h>
 #include <jnxc_headers/jnxhash.h>
 #include "transaction_api.h"
-#include "beacon.h"
 #include "../logic/job_control.h"
+#include "beacon.h"
 #define BPORT 12345
 #define BGROUP "225.0.0.37"
 #define WAIT_PERIOD 10
@@ -35,9 +35,6 @@
 #endif
 void beacon_send(void)
 {
-	char *message = "CHALLENGE";
-	jnx_network_send_broadcast(BPORT,BGROUP,message);
-	printf("beacon_send: Sending broadcast\n");
 }
 void *beacon_loop(void*ar)
 {
@@ -55,6 +52,17 @@ void beacon_pulse(void)
 void beacon_message_intercept(char *msg)
 {
 	printf("Responding to challenge...%s\n",msg);
+	
+	api_command_obj *obj = transaction_api_create_obj(msg);
+
+
+	char *node_ip = jnx_network_local_ip(INTERFACE);
+	char *node_port = jnx_string_itos(LISTENPORT);
+	char *port = jnx_string_itos(obj->PORT);
+	query(obj->SENDER,port,API_COMMAND,"ALIVE","","ONLINE"," ",node_ip,node_port);
+
+	free(port);
+	transaction_api_delete_obj(obj);
 }
 void *beacon_receive(void*ar)
 {

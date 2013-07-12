@@ -17,6 +17,7 @@
  */
 #ifndef __JOB_CONTROL_H__
 #define __JOB_CONTROL_H__
+#include "../network/transaction_api.h"
 #define LISTENPORT 9090
 #ifdef __APPLE__ 
 #define INTERFACE "en0"
@@ -24,5 +25,5 @@
 #define INTERFACE "eth0"
 #endif
 void job_control_start_listening(void);
-
+int query(char *hostaddr, char* hostport, const char *template, ...);
 #endif

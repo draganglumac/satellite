@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "job_control.h"
-#include "../network/transaction_api.h"
 #include "result_control.h"
 #include <jnxc_headers/jnxnetwork.h>
 #include <stdarg.h>
