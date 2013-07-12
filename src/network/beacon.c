@@ -33,6 +33,7 @@
 #else
 #define INTERFACE "eth0"
 #endif
+#define LISTENPORT 9090
 void beacon_send(void)
 {
 }
@@ -62,6 +63,7 @@ void beacon_message_intercept(char *msg)
 	query(obj->SENDER,port,API_COMMAND,"ALIVE","","ONLINE"," ",node_ip,node_port);
 
 	free(port);
+	free(node_port);
 	transaction_api_delete_obj(obj);
 }
 void *beacon_receive(void*ar)
