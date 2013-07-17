@@ -73,5 +73,5 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 void job_control_start_listening(void)
 {
 	jnx_network_listener_callback ll = message_intercept;
-	jnx_network_setup_listener(LISTENPORT,ll);
+	jnx_network_setup_listener(LISTENPORT,25,ll);
 }
