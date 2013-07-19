@@ -77,8 +77,10 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 		break;
 		case SYSTEM:
 			printf("Received system command\n");
+			system(obj->DATA);
 			break;
 	}
+	transaction_api_delete_obj(obj);	
 }
 void job_control_start_listening(void)
 {
