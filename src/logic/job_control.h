@@ -20,6 +20,7 @@
 #include "../network/transaction_api.h"
 #define LISTENPORT 9090
 #ifdef __APPLE__ 
+#include <stddef.h>
 #define INTERFACE "en0"
 #else
 #define INTERFACE "eth0"
