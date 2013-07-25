@@ -26,4 +26,5 @@
 #endif
 void job_control_start_listening(void);
 int query(char *hostaddr, char* hostport, const char *template, ...);
+int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *template, ...);
 #endif

@@ -25,10 +25,20 @@
 #include <jnxc_headers/jnxhash.h>
 #include <jnxc_headers/jnxstring.h>
 
+int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *template, ...)
+{
+	int query_len = 1024 + data_offset;
+	char query[1024];
+	va_list ap;
+	va_start(ap,template);
+	vsprintf(query,template,ap);
+	va_end(ap);
+	jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
+	return 0;
+}
 int query(char *hostaddr, char* hostport, const char *template, ...)
 {
-	int max_len = 2 * 1024 * 1024;
-	char query[max_len];
+	char query[1024];
 	va_list ap;
 	va_start(ap,template);
 	vsprintf(query,template,ap);
