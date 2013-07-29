@@ -24,6 +24,7 @@ int main(int argc, char **argv)
 	signal(SIGINT, catch_int);
 	signal(SIGTSTP,catch_int);
 	beacon_listen();
+	job_control_start_processing();
 	job_control_start_listening();	
 	return 0;
 }

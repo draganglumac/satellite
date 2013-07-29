@@ -22,8 +22,14 @@
 #include "result_control.h"
 #include <jnxc_headers/jnxnetwork.h>
 #include <stdarg.h>
+#include <pthread.h>
 #include <jnxc_headers/jnxhash.h>
 #include <jnxc_headers/jnxstring.h>
+#include <jnxc_headers/jnxlist.h>
+#include <jnxc_headers/jnxterm.h>
+#define TIME_WAIT sleep(5);
+enum processing { WAITING, WORKING };
+jnx_list *queue = NULL;
 
 int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *template, ...)
 {
@@ -54,9 +60,16 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 		printf("Failed to create api_command_obj\n");
 		return;
 	}
-
+	if(queue == NULL)
+	{
+		queue = jnx_list_init();
+	}
 	printf("OBJECT CMD:%d ID:%s DATA:%s OTHER:%s SENDER:%s PORT:%d\n",obj->CMD,obj->ID,obj->DATA,obj->OTHER,obj->SENDER,obj->PORT);
-
+	jnx_term_printf_in_color(JNX_COL_BLUE,"Pushing to queue\n");
+	jnx_list_add(queue,obj);
+}
+void job_control_process_job(api_command_obj *obj)
+{
 	char *node_ip = jnx_network_local_ip(INTERFACE);
 	char *node_port = jnx_string_itos(LISTENPORT);
 	char *target_port = jnx_string_itos(obj->PORT);
@@ -84,13 +97,35 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"COMPLETED"," ",node_ip,node_port);
 			free(node_port);	
 			free(target_port);
-		break;
+			break;
 		case SYSTEM:
 			printf("Received system command\n");
 			system(obj->DATA);
 			break;
 	}
-	transaction_api_delete_obj(obj);	
+}
+void *job_control_main_loop(void *arg)
+{
+	while(1)
+	{
+		if(queue){	
+			api_command_obj *current_obj = (api_command_obj*) jnx_list_remove(queue);
+			if(current_obj != NULL)
+			{
+				job_control_process_job(current_obj);
+				transaction_api_delete_obj(current_obj);
+			}
+
+		}
+			TIME_WAIT
+	}
+
+}
+
+void job_control_start_processing(void)
+{
+	pthread_t loop_thread;
+	pthread_create(&loop_thread,NULL,job_control_main_loop,NULL);
 }
 void job_control_start_listening(void)
 {
