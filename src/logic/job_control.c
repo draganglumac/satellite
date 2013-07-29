@@ -34,7 +34,7 @@ pthread_mutex_t lock;
 int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *template, ...)
 {
 	int query_len = 1024 + data_offset;
-	char query[1024];
+	char query[query_len];
 	va_list ap;
 	va_start(ap,template);
 	vsprintf(query,template,ap);
