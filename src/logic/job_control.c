@@ -30,7 +30,7 @@
 #define TIME_WAIT sleep(5);
 enum processing { WAITING, WORKING };
 jnx_list *queue = NULL;
-
+pthread_mutex_t lock;
 int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *template, ...)
 {
 	int query_len = 1024 + data_offset;
@@ -66,7 +66,9 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 	}
 	printf("OBJECT CMD:%d ID:%s DATA:%s OTHER:%s SENDER:%s PORT:%d\n",obj->CMD,obj->ID,obj->DATA,obj->OTHER,obj->SENDER,obj->PORT);
 	jnx_term_printf_in_color(JNX_COL_BLUE,"Pushing to queue\n");
+	pthread_mutex_lock(&lock);
 	jnx_list_add(queue,obj);
+	pthread_mutex_unlock(&lock);
 }
 void job_control_process_job(api_command_obj *obj)
 {
@@ -109,7 +111,9 @@ void *job_control_main_loop(void *arg)
 	while(1)
 	{
 		if(queue){	
+			pthread_mutex_lock(&lock);
 			api_command_obj *current_obj = (api_command_obj*) jnx_list_remove(queue);
+			pthread_mutex_unlock(&lock);
 			if(current_obj != NULL)
 			{
 				job_control_process_job(current_obj);
