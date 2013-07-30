@@ -33,13 +33,13 @@ jnx_list *queue = NULL;
 pthread_mutex_t lock;
 int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *template, ...)
 {
-	int query_len = 1024 + data_offset;
-	char query[query_len];
+	char *query = malloc(data_offset * sizeof(char) + 1);
 	va_list ap;
 	va_start(ap,template);
 	vsprintf(query,template,ap);
 	va_end(ap);
 	jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
+	free(query);
 	return 0;
 }
 int query(char *hostaddr, char* hostport, const char *template, ...)
