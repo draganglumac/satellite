@@ -23,6 +23,7 @@
 #include <jnxc_headers/jnxnetwork.h>
 #include <stdarg.h>
 #include <pthread.h>
+
 #include <jnxc_headers/jnxhash.h>
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
@@ -70,6 +71,13 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 	jnx_list_add(queue,obj);
 	pthread_mutex_unlock(&lock);
 }
+char *job_temp_log_path()
+{
+	time_t current_time = time(NULL);
+	char *path = malloc(sizeof(char)*1024);
+	sprintf(path,"%d_consoleoutput.txt",(int)current_time);
+	return path;
+}
 void job_control_process_job(api_command_obj *obj)
 {
 	char *node_ip = jnx_network_local_ip(INTERFACE);
@@ -77,9 +85,17 @@ void job_control_process_job(api_command_obj *obj)
 	char *target_port = jnx_string_itos(obj->PORT);
 	switch(obj->CMD)
 	{
-
 		case JOB:
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"IN PROGRESS"," ",node_ip,node_port);
+
+			char *stdout_path = job_temp_log_path();
+			if(!stdout_path)
+			{
+				jnx_term_printf_in_color(JNX_COL_RED,"Error with capture of stdout, could not create file\n");
+			}else{
+				printf("Creating console log path %s\n",stdout_path);
+				jnx_term_override_stdout(stdout_path);
+			}
 			/*  perform job */
 			int output_setup_complete = jnx_result_setup();
 			int ret = system(obj->DATA);
@@ -97,8 +113,24 @@ void job_control_process_job(api_command_obj *obj)
 			}
 			/*  set status to COMPLETED */
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"COMPLETED"," ",node_ip,node_port);
+			if(stdout_path)
+			{
+				char *console_string;
+				printf("Here!\n");
+				size_t readbytes = jnx_file_read(stdout_path,&console_string);
+				if(readbytes > 0)
+				{
+				printf("Node ip %s node port %s\n",node_ip,node_port);
+				lquery(obj->SENDER,target_port,readbytes,API_COMMAND,"RESULT",obj->ID,console_string,stdout_path,node_ip,node_port);
+				jnx_term_reset_stdout();
+				free(stdout_path);
+				free(console_string);
+				}
+				remove(stdout_path);
+			}
 			free(node_port);	
 			free(target_port);
+			//Send back console log
 			break;
 		case SYSTEM:
 			printf("Received system command\n");
@@ -121,7 +153,7 @@ void *job_control_main_loop(void *arg)
 			}
 
 		}
-			TIME_WAIT
+		TIME_WAIT
 	}
 
 }
