@@ -134,7 +134,7 @@ void job_control_process_job(api_command_obj *obj)
 				printf("Node ip %s node port %s\n",node_ip,node_port);
 				size_t outputlen;
 				char *encoded_string = jnx_base64_encode(console_string,readbytes,&outputlen);
-				lquery(obj->SENDER,target_port,readbytes,API_COMMAND,"RESULT",obj->ID,encoded_string,stdout_path,node_ip,node_port);
+				lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port);
 				jnx_term_reset_stdout();
 				free(stdout_path);
 				free(console_string);
