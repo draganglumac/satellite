@@ -28,6 +28,7 @@
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxterm.h>
+#include <jnxc_headers/jnxbase64.h>
 #define TIME_WAIT sleep(5);
 enum processing { WAITING, WORKING };
 jnx_list *queue = NULL;
@@ -131,10 +132,13 @@ void job_control_process_job(api_command_obj *obj)
 				if(readbytes > 0)
 				{
 				printf("Node ip %s node port %s\n",node_ip,node_port);
-				lquery(obj->SENDER,target_port,readbytes,API_COMMAND,"RESULT",obj->ID,console_string,stdout_path,node_ip,node_port);
+				size_t outputlen;
+				char *encoded_string = jnx_base64_encode(console_string,readbytes,&outputlen);
+				lquery(obj->SENDER,target_port,readbytes,API_COMMAND,"RESULT",obj->ID,encoded_string,stdout_path,node_ip,node_port);
 				jnx_term_reset_stdout();
 				free(stdout_path);
 				free(console_string);
+				free(encoded_string);
 				}
 				remove(stdout_path);
 			}
