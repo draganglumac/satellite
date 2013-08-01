@@ -78,6 +78,7 @@ char *job_temp_log_path()
 	char _currentwd[256];
 	if(getcwd(_currentwd,sizeof(_currentwd)) == NULL)
 	{
+		perror("job_temp_log_path:");
 		return NULL;
 	}
 	char *path = malloc(sizeof(char)*1024);
@@ -136,6 +137,7 @@ void job_control_process_job(api_command_obj *obj)
 				char *encoded_string = jnx_base64_encode(console_string,readbytes,&outputlen);
 				lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port);
 				jnx_term_reset_stdout();
+				printf("Send console_log\n");
 				free(stdout_path);
 				free(console_string);
 				free(encoded_string);
