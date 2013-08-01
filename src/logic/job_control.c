@@ -74,8 +74,13 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 char *job_temp_log_path()
 {
 	time_t current_time = time(NULL);
+	char _currentwd[256];
+	if(getcwd(_currentwd,sizeof(_currentwd)) == NULL)
+	{
+		return NULL;
+	}
 	char *path = malloc(sizeof(char)*1024);
-	sprintf(path,"%d_consoleoutput.txt",(int)current_time);
+	sprintf(path,"%s/%d_consoleoutput.txt",_currentwd,(int)current_time);
 	return path;
 }
 void job_control_process_job(api_command_obj *obj)
