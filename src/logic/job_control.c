@@ -81,6 +81,11 @@ char *job_temp_log_path()
 void job_control_process_job(api_command_obj *obj)
 {
 	char *node_ip = jnx_network_local_ip(INTERFACE);
+	if(!node_ip)
+	{
+		jnx_term_printf_in_color(JNX_COL_RED,"Alert, interface is incorretly configured. Cannot proceed\n");
+		return;
+	}
 	char *node_port = jnx_string_itos(LISTENPORT);
 	char *target_port = jnx_string_itos(obj->PORT);
 	switch(obj->CMD)
