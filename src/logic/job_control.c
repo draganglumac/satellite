@@ -128,6 +128,7 @@ void job_control_process_job(api_command_obj *obj)
 			if(stdout_path)
 			{
 				char *console_string;
+				printf("Here!\n");
 				size_t readbytes = jnx_file_read(stdout_path,&console_string);
 				if(readbytes > 0)
 				{
@@ -139,9 +140,7 @@ void job_control_process_job(api_command_obj *obj)
 				printf("Send console_log\n");
 				free(stdout_path);
 				free(console_string);
-				if(strlen(encoded_string) > 0){
 				free(encoded_string);
-				}
 				}
 				remove(stdout_path);
 			}
