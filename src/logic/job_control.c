@@ -35,13 +35,12 @@ jnx_list *queue = NULL;
 pthread_mutex_t lock;
 int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *template, ...)
 {
-	char *query = malloc(data_offset * sizeof(char) + 1);
+	char *query = malloc(data_offset +  strlen(template) + 256);
 	va_list ap;
 	va_start(ap,template);
 	vsprintf(query,template,ap);
 	va_end(ap);
 	jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
-	free(query);
 	return 0;
 }
 int query(char *hostaddr, char* hostport, const char *template, ...)
@@ -99,17 +98,15 @@ void job_control_process_job(api_command_obj *obj)
 	{
 		case JOB:
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"IN PROGRESS"," ",node_ip,node_port);
-
-#ifndef DEBUG
 			char *stdout_path = job_temp_log_path();
 			if(!stdout_path)
 			{
 				jnx_term_printf_in_color(JNX_COL_RED,"Error with capture of stdout, could not create file\n");
+				return;
 			}else{
 				printf("Creating console log path %s\n",stdout_path);
 				jnx_term_override_stdout(stdout_path);
 			}
-#endif
 			/*  perform job */
 			int output_setup_complete = jnx_result_setup();
 			int ret = system(obj->DATA);
@@ -118,6 +115,11 @@ void job_control_process_job(api_command_obj *obj)
 				char retbuffer[25];
 				sprintf(retbuffer,"%d",ret);
 				query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"FAILED",retbuffer,node_ip,node_port);
+			
+				jnx_term_reset_stdout();
+				free(node_port);
+				free(target_port);
+				return;
 			}
 			/*  transmit results  */
 			if(output_setup_complete == 0)
@@ -127,7 +129,6 @@ void job_control_process_job(api_command_obj *obj)
 			}
 			/*  set status to COMPLETED */
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"COMPLETED"," ",node_ip,node_port);
-#ifndef DEBUG
 			if(stdout_path)
 			{
 				char *console_string;
@@ -146,7 +147,6 @@ void job_control_process_job(api_command_obj *obj)
 				}
 				remove(stdout_path);
 			}
-#endif
 			free(node_port);	
 			free(target_port);
 			//Send back console log
