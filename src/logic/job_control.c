@@ -100,6 +100,7 @@ void job_control_process_job(api_command_obj *obj)
 		case JOB:
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"IN PROGRESS"," ",node_ip,node_port);
 
+#ifndef DEBUG
 			char *stdout_path = job_temp_log_path();
 			if(!stdout_path)
 			{
@@ -108,6 +109,7 @@ void job_control_process_job(api_command_obj *obj)
 				printf("Creating console log path %s\n",stdout_path);
 				jnx_term_override_stdout(stdout_path);
 			}
+#endif
 			/*  perform job */
 			int output_setup_complete = jnx_result_setup();
 			int ret = system(obj->DATA);
@@ -125,10 +127,10 @@ void job_control_process_job(api_command_obj *obj)
 			}
 			/*  set status to COMPLETED */
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"COMPLETED"," ",node_ip,node_port);
+#ifndef DEBUG
 			if(stdout_path)
 			{
 				char *console_string;
-				printf("Here!\n");
 				size_t readbytes = jnx_file_read(stdout_path,&console_string);
 				if(readbytes > 0)
 				{
@@ -144,6 +146,7 @@ void job_control_process_job(api_command_obj *obj)
 				}
 				remove(stdout_path);
 			}
+#endif
 			free(node_port);	
 			free(target_port);
 			//Send back console log
