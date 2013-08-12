@@ -40,8 +40,7 @@ int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *templa
 	va_start(ap,template);
 	vsprintf(query,template,ap);
 	va_end(ap);
-	jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
-	return 0;
+	return jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
 }
 int query(char *hostaddr, char* hostport, const char *template, ...)
 {
@@ -50,8 +49,7 @@ int query(char *hostaddr, char* hostport, const char *template, ...)
 	va_start(ap,template);
 	vsprintf(query,template,ap);
 	va_end(ap);
-	jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
-	return 0;
+	return jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
 }
 void message_intercept(char *message, size_t msg_len, char *ip)
 {
@@ -130,7 +128,10 @@ void job_control_process_job(api_command_obj *obj)
 					if(readbytes > 0){
 						char *encoded_string = jnx_base64_encode(console_string,readbytes,&outputlen);
 						jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending console log\n");
-						lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port);
+						if(lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port) != 0)
+						{
+							jnx_term_printf_in_color(JNX_COL_RED,"Error sending console log\n");	
+						}	
 						fflush(stdout);
 						printf("Send console_log\n");
 						free(console_string);
@@ -163,7 +164,10 @@ void job_control_process_job(api_command_obj *obj)
 					size_t outputlen;
 					char *encoded_string = jnx_base64_encode(console_string,readbytes,&outputlen);
 					jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending console log\n");
-					lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port);
+					if(lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port) != 0)
+					{
+						jnx_term_printf_in_color(JNX_COL_RED,"Error sending console log\n");
+					}
 					fflush(stdout);
 					jnx_term_reset_stdout();
 					printf("Send console_log\n");
