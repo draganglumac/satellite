@@ -115,8 +115,26 @@ void job_control_process_job(api_command_obj *obj)
 				char retbuffer[25];
 				sprintf(retbuffer,"%d",ret);
 				query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"FAILED",retbuffer,node_ip,node_port);
-			
+
 				jnx_term_reset_stdout();
+
+				if(stdout_path)
+				{
+					char *console_string;
+					size_t outputlen;
+					size_t readbytes = jnx_file_read(stdout_path,&console_string);
+					if(readbytes > 0){
+						char *encoded_string = jnx_base64_encode(console_string,readbytes,&outputlen);
+						lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port);
+						fflush(stdout);
+						printf("Send console_log\n");
+						free(console_string);
+						free(encoded_string);
+					}
+					free(stdout_path);
+				}
+
+
 				free(node_port);
 				free(target_port);
 				return;
@@ -135,15 +153,16 @@ void job_control_process_job(api_command_obj *obj)
 				size_t readbytes = jnx_file_read(stdout_path,&console_string);
 				if(readbytes > 0)
 				{
-				printf("Node ip %s node port %s\n",node_ip,node_port);
-				size_t outputlen;
-				char *encoded_string = jnx_base64_encode(console_string,readbytes,&outputlen);
-				lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port);
-				jnx_term_reset_stdout();
-				printf("Send console_log\n");
-				free(stdout_path);
-				free(console_string);
-				free(encoded_string);
+					printf("Node ip %s node port %s\n",node_ip,node_port);
+					size_t outputlen;
+					char *encoded_string = jnx_base64_encode(console_string,readbytes,&outputlen);
+					lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port);
+					fflush(stdout);
+					jnx_term_reset_stdout();
+					printf("Send console_log\n");
+					free(stdout_path);
+					free(console_string);
+					free(encoded_string);
 				}
 				remove(stdout_path);
 			}
