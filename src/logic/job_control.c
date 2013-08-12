@@ -104,7 +104,13 @@ void job_control_process_job(api_command_obj *obj)
 				return;
 			}else{
 				printf("Creating console log path %s\n",stdout_path);
-				jnx_term_override_stdout(stdout_path);
+				int fd;	
+				fflush(stdout);
+				dup2(fd, fileno(stdout));
+				clearerr(stdout);
+				fpos_t pos;
+				fsetpos(stdout, &pos);
+	
 			}
 			/*  perform job */
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Creating results path\n");
