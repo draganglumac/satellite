@@ -114,7 +114,7 @@ void job_control_process_job(api_command_obj *obj)
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"System command output returned %d\n", ret);
 			if(ret != 0)
 			{
-				
+
 				char retbuffer[25];
 				sprintf(retbuffer,"%d",ret);
 				jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to failed\n");
@@ -139,8 +139,12 @@ void job_control_process_job(api_command_obj *obj)
 					}
 					free(stdout_path);
 				}
-
-
+				if(output_setup_complete == 0)
+				{
+					jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending results\n");
+					jnx_result_process(obj->SENDER, target_port,obj->ID,node_ip,node_port);
+					jnx_result_teardown();
+				}
 				free(node_port);
 				free(target_port);
 				return;
