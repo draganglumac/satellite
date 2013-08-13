@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <jnxc_headers/jnxbase64.h>
 #include <jnxc_headers/jnxfile.h>
+#include <jnxc_headers/jnxterm.h>
 #define OUTPUTDIR "output"
 #include <errno.h>
 #include <string.h>
@@ -76,9 +77,11 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 				size_t bytes_read = jnx_file_readb((char*)filepath,&raw);
 				size_t outputlen;
 				char *encoded_string = jnx_base64_encode(raw,bytes_read,&outputlen);
-				printf("Encoded string %s\n",encoded_string);
 
-				lquery(current_host,current_port,outputlen,API_COMMAND,"RESULT",current_id,encoded_string,filename,current_sender_ip,current_sender_port);
+				if(lquery(current_host,current_port,outputlen,API_COMMAND,"RESULT",current_id,encoded_string,filename,current_sender_ip,current_sender_port) != 0)
+				{
+					jnx_term_printf_in_color(JNX_COL_RED,"Error sending long query from jnx_result_process_callback\n");
+				}
 			}
 		}
 	}
