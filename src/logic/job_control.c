@@ -40,9 +40,15 @@ int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *templa
 	va_start(ap,template);
 	vsprintf(query,template,ap);
 	va_end(ap);
-	int ret = jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
+	int written_bytes = jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
 	free(query);
-	return ret;
+	if(written_bytes > 0)
+	{
+		return 0;
+	}else
+	{
+		return 1;
+	}
 }
 int query(char *hostaddr, char* hostport, const char *template, ...)
 {
