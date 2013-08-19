@@ -100,5 +100,5 @@ void jnx_result_process(char *host, char *port,char *job_id, char *sender_ip, ch
 int jnx_result_teardown(void)
 {
 	printf("Called teardown \n");
-	return system("rm -rf output");
+	return jnx_file_recursive_delete("output",5);
 }
