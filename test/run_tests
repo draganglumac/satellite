@@ -1,0 +1,44 @@
+#!/bin/bash
+
+function echo_red()
+{
+    tput setaf 1
+    echo $1
+    tput sgr0
+}
+
+function echo_green()
+{
+    tput setaf 2
+    echo $1
+    tput sgr0
+}
+
+filelist=`ls | grep .c`
+
+for file in $filelist; do
+    if [ "$file" == "run_tests" ] 
+    then
+        continue
+    fi 
+    current=${file:0:${#file}-2}
+    if [ -e $current ]
+    then
+        rm $current
+    fi
+
+    `gcc $file ../src/**/*.c -o ${file:0:${#file}-2} -ljnxc -pthread -w`
+    ./$current
+    out=$?
+    if [ ! $out -eq 0 ]; then
+        echo_red "Test failed"
+        rm $current
+        exit 1
+
+    else
+        echo_green "Test passed"
+        rm $current
+    fi
+done;
+
+exit 0

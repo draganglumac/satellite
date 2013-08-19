@@ -1,53 +1,24 @@
 #!/bin/bash
 
-echo "Configuring Satellite"
-
-#default log path
-OS=`uname`
-    logpath="$HOME/.satellite/sat.log"
-    #lets make a satellite folder just incase it doesn't exist
-    mkdir -p $HOME/.satellite
-echo "logpath set to: $logpath"
-
-function check_deps()
+function check_jnxlibc()
 {
-OS=`uname`
-if [ "$OS" = "Darwin" ]; then
-	brew list | grep mysql 
+	echo "int main(){}" | cc -o /dev/null -x c - -ljnxc -ldl 2>/dev/null
 	if [ $? -ne 0 ]; then
-		brew install mysql-connector-c mysql
+		git clone git://github.com/AlexsJones/jnxlibc.git
+		if [ $? -ne 0 ]; then
+			echo "Unable to clone, probably offline..."
+			exit 1
+		fi
+		pushd jnxlibc
+		./configure
+		make
+		sudo make install
+		popd		
+		rm -rf jnxlibc
+
+	else
+		echo "Found jnxlibc..."
 	fi
-else
-	echo "Unable to check mysql deps on linux system"
-fi
 }
-function setup_conf()
-{
-if [ -e conf/satellite.conf ]; then
-    rm conf/satellite.conf
-fi
-    echo "sqlhost=$sqlhost" >> conf/satellite.conf
-    echo "sqluser=$sqluser" >> conf/satellite.conf
-    echo "sqlpass=$sqlpass" >> conf/satellite.conf
-    echo "listenport=9099" >> conf/satellite.conf
-    echo "logpath=$logpath" >> conf/satellite.conf
-	echo "frontendserver=$frontendserver" >> conf/satellite.conf
-    echo "frontendport=$frontendport" >> conf/satellite.conf
-    echo "max_retries=5" >> conf/satellite.conf
-}
-function place_conf()
-{
-	cp conf/satellite.conf $HOME/.satellite
-}
-if [ -e Makefile ]; then
-    rm Makefile
-fi
-cat Makefile.in | while IFS='' read -r LINE
-do
-    echo "$LINE" >> Makefile
-done
-check_deps
-setup_conf
-place_conf
-echo "All done!"
-echo "Please run make"
+
+check_jnxlibc
