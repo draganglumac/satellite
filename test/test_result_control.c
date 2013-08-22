@@ -65,7 +65,6 @@ int main(int argc, char **argv)
 
 	test_directory_creation();
 	test_directory_deletion();
-	
 	jnx_term_printf_in_color(JNX_COL_GREEN,"  OK\n");
 	printf("result_control tests completed.\n");
 	return 0;
