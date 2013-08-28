@@ -118,7 +118,9 @@ void job_control_process_job(api_command_obj *obj)
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Creating results path\n");
 			int output_setup_complete = jnx_result_setup();
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Running job via system command\n");
-			int ret = system(obj->DATA);
+			
+			int ret = execl("/bin/bash", "/bin/bash",obj->DATA);	
+			
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"System command output returned %d\n", ret);
 			if(ret != 0)
 			{
