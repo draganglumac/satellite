@@ -23,7 +23,7 @@
 #include <jnxc_headers/jnxnetwork.h>
 #include <stdarg.h>
 #include <pthread.h>
-
+#include <sys/wait.h>
 #include <jnxc_headers/jnxhash.h>
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
@@ -203,7 +203,35 @@ void *job_control_main_loop(void *arg)
 			pthread_mutex_unlock(&lock);
 			if(current_obj != NULL)
 			{
-				job_control_process_job(current_obj);
+				pid_t process_pid = fork();
+				if(process_pid == 0)
+				{
+					printf("Spawning job in new process\n");
+					job_control_process_job(current_obj);
+				}else
+				{
+					printf("Waiting for child process to complete...\n");
+					int status;
+					do{
+						pid_t w = waitpid(process_pid,&status, WUNTRACED | WCONTINUED);
+						if(w == -1)
+						{
+							perror("Error with waitpid");
+							exit(EXIT_FAILURE);
+						}
+						if (WIFEXITED(status)) {
+							printf("exited, status=%d\n", WEXITSTATUS(status));
+						} else if (WIFSIGNALED(status)) {
+							printf("killed by signal %d\n", WTERMSIG(status));
+						} else if (WIFSTOPPED(status)) {
+							printf("stopped by signal %d\n", WSTOPSIG(status));
+						} else if (WIFCONTINUED(status)) {
+							printf("continued\n");
+						}
+
+					}while(!WIFEXITED(status) && !WIFSIGNALED(status));
+					printf("Completed child process\n");
+				}
 				transaction_api_delete_obj(current_obj);
 			}
 
@@ -212,7 +240,6 @@ void *job_control_main_loop(void *arg)
 	}
 
 }
-
 void job_control_start_processing(void)
 {
 	pthread_t loop_thread;
