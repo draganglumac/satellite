@@ -23,7 +23,7 @@
 #ifdef __APPLE__ 
 #define INTERFACE "en0"
 #else
-#define INTERFACE "eth0"
+#define INTERFACE "wlp3s0"
 #endif
 void job_control_start_listening(void);
 void job_control_start_processing(void);

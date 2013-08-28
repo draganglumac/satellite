@@ -100,28 +100,45 @@ void job_control_process_job(api_command_obj *obj)
 	}
 	char *node_port = jnx_string_itos(LISTENPORT);
 	char *target_port = jnx_string_itos(obj->PORT);
+	printf("switching job on command %d\n",obj->CMD);
 	switch(obj->CMD)
 	{
 		case JOB:
+			printf("selected job\n");
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to in progress\n");
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"IN PROGRESS"," ",node_ip,node_port);
-			char *stdout_path = job_temp_log_path();
-			if(!stdout_path)
-			{
-				jnx_term_printf_in_color(JNX_COL_RED,"Error with capture of stdout, could not create file\n");
-				return;
-			}else{
-				printf("Creating console log path %s\n",stdout_path);
-				jnx_term_override_stdout(stdout_path);	
-			}
-			/*  perform job */
-			jnx_term_printf_in_color(JNX_COL_YELLOW,"Creating results path\n");
-			int output_setup_complete = jnx_result_setup();
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Running job via system command\n");
+				pid_t process_pid = fork();
+				if(process_pid == 0)
+				{
+					int ret = system(obj->DATA);
+					printf("Spawning job in new process\n");
+				}else
+				{
+					printf("Waiting for child process to complete...\n");
+					int status;
+					do{
+						pid_t w = waitpid(process_pid,&status, WUNTRACED | WCONTINUED);
+						if(w == -1)
+						{
+							perror("Error with waitpid");
+							exit(EXIT_FAILURE);
+						}
+						if (WIFEXITED(status)) {
+							printf("exited, status=%d\n", WEXITSTATUS(status));
+						} else if (WIFSIGNALED(status)) {
+							printf("killed by signal %d\n", WTERMSIG(status));
+						} else if (WIFSTOPPED(status)) {
+							printf("stopped by signal %d\n", WSTOPSIG(status));
+						} else if (WIFCONTINUED(status)) {
+							printf("continued\n");
+						}
+
+					}while(!WIFEXITED(status) && !WIFSIGNALED(status));
+					printf("Completed child process\n");
+				}
 			
-			int ret = execl("/bin/bash", "/bin/bash",obj->DATA);	
-			
-			jnx_term_printf_in_color(JNX_COL_YELLOW,"System command output returned %d\n", ret);
+	/*  		jnx_term_printf_in_color(JNX_COL_YELLOW,"System command output returned %d\n", ret);
 			if(ret != 0)
 			{
 
@@ -156,14 +173,12 @@ void job_control_process_job(api_command_obj *obj)
 				free(target_port);
 				return;
 			}
-			/*  transmit results  */
 			if(output_setup_complete == 0)
 			{
 				jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending results\n");
 				jnx_result_process(obj->SENDER, target_port,obj->ID,node_ip,node_port);
 				jnx_result_teardown();
 			}
-			/*  set status to COMPLETED */
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to completed\n");
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"COMPLETED"," ",node_ip,node_port);
 			char *console_string;
@@ -188,6 +203,7 @@ void job_control_process_job(api_command_obj *obj)
 			free(node_port);	
 			free(target_port);
 			//Send back console log
+		*/
 			break;
 		case SYSTEM:
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Running system command\n");
@@ -205,38 +221,10 @@ void *job_control_main_loop(void *arg)
 			pthread_mutex_unlock(&lock);
 			if(current_obj != NULL)
 			{
-				pid_t process_pid = fork();
-				if(process_pid == 0)
-				{
-					printf("Spawning job in new process\n");
-					job_control_process_job(current_obj);
-				}else
-				{
-					printf("Waiting for child process to complete...\n");
-					int status;
-					do{
-						pid_t w = waitpid(process_pid,&status, WUNTRACED | WCONTINUED);
-						if(w == -1)
-						{
-							perror("Error with waitpid");
-							exit(EXIT_FAILURE);
-						}
-						if (WIFEXITED(status)) {
-							printf("exited, status=%d\n", WEXITSTATUS(status));
-						} else if (WIFSIGNALED(status)) {
-							printf("killed by signal %d\n", WTERMSIG(status));
-						} else if (WIFSTOPPED(status)) {
-							printf("stopped by signal %d\n", WSTOPSIG(status));
-						} else if (WIFCONTINUED(status)) {
-							printf("continued\n");
-						}
-
-					}while(!WIFEXITED(status) && !WIFSIGNALED(status));
-					printf("Completed child process\n");
-				}
+				printf("Found item in queue\n");
+				job_control_process_job(current_obj);
 				transaction_api_delete_obj(current_obj);
 			}
-
 		}
 		TIME_WAIT
 	}
