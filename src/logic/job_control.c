@@ -147,10 +147,19 @@ void job_control_process_job(api_command_obj *obj)
 
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to in progress\n");
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"IN PROGRESS"," ",node_ip,node_port);
-			//setup log
-			char *stdout_path = job_setup_log();	
 			//create output results directory
 			int output_setup_complete = jnx_result_setup();	
+			printf("Creating results setup returned %d\n",output_setup_complete);
+			if(output_setup_complete != 0)
+			{
+				jnx_term_printf_in_color(JNX_COL_RED,"jnx_result_setup failed\n");
+				return;
+			}else
+			{
+				jnx_term_printf_in_color(JNX_COL_GREEN,"jnx_result_setup successful\n");
+			}
+			//setup log
+			char *stdout_path = job_setup_log();	
 			pid_t process_pid= fork();
 			if(process_pid == 0)
 			{
