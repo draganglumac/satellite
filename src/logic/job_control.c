@@ -115,7 +115,7 @@ void job_send_log(char *stdout_path, api_command_obj *obj,char *target_port, cha
 	if(readbytes < 1) { jnx_term_printf_in_color(JNX_COL_RED,"Error reading log\n"); return; }
 	size_t output_len;
 	char *encoded_string = jnx_base64_encode(console_string,readbytes,&output_len);
-	jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending console log\n");
+	jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending console log %s\n",encoded_string);
 	if(lquery(obj->SENDER,target_port,output_len,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port) != 0)
 	{
 		jnx_term_printf_in_color(JNX_COL_RED,"Error sending console log\n");
@@ -216,6 +216,7 @@ void job_control_process_job(api_command_obj *obj)
 				}
 				/* send log */
 				job_teardown_log();
+				printf("Sending log\n");
 				job_send_log(stdout_path,obj,target_port,node_ip,node_port);
 				free(target_port);
 				free(node_ip);
