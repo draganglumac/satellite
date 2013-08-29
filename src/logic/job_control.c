@@ -109,9 +109,12 @@ void job_control_process_job(api_command_obj *obj)
 	switch(obj->CMD)
 	{
 		case JOB:
+
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to in progress\n");
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"IN PROGRESS"," ",node_ip,node_port);
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Running job via system command\n");
+			//create output results directory
+			int output_setup_complete = jnx_result_setup();	
 			pid_t process_pid= fork();
 			if(process_pid == 0)
 			{
@@ -159,6 +162,13 @@ void job_control_process_job(api_command_obj *obj)
 				}while(!WIFEXITED(status) && !WIFSIGNALED(status));
 				printf("Job exited with %d\n",WEXITSTATUS(status));
 				printf("Releasing resources from current job\n");
+				/*  send job results */
+				if(output_setup_complete == 0)
+				{
+					jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending results\n");
+					jnx_result_process(obj->SENDER, target_port,obj->ID,node_ip,node_port);
+					jnx_result_teardown();
+				}
 				free(target_port);
 				free(node_ip);
 				free(node_port);

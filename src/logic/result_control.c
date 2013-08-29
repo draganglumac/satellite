@@ -61,20 +61,25 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 	{
 		ext = "";
 	}
-	printf("File format is %s\n",ext);
-
-	//check the fileformat is on the approved list before continuing.
+	//check the fileformat is on the approved list before continuing and not a directory.
 	if(S_ISREG(sb->st_mode))
 	{
+		printf("File format is %s\n",ext);
+		printf("File name is %s\n",filename);
 		int count; 
 		for(count = 0; count < accepted_file_format_count; ++count)
 		{
 			if(strcmp(accepted_file_formats[count], ext +1) == 0)
 			{
 				printf("File format is on approved list, sending through\n");
-				const char* filepath = fpath + ftwbuf->base;
+				char* filepath;
 				char *raw;	
-				size_t bytes_read = jnx_file_readb((char*)filepath,&raw);
+				size_t bytes_read = jnx_file_readb((char*)fpath,&raw);
+				if(bytes_read <= 0)
+				{
+					printf("Error reading from file, aborting sending\n");
+					continue;
+				}
 				size_t outputlen;
 				char *encoded_string = jnx_base64_encode(raw,bytes_read,&outputlen);
 
