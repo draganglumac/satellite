@@ -95,6 +95,41 @@ void job_send_status(api_command_obj *obj, char *STATUS,char *node_ip, char *nod
 	jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to %s\n",STATUS);
 	query(obj->SENDER,jnx_string_itos(obj->PORT),API_COMMAND,"STATUS",obj->ID,STATUS," ",node_ip,node_port);
 }
+char* job_setup_log()
+{
+	char *stdout_path = job_temp_log_path();
+	if(!stdout_path)
+	{
+		jnx_term_printf_in_color(JNX_COL_RED,"Error with capture of stdout, could not create file\n");
+		return NULL;
+	}else{
+		printf("Creating console log path %s\n",stdout_path);
+		jnx_term_override_stdout(stdout_path);
+	}
+	return stdout_path;
+}
+void job_send_log(char *stdout_path, api_command_obj *obj,char *target_port, char *node_ip, char *node_port)
+{
+	char *console_string;
+	size_t readbytes = jnx_file_read(stdout_path,&console_string);
+	if(readbytes < 1) { jnx_term_printf_in_color(JNX_COL_RED,"Error reading log\n"); return; }
+	size_t output_len;
+	char *encoded_string = jnx_base64_encode(console_string,readbytes,&output_len);
+	jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending console log\n");
+	if(lquery(obj->SENDER,target_port,output_len,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port) != 0)
+	{
+		jnx_term_printf_in_color(JNX_COL_RED,"Error sending console log\n");
+		return;
+	}
+	fflush(stdout);
+	printf("Send console_log\n");
+	free(console_string);
+	free(encoded_string);
+}
+void job_teardown_log()
+{
+	jnx_term_reset_stdout();
+}
 void job_control_process_job(api_command_obj *obj)
 {
 	char *node_ip = jnx_network_local_ip(INTERFACE);
@@ -112,7 +147,8 @@ void job_control_process_job(api_command_obj *obj)
 
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to in progress\n");
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"IN PROGRESS"," ",node_ip,node_port);
-			jnx_term_printf_in_color(JNX_COL_YELLOW,"Running job via system command\n");
+			//setup log
+			char *stdout_path = job_setup_log();	
 			//create output results directory
 			int output_setup_complete = jnx_result_setup();	
 			pid_t process_pid= fork();
@@ -169,9 +205,13 @@ void job_control_process_job(api_command_obj *obj)
 					jnx_result_process(obj->SENDER, target_port,obj->ID,node_ip,node_port);
 					jnx_result_teardown();
 				}
+				/* send log */
+				job_teardown_log();
+				job_send_log(stdout_path,obj,target_port,node_ip,node_port);
 				free(target_port);
 				free(node_ip);
 				free(node_port);
+				remove(stdout_path);
 			}
 			break;
 		case SYSTEM:
