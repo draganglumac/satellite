@@ -70,9 +70,9 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 			if(strcmp(accepted_file_formats[count], ext +1) == 0)
 			{
 				printf("File format is on approved list, sending through\n");
-				char* filepath;
+				const char* filepath = fpath + ftwbuf->base;
 				char *raw;	
-				size_t bytes_read = jnx_file_readb((char*)fpath,&raw);
+				size_t bytes_read = jnx_file_readb((char*)filepath,&raw);
 				if(bytes_read <= 0)
 				{
 					printf("Error reading from file, aborting sending\n");
