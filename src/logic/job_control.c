@@ -90,6 +90,11 @@ char *job_temp_log_path()
 	sprintf(path,"%s/%d_consoleoutput.txt",_currentwd,(int)current_time);
 	return path;
 }
+void job_send_status(api_command_obj *obj, char *STATUS,char *node_ip, char *node_port)
+{
+	jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to %s\n",STATUS);
+	query(obj->SENDER,jnx_string_itos(obj->PORT),API_COMMAND,"STATUS",obj->ID,STATUS," ",node_ip,node_port);
+}
 void job_control_process_job(api_command_obj *obj)
 {
 	char *node_ip = jnx_network_local_ip(INTERFACE);
@@ -104,106 +109,60 @@ void job_control_process_job(api_command_obj *obj)
 	switch(obj->CMD)
 	{
 		case JOB:
-			printf("selected job\n");
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to in progress\n");
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"IN PROGRESS"," ",node_ip,node_port);
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Running job via system command\n");
-				pid_t process_pid = fork();
-				if(process_pid == 0)
-				{
-					int ret = system(obj->DATA);
-					printf("Spawning job in new process\n");
-				}else
-				{
-					printf("Waiting for child process to complete...\n");
-					int status;
-					do{
-						pid_t w = waitpid(process_pid,&status, WUNTRACED | WCONTINUED);
-						if(w == -1)
-						{
-							perror("Error with waitpid");
-							exit(EXIT_FAILURE);
-						}
-						if (WIFEXITED(status)) {
-							printf("exited, status=%d\n", WEXITSTATUS(status));
-						} else if (WIFSIGNALED(status)) {
-							printf("killed by signal %d\n", WTERMSIG(status));
-						} else if (WIFSTOPPED(status)) {
-							printf("stopped by signal %d\n", WSTOPSIG(status));
-						} else if (WIFCONTINUED(status)) {
-							printf("continued\n");
-						}
-
-					}while(!WIFEXITED(status) && !WIFSIGNALED(status));
-					printf("Completed child process\n");
-				}
-			
-	/*  		jnx_term_printf_in_color(JNX_COL_YELLOW,"System command output returned %d\n", ret);
-			if(ret != 0)
+			pid_t process_pid= fork();
+			if(process_pid == 0)
 			{
+				printf("Spawning job in new process\n");
+				int ret = system(obj->DATA);
+				printf("System returned %d\n",ret);
+				if(ret > 0 || ret < 0)
+				{
+					exit(EXIT_FAILURE);
+				}else if(ret == 0)
+				{
+					exit(EXIT_SUCCESS);
+				}
+			}else
+			{
+				printf("Waiting for child process to complete...\n");
+				int status;
+				do{
 
-				char retbuffer[25];
-				sprintf(retbuffer,"%d",ret);
-				jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to failed\n");
-				query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"FAILED",retbuffer,node_ip,node_port);
-				jnx_term_reset_stdout();
-				char *console_string;
-				size_t outputlen;
-				size_t readbytes = jnx_file_read(stdout_path,&console_string);
-				if(readbytes > 0){
-					char *encoded_string = jnx_base64_encode(console_string,readbytes,&outputlen);
-					jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending console log\n");
-					if(lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port) != 0)
+					pid_t w = waitpid(process_pid,&status, WUNTRACED | WCONTINUED);
+					if(w == -1)
 					{
-						jnx_term_printf_in_color(JNX_COL_RED,"Error sending console log\n");	
-					}	
-					fflush(stdout);
-					printf("Send console_log\n");
-					free(console_string);
-					free(encoded_string);
-				}
-				free(stdout_path);
-				if(output_setup_complete == 0)
-				{
-					jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending results\n");
-					jnx_result_process(obj->SENDER, target_port,obj->ID,node_ip,node_port);
-					jnx_result_teardown();
-				}
-				free(node_port);
+						perror("Error with waitpid");
+						exit(EXIT_FAILURE);
+					}
+					if (WIFEXITED(status)) {
+						jnx_term_printf_in_color(JNX_COL_RED,"exited, status=%d\n", WEXITSTATUS(status));
+						if(status != 0)
+						{
+							job_send_status(obj,"FAILED",node_ip,node_port);
+						}else if(status == 0)
+						{
+							job_send_status(obj,"COMPLETED",node_ip,node_port);
+						}
+					} else if (WIFSIGNALED(status)) {
+						jnx_term_printf_in_color(JNX_COL_RED,"killed by signal %d\n", WTERMSIG(status));
+						job_send_status(obj,"FAILED",node_ip,node_port);
+					} else if (WIFSTOPPED(status)) {
+						jnx_term_printf_in_color(JNX_COL_RED,"stopped by signal %d\n", WSTOPSIG(status));
+						job_send_status(obj,"FAILED",node_ip,node_port);
+					} else if (WIFCONTINUED(status)) {
+						jnx_term_printf_in_color(JNX_COL_RED,"continued\n");
+						job_send_status(obj,"FAILED",node_ip,node_port);
+					}
+				}while(!WIFEXITED(status) && !WIFSIGNALED(status));
+				printf("Job exited with %d\n",WEXITSTATUS(status));
+				printf("Releasing resources from current job\n");
 				free(target_port);
-				return;
+				free(node_ip);
+				free(node_port);
 			}
-			if(output_setup_complete == 0)
-			{
-				jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending results\n");
-				jnx_result_process(obj->SENDER, target_port,obj->ID,node_ip,node_port);
-				jnx_result_teardown();
-			}
-			jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to completed\n");
-			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"COMPLETED"," ",node_ip,node_port);
-			char *console_string;
-			size_t readbytes = jnx_file_read(stdout_path,&console_string);
-			if(readbytes > 0)
-			{
-				size_t outputlen;
-				char *encoded_string = jnx_base64_encode(console_string,readbytes,&outputlen);
-				jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending console log\n");
-				if(lquery(obj->SENDER,target_port,outputlen,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port) != 0)
-				{
-					jnx_term_printf_in_color(JNX_COL_RED,"Error sending console log\n");
-				}
-				fflush(stdout);
-				jnx_term_reset_stdout();
-				printf("Send console_log\n");
-				free(stdout_path);
-				free(console_string);
-				free(encoded_string);
-			}
-			remove(stdout_path);
-			free(node_port);	
-			free(target_port);
-			//Send back console log
-		*/
 			break;
 		case SYSTEM:
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Running system command\n");
