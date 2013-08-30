@@ -85,6 +85,8 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 				{
 					jnx_term_printf_in_color(JNX_COL_RED,"Error sending long query from jnx_result_process_callback\n");
 				}
+
+				free(encoded_string);
 			}
 		}
 	}
