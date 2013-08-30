@@ -178,7 +178,6 @@ void job_control_process_job(api_command_obj *obj)
 				printf("Waiting for child process to complete...\n");
 				int status;
 				do{
-
 					pid_t w = waitpid(process_pid,&status, WUNTRACED | WCONTINUED);
 					if(w == -1)
 					{
