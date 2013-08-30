@@ -218,6 +218,7 @@ void job_control_process_job(api_command_obj *obj)
 				job_teardown_log();
 				printf("Sending log\n");
 				job_send_log(stdout_path,obj,target_port,node_ip,node_port);
+				free(stdout_path);
 				free(target_port);
 				free(node_ip);
 				free(node_port);
