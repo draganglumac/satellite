@@ -32,6 +32,7 @@
 #define TIME_WAIT sleep(5);
 #define TRUE 1
 #define FALSE 0
+#define DISABLE_LOG
 enum processing { WAITING, WORKING };
 jnx_list *queue = NULL;
 pthread_mutex_t lock;
@@ -86,7 +87,7 @@ int query(char *hostaddr, char* hostport, const char *template, ...)
 }
 void message_intercept(char *message, size_t msg_len, char *ip)
 {
-	printf("message intercept\n");
+	printf("message intercept from %s\n",ip);
 	api_command_obj *obj = transaction_api_create_obj(message);
 	if(obj == NULL)
 	{
@@ -192,7 +193,9 @@ void job_control_process_job(api_command_obj *obj)
 				jnx_term_printf_in_color(JNX_COL_GREEN,"jnx_result_setup successful\n");
 			}
 			//setup log
+#ifndef DISABLE_LOG
 			char *stdout_path = job_setup_log();	
+#endif
 			pid_t process_pid= fork();
 			if(process_pid == 0)
 			{
@@ -253,14 +256,19 @@ void job_control_process_job(api_command_obj *obj)
 					jnx_result_teardown();
 				}
 				/* send log */
+#ifndef DISABLE_LOG
 				job_teardown_log();
+#endif
 				printf("Sending log\n");
+				
+#ifndef DISABLE_LOG
 				job_send_log(stdout_path,obj,target_port,node_ip,node_port);
 				free(stdout_path);
+				remove(stdout_path);
+#endif
 				free(target_port);
 				free(node_ip);
 				free(node_port);
-				remove(stdout_path);
 			}
 			break;
 		case SYSTEM:
