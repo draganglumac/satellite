@@ -97,9 +97,8 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 	}
 	if(obj->CMD == KILL)
 	{
-		printf("KILL COMMAND ALERT\n");
-		jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting killflag\n");
-		set_kill_flag(TRUE);
+		kill(process_pid,SIGKILL);
+		jnx_term_printf_in_color(JNX_COL_RED,"KILLED PROCESS\n");
 		return; 
 	}
 	if(queue == NULL)
@@ -173,13 +172,13 @@ void* kill_monitor_loop(void *a)
 		{
 			if(get_kill_flag() == TRUE)
 			{
+				printf("--> Killing %d\n",process_pid);
 				kill(process_pid,SIGKILL);
 				set_kill_flag(FALSE);
 				TIME_WAIT
 			}
 		}
 	}
-
 	return NULL;
 }
 void job_control_process_job(api_command_obj *obj)
@@ -238,10 +237,6 @@ void job_control_process_job(api_command_obj *obj)
 					{
 						perror("Error with waitpid");
 						exit(EXIT_FAILURE);
-					}
-					if(get_kill_flag() == TRUE)
-					{
-						kill(process_pid,SIGKILL);
 					}
 					if (WIFEXITED(status)) {
 						jnx_term_printf_in_color(JNX_COL_RED,"exited, status=%d\n", WEXITSTATUS(status));
@@ -320,8 +315,6 @@ void job_control_start_processing(void)
 }
 void job_control_start_listening(void)
 {
-	pthread_t kill_thread_monitor;
-	pthread_create(&kill_thread_monitor,NULL,kill_monitor_loop,NULL);
 	jnx_network_listener_callback ll = message_intercept;
 	jnx_network_setup_listener(LISTENPORT,25,ll);
 }
