@@ -86,6 +86,7 @@ int query(char *hostaddr, char* hostport, const char *template, ...)
 }
 void message_intercept(char *message, size_t msg_len, char *ip)
 {
+	printf("message intercept\n");
 	api_command_obj *obj = transaction_api_create_obj(message);
 	if(obj == NULL)
 	{
@@ -97,6 +98,7 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 		printf("KILL COMMAND ALERT\n");
 		jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting killflag\n");
 		set_kill_flag(TRUE);
+		return; 
 	}
 	if(queue == NULL)
 	{
