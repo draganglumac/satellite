@@ -168,23 +168,6 @@ void job_teardown_log()
 {
 	jnx_term_reset_stdout();
 }
-void* kill_monitor_loop(void *a)
-{
-	while(1)
-	{
-		if(process_pid != 0)
-		{
-			if(get_kill_flag() == TRUE)
-			{
-				printf("--> Killing %d\n",process_pid);
-				kill(process_pid,SIGKILL);
-				set_kill_flag(FALSE);
-				TIME_WAIT
-			}
-		}
-	}
-	return NULL;
-}
 void job_control_process_job(api_command_obj *obj)
 {
 	char *node_ip = jnx_network_local_ip(INTERFACE);
@@ -222,8 +205,13 @@ void job_control_process_job(api_command_obj *obj)
 			if(process_pid == 0)
 			{
 				printf("Spawning job in new process\n");
-				int ret = system(obj->DATA);
-				printf("System returned %d\n",ret);
+				
+				time_t t = time(0);
+				char filename[125];
+				sprintf(filename,"%d.cmds",(int)t);
+				size_t bytes_written = jnx_file_write(filename,obj->DATA,strlen(obj->DATA));
+				int ret = execl("/bin/bash",filename,NULL);
+				remove(filename);
 				if(ret > 0 || ret < 0)
 				{
 					exit(EXIT_FAILURE);
