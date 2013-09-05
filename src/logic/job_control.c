@@ -175,7 +175,6 @@ void* kill_monitor_loop(void *a)
 			{
 				kill(process_pid,SIGKILL);
 				set_kill_flag(FALSE);
-
 				TIME_WAIT
 			}
 		}
@@ -264,8 +263,6 @@ void job_control_process_job(api_command_obj *obj)
 						job_send_status(obj,"FAILED",node_ip,node_port);
 					}
 				}while(!WIFEXITED(status) && !WIFSIGNALED(status));
-				printf("Resetting kill flag\n");
-				set_kill_flag(FALSE);
 				printf("Job exited with %d\n",WEXITSTATUS(status));
 				printf("Releasing resources from current job\n");
 				/*  send job results */
@@ -307,7 +304,7 @@ void *job_control_main_loop(void *arg)
 			pthread_mutex_unlock(&lock);
 			if(current_obj != NULL)
 			{
-				printf("Found item in queue\n");
+				printf("Found item in queue with length of %d\n",queue->counter);
 				job_control_process_job(current_obj);
 				transaction_api_delete_obj(current_obj);
 			}
