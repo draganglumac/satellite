@@ -92,6 +92,12 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 		printf("Failed to create api_command_obj\n");
 		return;
 	}
+	if(obj->CMD == KILL)
+	{
+		printf("KILL COMMAND ALERT\n");
+		jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting killflag\n");
+		set_kill_flag(TRUE);
+	}
 	if(queue == NULL)
 	{
 		queue = jnx_list_init();
@@ -254,10 +260,6 @@ void job_control_process_job(api_command_obj *obj)
 		case SYSTEM:
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Running system command\n");
 			system(obj->DATA);
-			break;
-		case KILL:
-			jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting killflag\n");
-			set_kill_flag(TRUE);
 			break;
 	}
 }
