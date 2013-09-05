@@ -30,9 +30,34 @@
 #include <jnxc_headers/jnxterm.h>
 #include <jnxc_headers/jnxbase64.h>
 #define TIME_WAIT sleep(5);
+#define TRUE 1
+#define FALSE 0
 enum processing { WAITING, WORKING };
 jnx_list *queue = NULL;
 pthread_mutex_t lock;
+pthread_mutex_t state_lock;
+int killflag = 0;
+typedef int BOOL;
+
+void set_kill_flag(BOOL state)
+{
+	pthread_mutex_lock(&state_lock);
+	if(state == TRUE)
+	{
+		killflag = TRUE;
+	}else if(state == FALSE)
+	{
+		killflag = FALSE;
+	}
+	pthread_mutex_unlock(&state_lock);
+}
+BOOL get_kill_flag()
+{
+	pthread_mutex_lock(&state_lock);
+	BOOL ret = killflag;
+	pthread_mutex_unlock(&state_lock);
+	return ret;
+}
 int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *template, ...)
 {
 	char *query = malloc(data_offset +  strlen(template) + 256);
@@ -203,7 +228,9 @@ void job_control_process_job(api_command_obj *obj)
 						jnx_term_printf_in_color(JNX_COL_RED,"continued\n");
 						job_send_status(obj,"FAILED",node_ip,node_port);
 					}
-				}while(!WIFEXITED(status) && !WIFSIGNALED(status));
+				}while(!WIFEXITED(status) && !WIFSIGNALED(status) && get_kill_flag() != TRUE);
+				printf("Resetting kill flag\n");
+				set_kill_flag(FALSE);
 				printf("Job exited with %d\n",WEXITSTATUS(status));
 				printf("Releasing resources from current job\n");
 				/*  send job results */
@@ -227,6 +254,10 @@ void job_control_process_job(api_command_obj *obj)
 		case SYSTEM:
 			jnx_term_printf_in_color(JNX_COL_YELLOW,"Running system command\n");
 			system(obj->DATA);
+			break;
+		case KILL:
+			jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting killflag\n");
+			set_kill_flag(TRUE);
 			break;
 	}
 }
