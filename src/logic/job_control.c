@@ -215,6 +215,10 @@ void job_control_process_job(api_command_obj *obj)
 						perror("Error with waitpid");
 						exit(EXIT_FAILURE);
 					}
+					if(get_kill_flag() == TRUE)
+					{
+						kill(process_pid,SIGKILL);
+					}
 					if (WIFEXITED(status)) {
 						jnx_term_printf_in_color(JNX_COL_RED,"exited, status=%d\n", WEXITSTATUS(status));
 						if(status != 0)
@@ -234,7 +238,7 @@ void job_control_process_job(api_command_obj *obj)
 						jnx_term_printf_in_color(JNX_COL_RED,"continued\n");
 						job_send_status(obj,"FAILED",node_ip,node_port);
 					}
-				}while(!WIFEXITED(status) && !WIFSIGNALED(status) && get_kill_flag() != TRUE);
+				}while(!WIFEXITED(status) && !WIFSIGNALED(status));
 				printf("Resetting kill flag\n");
 				set_kill_flag(FALSE);
 				printf("Job exited with %d\n",WEXITSTATUS(status));
