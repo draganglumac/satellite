@@ -37,6 +37,7 @@ enum processing { WAITING, WORKING };
 jnx_list *queue = NULL;
 pthread_mutex_t lock;
 pthread_mutex_t state_lock;
+pid_t process_pid = 0;
 int killflag = 0;
 typedef int BOOL;
 
@@ -164,6 +165,24 @@ void job_teardown_log()
 {
 	jnx_term_reset_stdout();
 }
+void* kill_monitor_loop(void *a)
+{
+	while(1)
+	{
+		if(process_pid != 0)
+		{
+			if(get_kill_flag() == TRUE)
+			{
+				kill(process_pid,SIGKILL);
+				set_kill_flag(FALSE);
+
+				TIME_WAIT
+			}
+		}
+	}
+
+	return NULL;
+}
 void job_control_process_job(api_command_obj *obj)
 {
 	char *node_ip = jnx_network_local_ip(INTERFACE);
@@ -196,7 +215,8 @@ void job_control_process_job(api_command_obj *obj)
 #ifndef DISABLE_LOG
 			char *stdout_path = job_setup_log();	
 #endif
-			pid_t process_pid= fork();
+			process_pid= fork();
+
 			if(process_pid == 0)
 			{
 				printf("Spawning job in new process\n");
@@ -260,7 +280,7 @@ void job_control_process_job(api_command_obj *obj)
 				job_teardown_log();
 #endif
 				printf("Sending log\n");
-				
+
 #ifndef DISABLE_LOG
 				job_send_log(stdout_path,obj,target_port,node_ip,node_port);
 				free(stdout_path);
@@ -303,6 +323,8 @@ void job_control_start_processing(void)
 }
 void job_control_start_listening(void)
 {
+	pthread_t kill_thread_monitor;
+	pthread_create(&kill_thread_monitor,NULL,kill_monitor_loop,NULL);
 	jnx_network_listener_callback ll = message_intercept;
 	jnx_network_setup_listener(LISTENPORT,25,ll);
 }
