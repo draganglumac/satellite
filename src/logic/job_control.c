@@ -97,8 +97,12 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 	}
 	if(obj->CMD == KILL)
 	{
+		if(process_pid == 0)
+		{
+			printf("No pid set\n");
+		}		
 		kill(process_pid,SIGKILL);
-		jnx_term_printf_in_color(JNX_COL_RED,"KILLED PROCESS\n");
+		jnx_term_printf_in_color(JNX_COL_RED,"KILLED PROCESS %d\n",process_pid);
 		return; 
 	}
 	if(queue == NULL)
