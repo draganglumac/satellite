@@ -209,11 +209,17 @@ void job_control_process_job(api_command_obj *obj)
 				printf("Spawning job in new process\n");
 				
 				time_t t = time(0);
-				char filename[125];
-				sprintf(filename,"%d.sh",(int)t);
+				char filename[2048];
+				char cwd[1024];
+				if(getcwd(cwd,sizeof(cwd)) != NULL) 
+						{
+						return;
+						}
+				sprintf(filename,"%s/%d.sh",cwd,(int)t);
 				char mode[] = "0777";
 				int i;
 				i = strtol(mode,0,8);
+				printf("Trying to chmod %s\n",filename);
 				if(chmod(filename,i) < 0)
 				{
 					printf("CHMOD FAILED ARGH\n");
