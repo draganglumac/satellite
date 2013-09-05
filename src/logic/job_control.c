@@ -24,6 +24,8 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <string.h>
 #include <jnxc_headers/jnxhash.h>
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
@@ -208,9 +210,17 @@ void job_control_process_job(api_command_obj *obj)
 				
 				time_t t = time(0);
 				char filename[125];
-				sprintf(filename,"%d.cmds",(int)t);
+				sprintf(filename,"%d.sh",(int)t);
+				char mode[] = "0777";
+				int i;
+				i = strtol(mode,0,8);
+				if(chmod(filename,i) < 0)
+				{
+					printf("CHMOD FAILED ARGH\n");
+					return;
+				}
 				size_t bytes_written = jnx_file_write(filename,obj->DATA,strlen(obj->DATA));
-				int ret = execl("/bin/bash",filename,NULL);
+				int ret = execl("/bin/bash",filename,(char*)NULL);
 				remove(filename);
 				if(ret > 0 || ret < 0)
 				{
