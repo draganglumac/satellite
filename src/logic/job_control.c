@@ -23,24 +23,32 @@
 #include <jnxc_headers/jnxnetwork.h>
 #include <stdarg.h>
 #include <pthread.h>
+#include <sys/wait.h>
 #include <jnxc_headers/jnxhash.h>
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxterm.h>
+#include <jnxc_headers/jnxbase64.h>
 #define TIME_WAIT sleep(5);
 enum processing { WAITING, WORKING };
 jnx_list *queue = NULL;
 pthread_mutex_t lock;
 int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *template, ...)
 {
-	char *query = malloc(data_offset * sizeof(char) + 1);
+	char *query = malloc(data_offset +  strlen(template) + 256);
 	va_list ap;
 	va_start(ap,template);
 	vsprintf(query,template,ap);
 	va_end(ap);
-	jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
+	int written_bytes = jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
 	free(query);
-	return 0;
+	if(written_bytes > 0)
+	{
+		return 0;
+	}else
+	{
+		return 1;
+	}
 }
 int query(char *hostaddr, char* hostport, const char *template, ...)
 {
@@ -49,8 +57,7 @@ int query(char *hostaddr, char* hostport, const char *template, ...)
 	va_start(ap,template);
 	vsprintf(query,template,ap);
 	va_end(ap);
-	jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
-	return 0;
+	return jnx_network_send_message(hostaddr,atoi(hostport),query,strlen(query));
 }
 void message_intercept(char *message, size_t msg_len, char *ip)
 {
@@ -70,38 +77,155 @@ void message_intercept(char *message, size_t msg_len, char *ip)
 	jnx_list_add(queue,obj);
 	pthread_mutex_unlock(&lock);
 }
+char *job_temp_log_path()
+{
+	time_t current_time = time(NULL);
+	char _currentwd[256];
+	if(getcwd(_currentwd,sizeof(_currentwd)) == NULL)
+	{
+		perror("job_temp_log_path:");
+		return NULL;
+	}
+	char *path = malloc(sizeof(char)*1024);
+	sprintf(path,"%s/%d_consoleoutput.txt",_currentwd,(int)current_time);
+	return path;
+}
+void job_send_status(api_command_obj *obj, char *STATUS,char *node_ip, char *node_port)
+{
+	jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to %s\n",STATUS);
+	query(obj->SENDER,jnx_string_itos(obj->PORT),API_COMMAND,"STATUS",obj->ID,STATUS," ",node_ip,node_port);
+}
+char* job_setup_log()
+{
+	char *stdout_path = job_temp_log_path();
+	if(!stdout_path)
+	{
+		jnx_term_printf_in_color(JNX_COL_RED,"Error with capture of stdout, could not create file\n");
+		return NULL;
+	}else{
+		printf("Creating console log path %s\n",stdout_path);
+		jnx_term_override_stdout(stdout_path);
+	}
+	return stdout_path;
+}
+void job_send_log(char *stdout_path, api_command_obj *obj,char *target_port, char *node_ip, char *node_port)
+{
+	char *console_string;
+	size_t readbytes = jnx_file_read(stdout_path,&console_string);
+	if(readbytes < 1) { jnx_term_printf_in_color(JNX_COL_RED,"Error reading log\n"); return; }
+	size_t output_len;
+	char *encoded_string = jnx_base64_encode(console_string,readbytes,&output_len);
+	jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending console log %s\n",encoded_string);
+	if(lquery(obj->SENDER,target_port,output_len,API_COMMAND,"RESULT",obj->ID,encoded_string,"console_log.txt",node_ip,node_port) != 0)
+	{
+		jnx_term_printf_in_color(JNX_COL_RED,"Error sending console log\n");
+		return;
+	}
+	fflush(stdout);
+	printf("Send console_log\n");
+	free(console_string);
+	free(encoded_string);
+}
+void job_teardown_log()
+{
+	jnx_term_reset_stdout();
+}
 void job_control_process_job(api_command_obj *obj)
 {
 	char *node_ip = jnx_network_local_ip(INTERFACE);
+	if(!node_ip)
+	{
+		jnx_term_printf_in_color(JNX_COL_RED,"Alert, interface is incorretly configured. Cannot proceed\n");
+		return;
+	}
 	char *node_port = jnx_string_itos(LISTENPORT);
 	char *target_port = jnx_string_itos(obj->PORT);
+	printf("switching job on command %d\n",obj->CMD);
 	switch(obj->CMD)
 	{
-
 		case JOB:
+
+			jnx_term_printf_in_color(JNX_COL_YELLOW,"Setting job to in progress\n");
 			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"IN PROGRESS"," ",node_ip,node_port);
-			/*  perform job */
-			int output_setup_complete = jnx_result_setup();
-			int ret = system(obj->DATA);
-			if(ret != 0)
+			//create output results directory
+			int output_setup_complete = jnx_result_setup();	
+			printf("Creating results setup returned %d\n",output_setup_complete);
+			if(output_setup_complete != 0)
 			{
-				char retbuffer[25];
-				sprintf(retbuffer,"%d",ret);
-				query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"FAILED",retbuffer,node_ip,node_port);
-			}
-			/*  transmit results  */
-			if(output_setup_complete == 0)
+				jnx_term_printf_in_color(JNX_COL_RED,"jnx_result_setup failed\n");
+				return;
+			}else
 			{
-				jnx_result_process(obj->SENDER, target_port,obj->ID,node_ip,node_port);
-				jnx_result_teardown();
+				jnx_term_printf_in_color(JNX_COL_GREEN,"jnx_result_setup successful\n");
 			}
-			/*  set status to COMPLETED */
-			query(obj->SENDER,target_port,API_COMMAND,"STATUS",obj->ID,"COMPLETED"," ",node_ip,node_port);
-			free(node_port);	
-			free(target_port);
+			//setup log
+			char *stdout_path = job_setup_log();	
+			pid_t process_pid= fork();
+			if(process_pid == 0)
+			{
+				printf("Spawning job in new process\n");
+				int ret = system(obj->DATA);
+				printf("System returned %d\n",ret);
+				if(ret > 0 || ret < 0)
+				{
+					exit(EXIT_FAILURE);
+				}else if(ret == 0)
+				{
+					exit(EXIT_SUCCESS);
+				}
+			}else
+			{
+				printf("Waiting for child process to complete...\n");
+				int status;
+				do{
+					pid_t w = waitpid(process_pid,&status, WUNTRACED | WCONTINUED);
+					if(w == -1)
+					{
+						perror("Error with waitpid");
+						exit(EXIT_FAILURE);
+					}
+					if (WIFEXITED(status)) {
+						jnx_term_printf_in_color(JNX_COL_RED,"exited, status=%d\n", WEXITSTATUS(status));
+						if(status != 0)
+						{
+							job_send_status(obj,"FAILED",node_ip,node_port);
+						}else if(status == 0)
+						{
+							job_send_status(obj,"COMPLETED",node_ip,node_port);
+						}
+					} else if (WIFSIGNALED(status)) {
+						jnx_term_printf_in_color(JNX_COL_RED,"killed by signal %d\n", WTERMSIG(status));
+						job_send_status(obj,"FAILED",node_ip,node_port);
+					} else if (WIFSTOPPED(status)) {
+						jnx_term_printf_in_color(JNX_COL_RED,"stopped by signal %d\n", WSTOPSIG(status));
+						job_send_status(obj,"FAILED",node_ip,node_port);
+					} else if (WIFCONTINUED(status)) {
+						jnx_term_printf_in_color(JNX_COL_RED,"continued\n");
+						job_send_status(obj,"FAILED",node_ip,node_port);
+					}
+				}while(!WIFEXITED(status) && !WIFSIGNALED(status));
+				printf("Job exited with %d\n",WEXITSTATUS(status));
+				printf("Releasing resources from current job\n");
+				/*  send job results */
+				if(output_setup_complete == 0)
+				{
+					jnx_term_printf_in_color(JNX_COL_YELLOW,"Sending results\n");
+					jnx_result_process(obj->SENDER, target_port,obj->ID,node_ip,node_port);
+					jnx_result_teardown();
+				}
+				/* send log */
+				job_teardown_log();
+				printf("Sending log\n");
+				job_send_log(stdout_path,obj,target_port,node_ip,node_port);
+				free(stdout_path);
+				free(target_port);
+				free(node_ip);
+				free(node_port);
+				remove(stdout_path);
+			}
 			break;
 		case SYSTEM:
-			printf("Received system command\n");
+			jnx_term_printf_in_color(JNX_COL_YELLOW,"Running system command\n");
 			system(obj->DATA);
 			break;
 	}
@@ -116,16 +240,15 @@ void *job_control_main_loop(void *arg)
 			pthread_mutex_unlock(&lock);
 			if(current_obj != NULL)
 			{
+				printf("Found item in queue\n");
 				job_control_process_job(current_obj);
 				transaction_api_delete_obj(current_obj);
 			}
-
 		}
-			TIME_WAIT
+		TIME_WAIT
 	}
 
 }
-
 void job_control_start_processing(void)
 {
 	pthread_t loop_thread;

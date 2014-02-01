@@ -1,3 +1,6 @@
-#!/bin/bash
+./configure
+pushd "test"
+./run_tests
+popd 
 make
-sudo make install
+

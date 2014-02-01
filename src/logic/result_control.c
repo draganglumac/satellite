@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <jnxc_headers/jnxbase64.h>
 #include <jnxc_headers/jnxfile.h>
+#include <jnxc_headers/jnxterm.h>
 #define OUTPUTDIR "output"
 #include <errno.h>
 #include <string.h>
@@ -42,9 +43,10 @@ char *accepted_file_formats[5] =
 int jnx_result_setup(void)
 {
 	int retval = mkdir(OUTPUTDIR,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
 	if ( retval != 0 && errno == EEXIST )
-		retval = 0; 
-	return retval;
+		retval = 0;
+	return retval;	
 }
 int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typeflag,struct FTW *ftwbuf)
 {
@@ -60,11 +62,11 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 	{
 		ext = "";
 	}
-	printf("File format is %s\n",ext);
-
-	//check the fileformat is on the approved list before continuing.
+	//check the fileformat is on the approved list before continuing and not a directory.
 	if(S_ISREG(sb->st_mode))
 	{
+		printf("File format is %s\n",ext);
+		printf("File name is %s\n",filename);
 		int count; 
 		for(count = 0; count < accepted_file_format_count; ++count)
 		{
@@ -74,11 +76,20 @@ int jnx_result_process_callback(const char *fpath,const struct stat *sb, int typ
 				const char* filepath = fpath + ftwbuf->base;
 				char *raw;	
 				size_t bytes_read = jnx_file_readb((char*)filepath,&raw);
+				if(bytes_read <= 0)
+				{
+					printf("Error reading from file, aborting sending\n");
+					continue;
+				}
 				size_t outputlen;
 				char *encoded_string = jnx_base64_encode(raw,bytes_read,&outputlen);
-				printf("Encoded string %s\n",encoded_string);
 
-				lquery(current_host,current_port,outputlen,API_COMMAND,"RESULT",current_id,encoded_string,filename,current_sender_ip,current_sender_port);
+				if(lquery(current_host,current_port,outputlen,API_COMMAND,"RESULT",current_id,encoded_string,filename,current_sender_ip,current_sender_port) != 0)
+				{
+					jnx_term_printf_in_color(JNX_COL_RED,"Error sending long query from jnx_result_process_callback\n");
+				}
+
+				free(encoded_string);
 			}
 		}
 	}
@@ -97,5 +108,5 @@ void jnx_result_process(char *host, char *port,char *job_id, char *sender_ip, ch
 int jnx_result_teardown(void)
 {
 	printf("Called teardown \n");
-	return system("rm -rf output");
+	jnx_file_recursive_delete("output",5);
 }

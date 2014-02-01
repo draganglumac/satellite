@@ -1,0 +1,11 @@
+language: c
+compiler:
+    - gcc
+script: ./configure && make && cd test && ./run_tests
+notifications:
+    email:
+        recipients:
+            - alexsimonjones@gmail.com
+            - dragan.glumac@gmail.com
+        on_sucess: [never]
+        on_failure: [always] # default: always
