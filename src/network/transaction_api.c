@@ -81,6 +81,10 @@ api_command_obj *transaction_api_create_obj(char *query)
 				{
 					cmd_obj->CMD = SYSTEM;
 				}
+				else if(strcmp(raw_command,"KILL") == 0)
+				{
+					cmd_obj->CMD = KILL;
+				}
 				else
 				{
 					cmd_obj->CMD = UNKNOWN;

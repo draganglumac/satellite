@@ -24,15 +24,44 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <string.h>
 #include <jnxc_headers/jnxhash.h>
 #include <jnxc_headers/jnxstring.h>
 #include <jnxc_headers/jnxlist.h>
 #include <jnxc_headers/jnxterm.h>
 #include <jnxc_headers/jnxbase64.h>
 #define TIME_WAIT sleep(5);
+#define TRUE 1
+#define FALSE 0
+#define DISABLE_LOG
 enum processing { WAITING, WORKING };
 jnx_list *queue = NULL;
 pthread_mutex_t lock;
+pthread_mutex_t state_lock;
+pid_t process_pid = 0;
+int killflag = 0;
+typedef int BOOL;
+
+void set_kill_flag(BOOL state)
+{
+	pthread_mutex_lock(&state_lock);
+	if(state == TRUE)
+	{
+		killflag = TRUE;
+	}else if(state == FALSE)
+	{
+		killflag = FALSE;
+	}
+	pthread_mutex_unlock(&state_lock);
+}
+BOOL get_kill_flag()
+{
+	pthread_mutex_lock(&state_lock);
+	BOOL ret = killflag;
+	pthread_mutex_unlock(&state_lock);
+	return ret;
+}
 int lquery(char *hostaddr, char *hostport,size_t data_offset, const char *template, ...)
 {
 	char *query = malloc(data_offset +  strlen(template) + 256);
@@ -61,11 +90,22 @@ int query(char *hostaddr, char* hostport, const char *template, ...)
 }
 void message_intercept(char *message, size_t msg_len, char *ip)
 {
+	printf("message intercept from %s\n",ip);
 	api_command_obj *obj = transaction_api_create_obj(message);
 	if(obj == NULL)
 	{
 		printf("Failed to create api_command_obj\n");
 		return;
+	}
+	if(obj->CMD == KILL)
+	{
+		if(process_pid == 0)
+		{
+			printf("No pid set\n");
+		}		
+		kill(process_pid,SIGKILL);
+		jnx_term_printf_in_color(JNX_COL_RED,"KILLED PROCESS %d\n",process_pid);
+		return; 
 	}
 	if(queue == NULL)
 	{
@@ -159,13 +199,35 @@ void job_control_process_job(api_command_obj *obj)
 				jnx_term_printf_in_color(JNX_COL_GREEN,"jnx_result_setup successful\n");
 			}
 			//setup log
+#ifndef DISABLE_LOG
 			char *stdout_path = job_setup_log();	
-			pid_t process_pid= fork();
+#endif
+			process_pid= fork();
+
 			if(process_pid == 0)
 			{
 				printf("Spawning job in new process\n");
-				int ret = system(obj->DATA);
-				printf("System returned %d\n",ret);
+				
+				time_t t = time(0);
+				char filename[2048];
+				char cwd[1024];
+				if(getcwd(cwd,sizeof(cwd)) != NULL) 
+						{
+						return;
+						}
+				sprintf(filename,"%s/%d.sh",cwd,(int)t);
+				char mode[] = "0777";
+				int i;
+				i = strtol(mode,0,8);
+				printf("Trying to chmod %s\n",filename);
+				if(chmod(filename,i) < 0)
+				{
+					printf("CHMOD FAILED ARGH\n");
+					return;
+				}
+				size_t bytes_written = jnx_file_write(filename,obj->DATA,strlen(obj->DATA));
+				int ret = execl("/bin/bash",filename,(char*)NULL);
+				remove(filename);
 				if(ret > 0 || ret < 0)
 				{
 					exit(EXIT_FAILURE);
@@ -214,14 +276,19 @@ void job_control_process_job(api_command_obj *obj)
 					jnx_result_teardown();
 				}
 				/* send log */
+#ifndef DISABLE_LOG
 				job_teardown_log();
+#endif
 				printf("Sending log\n");
+
+#ifndef DISABLE_LOG
 				job_send_log(stdout_path,obj,target_port,node_ip,node_port);
 				free(stdout_path);
+				remove(stdout_path);
+#endif
 				free(target_port);
 				free(node_ip);
 				free(node_port);
-				remove(stdout_path);
 			}
 			break;
 		case SYSTEM:
@@ -240,7 +307,7 @@ void *job_control_main_loop(void *arg)
 			pthread_mutex_unlock(&lock);
 			if(current_obj != NULL)
 			{
-				printf("Found item in queue\n");
+				printf("Found item in queue with length of %d\n",queue->counter);
 				job_control_process_job(current_obj);
 				transaction_api_delete_obj(current_obj);
 			}
